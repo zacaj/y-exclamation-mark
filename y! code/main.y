@@ -12,12 +12,13 @@ r(int)ret load model from (string)path
 	return 2
 
 print hello worlds
-	timesToPrint = get number from 4
+	get number from 4 into timesToPrint
 	timesPrinted = 0
 	print hello world
 	timesPrinted = timesPrinted + 1
 	if timesPrinted < timesToPrint
 		go to line 17
 
-r(int)ret get number from (int)number
-	ret = 3 + load model from "c:/model.s3d" + number
+get number from (int)number o(int) out
+	out = 3 + load model from "c:/model.s3d" + number
+	
