@@ -20,5 +20,7 @@ print hello worlds
 		go to line 17
 
 get number from (int)number o(int) out
-	out = 3 + load model from "c:/model.s3d" + number
+	out = 3 + load model from path to model + number
 	
+r(string)path path to model
+	return "c:/model.s3d"

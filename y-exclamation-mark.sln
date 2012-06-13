@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "y-exclamation-mark-parser", "y-exclamation-mark-parser\y-exclamation-mark-parser.vcxproj", "{1E63A651-DE31-4D84-9151-20C2832C67C2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{77FC130E-2E8E-4EF5-B994-8B642442467C} = {77FC130E-2E8E-4EF5-B994-8B642442467C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "common\common.vcxproj", "{77FC130E-2E8E-4EF5-B994-8B642442467C}"
 EndProject

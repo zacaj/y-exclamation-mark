@@ -116,11 +116,16 @@ size_t find( string str,string characters,size_t start/*=0*/ )
 size_t find_not( string str,string characters,size_t start/*=0*/ )
 {
 	size_t first=str.size();
-	for(int i=0;i<characters.size();i++)
+	for(int i=start;i<str.size();i++)
 	{
-		size_t pos=str.find_first_not_of(characters[i],start);
-		if(pos<first)
-			first=pos;
+		int j=0;
+		for(;j<characters.size();j++)
+		{
+			if(str[i]==characters[j])
+				break;
+		}
+		if(j==characters.size())
+			return i;
 	}
 	return first;
 }

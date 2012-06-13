@@ -220,7 +220,7 @@ public:
 		lineNumber=lines.size();
 		removeLeadingTrailingSpaces(str);
 		scope=NULL;
-		if(!str.empty() && find_not(str,invisibleCharacers)!=str.size())
+		if(find_not(str,invisibleCharacers)!=str.size())
 		{
 			original=str;
 			size_t tab=original.find(9);
@@ -378,8 +378,4 @@ int main(_In_ int _Argc, char **argv)
 		if(lines[i]->type==Line::CODE || lines[i]->type==Line::CODE_WITH_OPTIONS)
 			lines[i]->splitCommands(lines[i]->processed);
 	}
-
-
-	//tempPath=string("temp\\");
-//	stage1("../y/main.y");
 }
