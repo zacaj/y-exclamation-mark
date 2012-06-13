@@ -220,7 +220,7 @@ public:
 		lineNumber=lines.size();
 		removeLeadingTrailingSpaces(str);
 		scope=NULL;
-		if(!str.empty())
+		if(!str.empty() && find_not(str,invisibleCharacers)!=str.size())
 		{
 			original=str;
 			size_t tab=original.find(9);
@@ -325,8 +325,6 @@ public:
 			{
 				pos=endOfId+1;
 				map<string,vector<Function*>>::iterator fit=identifiers.find(id);
-				/*map<string,Variable*>::iterator vit=scope->variables.find(id);
-				checkError(fit==identifiers.end() || vit==scope->variables.end(),"%s not found",id.c_str());*/
 				checkError(fit==identifiers.end() && !Variable::isValidName(id),"%s not found",id.c_str());
 				if(fit!=identifiers.end())
 				{
@@ -337,7 +335,6 @@ public:
 
 					}
 				}
-
 				if(Variable::isValidName(id))
 				{
 					possibleVariables.insert(id);
@@ -345,163 +342,7 @@ public:
 			}
 			call.push_back(id);
 		}
-		set<Function*> toRemove;
-		for(set<Function*>::iterator pit=possibleFunctions.begin();pit!=possibleFunctions.end();pit++)
-		{
-			if(toRemove.find(*pit)!=toRemove.end())
-				continue;
-			Function *func=*pit;
-			for(int i=0;i<func->name.size();i++)
-			{
-				if(func->name[i]->var==NULL)//todo handle optionals
-				{
-					int posOfFuncIdInCall;
-					vectorFind(call,posOfFuncIdInCall,func->name[i]->text);
-					if(posOfFuncIdInCall==func->name.size())//call does not contain id of function
-					{
-						toRemove.insert(func);
-						continue;
-					}
-					else
-					{
-						if(posOfFuncIdInCall<i)//there arent enough ids in the call to create it arguments
-						{
-							toRemove.insert(func);
-							continue;
-						}
-						for(int j=posOfFuncIdInCall-1;j>=0;j--)//need arguments before first funtion id
-						{
-							set<string>::iterator vit=possibleVariables.find(call[j]);
-							map<string,vector<Function*>>::iterator fit=identifiers.find(id);
-							if(fit!=identifiers.end())
-							{
-								vector<Function*> &functions=fit->second;
-
-							/*if(vit!=possibleVariables.end())//might be a direct argument pass
-							{
-
-							}*/
-						}
-					}
-				}
-			}
-		}
-		for(set<Function*>::iterator it=toRemove.begin();it!=toRemove.end();it++)
-			possibleFunctions.erase(*it);
-		
-		/*for(set<Function*>::iterator it=possibleFunctions.begin();it!=possibleFunctions.end();it++)
-		{
-			Function *func=*it;
-			for(int i=0;i<func->name.size();i++)
-			{
-				if(func->name[i]->optional)
-					continue;//todo
-				
-			}
-		}*/
-		/*
-		ret = 3 + load model from "c:/model.s3d" + number
-		set(ret,0)
-		add(ret,3)
-		call(temp,load)
-		add(ret,temp)
-		add(ret,number)
-
-
-		r(int)success start [with] (int) nArgument [arguments]
-		print hello worlds
-			call(print_hello_worlds)
-		return 0
-			set(success,0)
-			return()
-
-		print hello world 
-		print "Hello world\n"
-			set(tempstring1,"Hello world\n")
-			call(print,tempstring1)
-
-		r(int)ret load model from (string)path
-		print path
-			call(print,path)
-		return 2
-			set(ret,2)
-			return()
-
-		print hello worlds
-		timesToPrint = get number from 4
-			int tempint1=4
-			int timesToPrint = get_number(tempint1)
-		timesPrinted = 0
-			int timesPrinted = 0
-		print hello world
-			print_hello_word
-		timesPrinted = timesPrinted + 1
-			int tempint2=1
-			tempint1 = timesPrinted + tempint2
-			timesPrinted=tempint1
-		if timesPrinted < timesToPrint
-			bool tempbool=timesPrinted < timesToPrint
-			if tempbool
-		go to line 17
-			tempint1=17
-			go_to_line(17
-
-		r(int)ret get number from (int)number
-		ret = 3 + load model from "c:/model.s3d" + number
-		*/
-		/*for(int id=0;id<ids.size();id++)
-		{
-			set<Function*> toRemove;
-			for(set<Function*>::iterator pit=possibleFunctions.begin();pit!=possibleFunctions.end();pit++)
-			{
-				if(toRemove.find(*pit)!=toRemove.end())
-					continue;
-				Function *func=*pit;
-				if(func->name.size()<ids.size())
-				{
-					if(func->arguments.size()==0)
-					{
-						toRemove.insert(func);
-					}
-				}
-				if(id>func->name.size()-1)
-				{
-					//either sub call or not valid
-					{
-						toRemove.insert(func);
-						continue;
-					}	
-				}
-				if(func->name[id]->var!=NULL)//argument is a variable
-				{
-					Variable *var=func->name[id]->var;
-					map<string,Variable*>::iterator vit=scope->variables.find(ids[id]);
-					if(vit==scope->variables.end())//variable not found
-					{
-						if(!(var->mode&Ob(100)))//argument not output
-						{
-							toRemove.insert(func);
-						}
-					}
-					else if(vit->second->type!=var->type)//todo conversion types
-					{
-						toRemove.insert(func);
-					}
-				}
-				else//argument not a variable
-				{
-					if(ids[id]!=func->name[id]->text)
-					{
-						toRemove.insert(func);
-					}
-				}
-			}
-			for(set<Function*>::iterator it=toRemove.begin();it!=toRemove.end();it++)
-				possibleFunctions.erase(*it);
-		}*/
-		
-		checkErrors(possibleFunctions.size()!=1,"Ambiguous call");
-		//commands.push_back(new FunctionCall())
+		NONE;
 	}
 };
 
@@ -512,7 +353,7 @@ int main(_In_ int _Argc, char **argv)
 	types["string"]=new String;
 	types["bool"]=new Bool;
 	int start=time(NULL);
-	FILE *fp=fopen("../y/main.y","r");
+	FILE *fp=fopen("../y! code/main.y","r");
 	functions.push_back(new Function("return (int)r"));
 	functions.push_back(new Function("r(int)sum (int)a + (int) b"));
 	functions.push_back(new Function("o(int)a = (int) b"));
