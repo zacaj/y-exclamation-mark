@@ -213,6 +213,12 @@ struct CallToken
 	string str;
 	set<Function*> possibleFunctions;
 	Variable* possibleVariable;
+	CallToken()
+	{
+		possibilities=0;
+		newVariable=0;
+		possibleVariable=NULL;
+	}
 };
 vector<Line*> lines;
 class Line
@@ -372,14 +378,60 @@ public:
 					token.newVariable=1;
 					token.str=id;
 					token.possibilities++;
-				}//todo output variables
+				}
 			}
 			checkError(token.possibilities==0,"%s not found\n",id.c_str());
 
 			call.push_back(token);
 		}
 		checkErrors(possibleFunctions.size()==0,"no function specified");
+		vector<CallToken> attempt;
+		vector<vector<CallToken>> possibilities;
+		parseCode(call,0,possibleFunctions,possibilities,attempt);
+		for(int i=0;i<possibilities.size();i++)
+		{
+
+		}
+		checkErrors(possibilities.size()==0,"no function specified");
 		NONE;
+	}
+	void parseNextIsNewVariable(vector<CallToken> &call,uint p,set<Function*> &possibleFunctions,vector<vector<CallToken>> &functions,vector<CallToken> attempt)
+	{
+		CallToken token;
+		token.newVariable=1;
+		attempt.push_back(token);
+		parseCode(call,p+1,possibleFunctions,functions,attempt);
+	}
+	void parseNextIsVariable(vector<CallToken> &call,uint p,set<Function*> &possibleFunctions,vector<vector<CallToken>> &functions,vector<CallToken> attempt)
+	{
+		CallToken token;
+		token.possibleVariable=scope->variables.find(call[p].str)->second;
+		attempt.push_back(token);
+		parseCode(call,p+1,possibleFunctions,functions,attempt);
+	}
+	void parseNextIsFunction(vector<CallToken> &call,uint p,set<Function*> &possibleFunctions,vector<vector<CallToken>> &functions,vector<CallToken> attempt,Function *function)
+	{
+		CallToken token;
+		token.possibleFunctions.insert(function);
+		attempt.push_back(token);
+		parseCode(call,p+1,possibleFunctions,functions,attempt);
+	}
+	void parseCode(vector<CallToken> &call,uint p,set<Function*> &possibleFunctions,vector<vector<CallToken>> &functions,vector<CallToken> attempt)
+	{
+		if(p==call.size())
+		{
+			functions.push_back(attempt);
+			return;
+		}
+		else
+		{
+			if(call[p].newVariable)
+				parseNextIsNewVariable(call,p,possibleFunctions,functions,attempt);
+			if(call[p].possibleVariable!=NULL)
+				parseNextIsVariable(call,p,possibleFunctions,functions,attempt);
+			for(set<Function*>::iterator it=possibleFunctions.begin();it!=possibleFunctions.end();it++)
+				parseNextIsFunction(call,p,possibleFunctions,functions,attempt,*it);
+		}
 	}
 };
 
