@@ -343,7 +343,6 @@ public:
 			{
 				pos=endOfId+1;
 				map<string,vector<Function*>>::iterator fit=identifiers.find(id);
-
 				//checkError(fit==identifiers.end() && !Variable::isValidName(id),"%s not found",id.c_str());
 				if(fit!=identifiers.end())
 				{
