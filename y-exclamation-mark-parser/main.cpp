@@ -205,6 +205,15 @@ public:
 	}
 };
 class Line;
+
+struct CallToken
+{
+	uchar possibilities;
+	bool newVariable;
+	string str;
+	set<Function*> possibleFunctions;
+	Variable* possibleVariable;
+};
 vector<Line*> lines;
 class Line
 {
@@ -290,16 +299,9 @@ public:
 	}
 	void splitCommands(string str)
 	{
-		struct CallToken
-		{
-			uchar possibilities;
-			bool newVariable;
-			string str;
-			set<Function*> possibleFunctions;
-			Variable* possibleVariable;
-		};
 		vector<CallToken> call;
 		spos pos=0;
+		set<Function*> possibleFunctions;
 		while(pos<str.size()-1)
 		{
 			while(pos<str.size() && str[pos]==' ') pos++;
@@ -350,6 +352,7 @@ public:
 					for(int i=0;i<functions.size();i++)
 					{
 						token.possibleFunctions.insert(functions[i]);
+						possibleFunctions.insert(functions[i]);
 					}
 					if(token.possibleFunctions.size())
 					{
@@ -375,6 +378,7 @@ public:
 
 			call.push_back(token);
 		}
+		checkErrors(possibleFunctions.size()==0,"no function specified");
 		NONE;
 	}
 };
@@ -395,7 +399,7 @@ int main(_In_ int _Argc, char **argv)
 	functions.push_back(new Function("r(bool)isLess (int)a < (int)b"));
 	functions.push_back(new Function("print (string)str"));
 	functions.push_back(new Function("if (bool)is"));
-	functions.push_back(new Function("go to line (int)lineNumber"));
+	functions.push_back(new Function("goToLine (int)lineNumber"));
 	lineNumber=1;
 	while(!feof(fp))
 	{
