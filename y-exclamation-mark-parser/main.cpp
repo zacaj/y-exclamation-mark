@@ -58,6 +58,9 @@ public:
 			case 'o':
 				mode|=Ob(100);
 				break;
+			case 'd':
+				mode|=Ob(1000);
+				break;
 			}
 		}
 		size_t endOfType=str.find(')',pos);
@@ -287,10 +290,16 @@ public:
 	}
 	void splitCommands(string str)
 	{
-		vector<string> call;
+		struct CallToken
+		{
+			uchar possibilities;
+			bool newVariable;
+			string str;
+			set<Function*> possibleFunctions;
+			Variable* possibleVariable;
+		};
+		vector<CallToken> call;
 		spos pos=0;
-		set<Function*> possibleFunctions;
-		set<string> possibleVariables;
 		while(pos<str.size()-1)
 		{
 			while(pos<str.size() && str[pos]==' ') pos++;
@@ -299,6 +308,10 @@ public:
 				endOfId=str.size();
 			string id=str.substr(pos,endOfId-pos);
 			removeLeadingTrailingSpaces(id);
+			CallToken token;
+			token.possibilities=0;
+			token.newVariable=0;
+			token.possibleVariable=NULL;
 			if(id[0]=='\"')
 			{
 				spos startOfString=pos;
@@ -311,36 +324,56 @@ public:
 				checkErrors(pos==str.size(),"No closing \" found ");
 				pos++;
 				id=scope->getTempName("string");
-				scope->variables[id]=new Variable(id,getType("string"));
-				possibleVariables.insert(id);
+				//scope->variables[id]=new Variable(id,getType("string"));
+				token.possibleVariable=new Variable(id,getType("string"));
+				token.possibleVariable->mode|=Ob(10000);
+				token.str=id;
+				token.possibilities++;
 			}
 			else if(isdigit(id[0]))//todo variables that start with numbers?
 			{
 				while(pos<str.size() && isdigit(str[pos++]));
 				id=scope->getTempName("int");
-				scope->variables[id]=new Variable(id,getType("int"));
-				possibleVariables.insert(id);
+				//scope->variables[id]=new Variable(id,getType("int"));
+				token.possibleVariable=new Variable(id,getType("int"));
+				token.possibleVariable->mode|=Ob(10000);
+				token.possibilities++;
 			}
 			else
 			{
 				pos=endOfId+1;
 				map<string,vector<Function*>>::iterator fit=identifiers.find(id);
-				checkError(fit==identifiers.end() && !Variable::isValidName(id),"%s not found",id.c_str());
+				//checkError(fit==identifiers.end() && !Variable::isValidName(id),"%s not found",id.c_str());
 				if(fit!=identifiers.end())
 				{
 					vector<Function*> &functions=fit->second;
 					for(int i=0;i<functions.size();i++)
 					{
-						possibleFunctions.insert(functions[i]);
-
+						token.possibleFunctions.insert(functions[i]);
+					}
+					if(token.possibleFunctions.size())
+					{
+						token.str=id;
+						token.possibilities++;
 					}
 				}
-				if(Variable::isValidName(id))
+				map<string,Variable*>::iterator vit=scope->variables.find(id);
+				if(vit!=scope->variables.end())
 				{
-					possibleVariables.insert(id);
+					token.str=id;
+					token.possibleVariable=(vit->second);
+					token.possibilities++;
 				}
+				else if(Variable::isValidName(id))
+				{
+					token.newVariable=1;
+					token.str=id;
+					token.possibilities++;
+				}//todo output variables
 			}
-			call.push_back(id);
+			checkError(token.possibilities==0,"%s not found\n",id.c_str());
+
+			call.push_back(token);
 		}
 		NONE;
 	}
@@ -355,6 +388,7 @@ int main(_In_ int _Argc, char **argv)
 	int start=time(NULL);
 	FILE *fp=fopen("../y! code/main.y","r");
 	functions.push_back(new Function("return (int)r"));
+	functions.push_back(new Function("return (string)r"));
 	functions.push_back(new Function("r(int)sum (int)a + (int) b"));
 	functions.push_back(new Function("o(int)a = (int) b"));
 	functions.push_back(new Function("r(bool)isLess (int)a < (int)b"));
