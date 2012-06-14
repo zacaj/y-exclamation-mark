@@ -381,6 +381,7 @@ public:
 
 int main(_In_ int _Argc, char **argv)
 {
+
 	initCommon();
 	types["int"]=new Int;
 	types["string"]=new String;
