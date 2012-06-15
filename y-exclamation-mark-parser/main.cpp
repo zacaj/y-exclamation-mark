@@ -390,7 +390,38 @@ public:
 		parseCode(call,0,possibleFunctions,possibilities,attempt);
 		for(int i=0;i<possibilities.size();i++)
 		{
+			int j=0;
+			for(int j=0;j<possibilities[i].size();j++)//find first function token
+				if(possibilities[i][j].possibleFunctions.size())
+					break;
+			if(j==possibilities[i].size())//no function tokens
+				goto fail;
+			Function *function=possibilities[i][j].possibleFunctions.begin()->second;
+			for(int k=j-1;k>=0;k--)
+			{
+				/*if(possibilities[i][k].possibleFunctions.size())
+				{
+					if(possibilities[i][k].possibleFunctions.begin()!=possibilities[i][j].possibleFunctions.begin())
+					{
 
+					}
+				}*/
+				//if
+			}
+			/*for(int j=0;j<possibilities[i].size();j++)
+			{
+				if(possibilities[i][j].newVariable)
+				{
+					int k=j-1;
+					for(;k>=0;k--)
+					{
+
+					}
+				}
+			}*/
+			continue;//skip fail if got to here
+fail:
+			possibilities.erase(possibilities.begin()+i--);
 		}
 		checkErrors(possibilities.size()==0,"no function specified");
 		NONE;
