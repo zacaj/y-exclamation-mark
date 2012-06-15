@@ -396,7 +396,7 @@ public:
 					break;
 			if(j==possibilities[i].size())//no function tokens
 				goto fail;
-			Function *function=possibilities[i][j].possibleFunctions.begin()->second;
+			Function *function=*possibilities[i][j].possibleFunctions.begin();
 			for(int k=j-1;k>=0;k--)
 			{
 				/*if(possibilities[i][k].possibleFunctions.size())
