@@ -308,7 +308,7 @@ public:
 		vector<CallToken> call;
 		spos pos=0;
 		set<Function*> possibleFunctions;
-		while(pos<str.size()-1)
+		while(pos<str.size())
 		{
 			while(pos<str.size() && str[pos]==' ') pos++;
 			spos endOfId=str.find(' ',pos);
@@ -337,6 +337,7 @@ public:
 				token.possibleVariable->mode|=Ob(10000);
 				token.str=id;
 				token.possibilities++;
+				scope->variables[token.str]=token.possibleVariable;
 			}
 			else if(isdigit(id[0]))//todo variables that start with numbers?
 			{
@@ -346,6 +347,8 @@ public:
 				token.possibleVariable=new Variable(id,getType("int"));
 				token.possibleVariable->mode|=Ob(10000);
 				token.possibilities++;
+				token.str=id;
+				scope->variables[token.str]=token.possibleVariable;
 			}
 			else
 			{
@@ -387,67 +390,91 @@ public:
 		checkErrors(possibleFunctions.size()==0,"no function specified");
 		vector<CallToken> attempt;
 		vector<vector<CallToken>> possibilities;
-		parseCode(call,0,possibleFunctions,possibilities,attempt);
+		parseCode(call,0,possibilities,attempt);
 		for(int i=0;i<possibilities.size();i++)
 		{
 			int j=0;
-			for(int j=0;j<possibilities[i].size();j++)//find first function token
+			int lastFunctionStart=0;
+			int lastFunctionToken=-1;//so start on 0
+			Function *lastFunc=NULL;
+			while(1)
+			{
+				for(j=lastFunctionToken+1;j<possibilities[i].size();j++)//find first function token
+				{
+					if(possibilities[i][j].possibleFunctions.size())
+						break;
+				}
+				if(j==possibilities[i].size())//no more function tokens
+					break;
+				Function *func=*possibilities[i][j].possibleFunctions.begin();
+				if(func!=lastFunc && lastFunc!=NULL)
+				{
+					int newFunctionTokenIndex=0;
+					for(;newFunctionTokenIndex<func->name.size();newFunctionTokenIndex++)
+						if(func->name[newFunctionTokenIndex]->text==possibilities[i][j].str)
+							break;
+					checkErrors(newFunctionTokenIndex==func->name.size(),"internal error 2");
+					for(int k=lastFunctionToken;k<lastFunctionToken+newFunctionTokenIndex;k++)
+					{
+						if(func->name[k]->var==NULL)
+							goto fail;
+						if(func->name[k]->var->type!=possibilities[i][k+lastFunctionStart].possibleVariable->type)
+							goto fail;
+					}
+
+					lastFunctionStart=j-newFunctionTokenIndex;
+					lastFunctionToken=newFunctionTokenIndex;
+				}
+				if(func->name[j-lastFunctionStart]->text!=possibilities[i][j].str)
+					goto fail;
+				for(int k=0;k<j-lastFunctionStart;k++)
+				{
+					if(func->name[k]->var==NULL)
+						goto fail;
+					if(func->name[k]->var->type!=possibilities[i][k+lastFunctionStart].possibleVariable->type)
+						goto fail;
+				}
+				lastFunctionToken=j;
+				lastFunc=func;
+			}
+			for(j=0;j<possibilities[i].size();j++)
 				if(possibilities[i][j].possibleFunctions.size())
 					break;
-			if(j==possibilities[i].size())//no function tokens
+			if(j==possibilities[i].size())
 				goto fail;
-			Function *function=*possibilities[i][j].possibleFunctions.begin();
-			for(int k=j-1;k>=0;k--)
-			{
-				/*if(possibilities[i][k].possibleFunctions.size())
-				{
-					if(possibilities[i][k].possibleFunctions.begin()!=possibilities[i][j].possibleFunctions.begin())
-					{
-
-					}
-				}*/
-				//if
-			}
-			/*for(int j=0;j<possibilities[i].size();j++)
-			{
-				if(possibilities[i][j].newVariable)
-				{
-					int k=j-1;
-					for(;k>=0;k--)
-					{
-
-					}
-				}
-			}*/
 			continue;//skip fail if got to here
+
 fail:
 			possibilities.erase(possibilities.begin()+i--);
 		}
 		checkErrors(possibilities.size()==0,"no function specified");
 		NONE;
 	}
-	void parseNextIsNewVariable(vector<CallToken> &call,uint p,set<Function*> &possibleFunctions,vector<vector<CallToken>> &functions,vector<CallToken> attempt)
+	void parseNextIsNewVariable(vector<CallToken> &call,uint p,vector<vector<CallToken>> &functions,vector<CallToken> attempt)
 	{
 		CallToken token;
 		token.newVariable=1;
+		token.str=call[p].str;
 		attempt.push_back(token);
-		parseCode(call,p+1,possibleFunctions,functions,attempt);
+		parseCode(call,p+1,functions,attempt);
 	}
-	void parseNextIsVariable(vector<CallToken> &call,uint p,set<Function*> &possibleFunctions,vector<vector<CallToken>> &functions,vector<CallToken> attempt)
+	void parseNextIsVariable(vector<CallToken> &call,uint p,vector<vector<CallToken>> &functions,vector<CallToken> attempt)
 	{
 		CallToken token;
 		token.possibleVariable=scope->variables.find(call[p].str)->second;
+		token.str=call[p].str;
 		attempt.push_back(token);
-		parseCode(call,p+1,possibleFunctions,functions,attempt);
+		parseCode(call,p+1,functions,attempt);
 	}
-	void parseNextIsFunction(vector<CallToken> &call,uint p,set<Function*> &possibleFunctions,vector<vector<CallToken>> &functions,vector<CallToken> attempt,Function *function)
+	void parseNextIsFunction(vector<CallToken> &call,uint p,vector<vector<CallToken>> &functions,vector<CallToken> attempt,Function *function)
 	{
 		CallToken token;
 		token.possibleFunctions.insert(function);
+		token.str=call[p].str;
 		attempt.push_back(token);
-		parseCode(call,p+1,possibleFunctions,functions,attempt);
+		parseCode(call,p+1,functions,attempt);
 	}
-	void parseCode(vector<CallToken> &call,uint p,set<Function*> &possibleFunctions,vector<vector<CallToken>> &functions,vector<CallToken> attempt)
+	void parseCode(vector<CallToken> &call,uint p,vector<vector<CallToken>> &functions,vector<CallToken> attempt)
 	{
 		if(p==call.size())
 		{
@@ -457,11 +484,12 @@ fail:
 		else
 		{
 			if(call[p].newVariable)
-				parseNextIsNewVariable(call,p,possibleFunctions,functions,attempt);
+				parseNextIsNewVariable(call,p,functions,attempt);
 			if(call[p].possibleVariable!=NULL)
-				parseNextIsVariable(call,p,possibleFunctions,functions,attempt);
-			for(set<Function*>::iterator it=possibleFunctions.begin();it!=possibleFunctions.end();it++)
-				parseNextIsFunction(call,p,possibleFunctions,functions,attempt,*it);
+				parseNextIsVariable(call,p,functions,attempt);
+
+			for(set<Function*>::iterator it=call[p].possibleFunctions.begin();it!=call[p].possibleFunctions.end();it++)
+				parseNextIsFunction(call,p,functions,attempt,*it);
 		}
 	}
 };
