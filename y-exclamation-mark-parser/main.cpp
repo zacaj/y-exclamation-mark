@@ -307,7 +307,7 @@ public:
 	{
 		vector<CallToken> call;
 		spos pos=0;
-		set<Function*> possibleFunctions;
+		//set<Function*> possibleFunctions;
 		while(pos<str.size())
 		{
 			while(pos<str.size() && str[pos]==' ') pos++;
@@ -361,7 +361,7 @@ public:
 					for(int i=0;i<functions.size();i++)
 					{
 						token.possibleFunctions.insert(functions[i]);
-						possibleFunctions.insert(functions[i]);
+						//possibleFunctions.insert(functions[i]);
 					}
 					if(token.possibleFunctions.size())
 					{
@@ -387,18 +387,20 @@ public:
 
 			call.push_back(token);
 		}
-		checkErrors(possibleFunctions.size()==0,"no function specified");
+		//checkErrors(possibleFunctions.size()==0,"no function specified");
 		vector<CallToken> attempt;
 		vector<vector<CallToken>> possibilities;
 		parseCode(call,0,possibilities,attempt);
+		vector<vector<FunctionCall*>> possibleCalls;
 		for(int i=0;i<possibilities.size();i++)
 		{
-			int j=0;
+#define FAIL(reason) { failReason=reason; goto fail; }
+			/*int j=0;
 			int lastFunctionStart=0;//global
 			int lastFunctionToken=-1;//so start on 0      global
 			Function *lastFunc=NULL;
 			string failReason;
-#define FAIL(reason) { failReason=reason; goto fail; }
+			vector<FunctionCall*> functionCall;
 			while(1)
 			{
 				for(j=lastFunctionToken+1;j<possibilities[i].size();j++)//find next function token
@@ -481,7 +483,36 @@ public:
 					if(lastFunc->name[j-lastFunctionStart]->var->type!=possibilities[i][j].possibleVariable->type)
 						FAIL("453 wrong type")
 				}
+			}*/
+
+			while(1)
+			{
+				int j;
+				for(j=0;j<possibilities[i].size();j++)//go thru all ids
+				{
+					if(possibilities[i][j].possibleFunctions.size())//if its a funcion id
+					{
+						Function *func=*possibilities[i][j].possibleFunctions.begin();
+						//find the same id in the function
+							int functionTokenIndexInFunction=0;
+							for(;functionTokenIndexInFunction<func->name.size())
+							{
+								if(func->name[functionTokenIndexInFunction]->text==possibilities[i][j].str)
+									break;
+							}
+							checkErrors(functionTokenIndexInFunction==func->name.size(),"internal error 1");
+
+						int k;
+						for(k=0;k<func->name.size();k++)
+						{
+
+						}
+					}
+				}
+				if(j==possibilities[i].size())
+					FAIL("no independent functions");
 			}
+
 			continue;//skip fail if got to here
 
 fail:
