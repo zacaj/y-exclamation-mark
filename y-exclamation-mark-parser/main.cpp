@@ -505,7 +505,10 @@ public:
 						int k;
 						for(k=0;k<func->name.size();k++)
 						{
-
+							if(func->name[k]->var!=NULL)
+							{
+								if(poss)
+							}
 						}
 					}
 				}
