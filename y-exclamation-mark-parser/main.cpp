@@ -394,12 +394,14 @@ public:
 		for(int i=0;i<possibilities.size();i++)
 		{
 			int j=0;
-			int lastFunctionStart=0;
-			int lastFunctionToken=-1;//so start on 0
+			int lastFunctionStart=0;//global
+			int lastFunctionToken=-1;//so start on 0      global
 			Function *lastFunc=NULL;
+			string failReason;
+#define FAIL(reason) { failReason=reason; goto fail; }
 			while(1)
 			{
-				for(j=lastFunctionToken+1;j<possibilities[i].size();j++)//find first function token
+				for(j=lastFunctionToken+1;j<possibilities[i].size();j++)//find next function token
 				{
 					if(possibilities[i][j].possibleFunctions.size())
 						break;
@@ -407,32 +409,52 @@ public:
 				if(j==possibilities[i].size())//no more function tokens
 					break;
 				Function *func=*possibilities[i][j].possibleFunctions.begin();
-				if(func!=lastFunc && lastFunc!=NULL)
+				if((func!=lastFunc && lastFunc!=NULL))
 				{
-					int newFunctionTokenIndex=0;
+					int newFunctionTokenIndex=0;//local
 					for(;newFunctionTokenIndex<func->name.size();newFunctionTokenIndex++)
 						if(func->name[newFunctionTokenIndex]->text==possibilities[i][j].str)
 							break;
 					checkErrors(newFunctionTokenIndex==func->name.size(),"internal error 2");
-					for(int k=lastFunctionToken;k<lastFunctionToken+newFunctionTokenIndex;k++)
+					for(int k=0;k<newFunctionTokenIndex;k++)
 					{
 						if(func->name[k]->var==NULL)
-							goto fail;
-						if(func->name[k]->var->type!=possibilities[i][k+lastFunctionStart].possibleVariable->type)
-							goto fail;
+							FAIL("421 not a variable");
+						if(possibilities[i][k+lastFunctionToken+1].newVariable)
+						{
+							if(!func->name[k]->var->mode&Ob(100))//output
+								FAIL("not an output this position")
+							else
+								possibilities[i][k+lastFunctionToken+1].possibleVariable=new Variable(possibilities[i][k+lastFunctionToken+1].str,func->name[k]->var->type);
+						}
+						else
+						{
+							if(func->name[k]->var->type!=possibilities[i][k+lastFunctionToken+1].possibleVariable->type)
+								FAIL("423 wrong type");
+						}
 					}
 
 					lastFunctionStart=j-newFunctionTokenIndex;
-					lastFunctionToken=newFunctionTokenIndex;
+					lastFunctionToken=newFunctionTokenIndex+lastFunctionStart;
 				}
 				if(func->name[j-lastFunctionStart]->text!=possibilities[i][j].str)
-					goto fail;
-				for(int k=0;k<j-lastFunctionStart;k++)
+					FAIL("431 token not match");
+				for(int k=lastFunctionToken+1;k<j;k++)//check between last token (or start) and this one
 				{
-					if(func->name[k]->var==NULL)
-						goto fail;
-					if(func->name[k]->var->type!=possibilities[i][k+lastFunctionStart].possibleVariable->type)
-						goto fail;
+					if(func->name[k-lastFunctionStart]->var==NULL)
+						FAIL("431 not a variable");
+					if(possibilities[i][k].newVariable)
+					{
+						if(!func->name[k-lastFunctionStart]->var->mode&Ob(100))//output
+							FAIL("not an output this position")
+						else
+							possibilities[i][k].possibleVariable=new Variable(possibilities[i][k].str,func->name[k-lastFunctionStart]->var->type);
+					}
+					else
+					{
+						if(func->name[k-lastFunctionStart]->var->type!=possibilities[i][k].possibleVariable->type)
+							FAIL("433 wrong type");
+					}
 				}
 				lastFunctionToken=j;
 				lastFunc=func;
@@ -441,13 +463,38 @@ public:
 				if(possibilities[i][j].possibleFunctions.size())
 					break;
 			if(j==possibilities[i].size())
-				goto fail;
+				FAIL("no function tokens")
+			checkErrors(lastFunc==NULL,"internal error 3");
+			for(j=lastFunctionToken+1;j<possibilities[i].size();j++)//find first function token
+			{
+				if(lastFunc->name[j-lastFunctionStart]->var==NULL)
+					FAIL("451 not a variable")
+				if(possibilities[i][j].newVariable)
+				{
+					if(!lastFunc->name[j-lastFunctionStart]->var->mode&Ob(100))//output
+						FAIL("not an output this position")
+					else
+						possibilities[i][j].possibleVariable=new Variable(possibilities[i][j].str,lastFunc->name[j-lastFunctionStart]->var->type);
+				}
+				else
+				{
+					if(lastFunc->name[j-lastFunctionStart]->var->type!=possibilities[i][j].possibleVariable->type)
+						FAIL("453 wrong type")
+				}
+			}
 			continue;//skip fail if got to here
 
 fail:
 			possibilities.erase(possibilities.begin()+i--);
 		}
 		checkErrors(possibilities.size()==0,"no function specified");
+		checkErrors(possibilities.size()>=2,"ambiguous call");
+		for(int i=0;i<possibilities[0].size();i++)
+		{
+			if(possibilities[0][i].newVariable)
+				scope->variables[possibilities[0][i].str]=possibilities[0][i].possibleVariable;
+		}
+		debug("Processed line %i\n",originalLineNumber);
 		NONE;
 	}
 	void parseNextIsNewVariable(vector<CallToken> &call,uint p,vector<vector<CallToken>> &functions,vector<CallToken> attempt)
