@@ -87,15 +87,16 @@ int main(_In_ int _Argc, char **argv)
 		if(lines[i]->type==Line::CODE || lines[i]->type==Line::CODE_WITH_OPTIONS)
 			lines[i]->splitCommands(lines[i]->processed);
 	}
-	vector<Function*> &mainCandidates=identifiers.find("start");
+	vector<Function*> &mainCandidates=identifiers.find("start")->second;
 	for(int i=0;i<mainCandidates.size();i++)
 	{
-		if(mainCandidates[i]->name.size()==1 && mainCandidates[i]->arguments.size()==1 && mainCandidates[i]->arguments[0]->type==getType("int")
+		if(mainCandidates[i]->name.size()==2 && mainCandidates[i]->arguments.size()==1 && mainCandidates[i]->arguments[0]->type==getType("int")
 			&& mainCandidates[i]->arguments[0]->name=="nArgument")//good enough
 			startFunction=mainCandidates[i];
 	}
 	checkErrors(startFunction==NULL,"r(int) start (int)nArgument not found\n");
-	fp=fopen("../y! code/main.yif","w");
+	fp=fopen("../y! code/main.ll","w");
+	//fp=fopen("../y! code/main.yif","w");
 	//debugIntermediateForm(fp);
 	printLlvmIrCode(fp);
 	fclose(fp);
@@ -549,7 +550,8 @@ Function::Function( string str )
 			}
 		}
 		name.push_back(new Identifier(str,pos));
-		identifiers[name.back()->text].push_back(this);
+		if(name.back()->var==NULL)
+			identifiers[name.back()->text].push_back(this);
 		minIdentifiers+=!name.back()->optional;
 		if(name.back()->var!=NULL)
 			arguments.push_back(name.back()->var);

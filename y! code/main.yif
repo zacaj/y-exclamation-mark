@@ -1,49 +1,65 @@
-NORETURN return ( int r )
-
-NORETURN return ( string r )
-
-int sum + ( int a, int b )
-
-int product * ( int a, int b )
-
-NORETURN = ( int a, int b )
-
-bool isLess < ( int a, int b )
-
-NORETURN print ( string str )
-
-NORETURN goToLine ( int lineNumber )
-
-NORETURN if ( bool is )
-
-int success start ( int nArgument )
-	printHelloWorlds ( )
-	return ( t_int41_0 )
-
-NORETURN printHelloWorld (  )
-	print ( t_string67 )
-
-int ret loadModelFrom ( string path )
-	print ( path )
-	return ( t_int34_2 )
-
-NORETURN printHelloWorlds (  )
-	getNumberFromInto ( t_int0_4, timesToPrint )
-	= ( timesPrinted, t_int69_0 )
-	printHelloWorld ( )
-	RET t_int78r-int-sum- :=  +(timesPrinted, t_int24_1 )
-	= ( timesPrinted, t_int78r-int-sum- )
-	RET t_bool62r-bool-isLess- :=  <(timesPrinted, timesToPrint )
-	if ( t_bool62r-bool-isLess- )
-		goToLine ( t_int64_17 )
-
-NORETURN getNumberFromInto ( int number, int out )
-	RET t_string81r-string-path-pathToModel :=  pathToModel()
-	RET t_int27r-int-ret-loadModelFrom- :=  loadModelFrom(t_string81r-string-path-pathToModel )
-	RET t_int61r-int-product- :=  *(t_int27r-int-ret-loadModelFrom-, number )
-	RET t_int91r-int-sum- :=  +(t_int5_3, t_int61r-int-product- )
-	= ( out, t_int91r-int-sum- )
-
-string path pathToModel (  )
-	return ( t_string95 )
-
+define fastcc void @returnint ( i32 r)
+{
+ret void;
+}define fastcc void @returnstring ( i8* r)
+{
+ret void;
+}define fastcc i32 @int+int ( i32 a, i32 b)
+{
+ret i32 sum;
+}define fastcc i32 @int*int ( i32 a, i32 b)
+{
+ret i32 product;
+}define fastcc void @int=int ( i32 a, i32 b)
+{
+ret void;
+}define fastcc i1 @int<int ( i32 a, i32 b)
+{
+ret i1 isLess;
+}define fastcc void @printstring ( i8* str)
+{
+ret void;
+}define fastcc void @goToLineint ( i32 lineNumber)
+{
+ret void;
+}define fastcc void @ifbool ( i1 is)
+{
+ret void;
+}define fastcc i32 @startint ( i32 nArgument)
+{
+	call void @printHelloWorlds();
+	call void @returnint(i32 %t_int41_0);
+ret i32 success;
+}define fastcc void @printHelloWorld ( )
+{
+	call void @printstring(i8* %t_string67);
+ret void;
+}define fastcc i32 @loadModelFromstring ( i8* path)
+{
+	call void @printstring(i8* %path);
+	call void @returnint(i32 %t_int34_2);
+ret i32 ret;
+}define fastcc void @printHelloWorlds ( )
+{
+	call void @getNumberFromintintoint(i32 %t_int0_4i32 %timesToPrint);
+	call void @int=int(i32 %timesPrintedi32 %t_int69_0);
+	call void @printHelloWorld();
+	%t_int78r-int-sum- = call i32 @int+int(i32 %timesPrintedi32 %t_int24_1);
+	call void @int=int(i32 %timesPrintedi32 %t_int78r-int-sum-);
+	%t_bool62r-bool-isLess- = call i1 @int<int(i32 %timesPrintedi32 %timesToPrint);
+	call void @ifbool(i1 %t_bool62r-bool-isLess-);
+		call void @goToLineint(i32 %t_int64_17);
+ret void;
+}define fastcc void @getNumberFromintintoint ( i32 number, i32 out)
+{
+	%t_string81r-string-path-pathToModel = call i8* @pathToModel();
+	%t_int27r-int-ret-loadModelFrom- = call i32 @loadModelFromstring(i8* %t_string81r-string-path-pathToModel);
+	%t_int61r-int-product- = call i32 @int*int(i32 %t_int27r-int-ret-loadModelFrom-i32 %number);
+	%t_int91r-int-sum- = call i32 @int+int(i32 %t_int5_3i32 %t_int61r-int-product-);
+	call void @int=int(i32 %outi32 %t_int91r-int-sum-);
+ret void;
+}define fastcc i8* @pathToModel ( )
+{
+	call void @returnstring(i8* %t_string95);
+ret i8* path;
+}

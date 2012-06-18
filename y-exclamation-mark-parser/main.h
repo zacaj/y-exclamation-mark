@@ -53,6 +53,15 @@ public:
 		}
 		return 1;
 	}
+	string llvmName()
+	{
+		string ret=name;
+		//return ret;
+		for(int i=0;i<ret.size();i++)
+			if(!isalnum(ret[i]))
+				ret.erase(i--,1);
+		return ret;
+	}
 };
 class Identifier
 {
@@ -97,6 +106,7 @@ public:
 		ret=NULL;
 		function=NULL;
 	}
+	string llvmCall();
 };
 
 class Scope
