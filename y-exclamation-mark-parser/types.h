@@ -14,8 +14,10 @@ public:
 class Int:public Type
 {
 public:
+	int value;
 	Int()
 	{
+		value=0;
 		name="int";
 	}
 
@@ -24,6 +26,7 @@ public:
 class String:public Type
 {
 public:
+	string value;
 	String()
 	{
 		name="string";
@@ -33,8 +36,10 @@ public:
 class Bool:public Type
 {
 public:
+	bool value;
 	Bool()
 	{
+		value=0;
 		name="bool";
 	}
 };

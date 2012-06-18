@@ -36,6 +36,7 @@ public:
 	string name;
 	Type *type;
 	uchar mode;
+	Type *constant;
 	Variable(string _name,Type *_type)
 		:name(_name),
 		type(_type),
@@ -83,6 +84,7 @@ public:
 		:ret(NULL),precedence(0.0){}
 	Function(string str);
 };
+extern Function *startFunction;
 class FunctionCall
 {
 public:

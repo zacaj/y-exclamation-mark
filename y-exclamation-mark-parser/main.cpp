@@ -40,11 +40,12 @@ Function *currentFunction=NULL;
 
 
 class Line;
-
+Function *startFunction=NULL;
 vector<Line*> lines;
 
 
 void debugIntermediateForm(FILE *fp);
+void printLlvmIrCode(FILE *fp);
 
 int main(_In_ int _Argc, char **argv)
 {
@@ -86,8 +87,17 @@ int main(_In_ int _Argc, char **argv)
 		if(lines[i]->type==Line::CODE || lines[i]->type==Line::CODE_WITH_OPTIONS)
 			lines[i]->splitCommands(lines[i]->processed);
 	}
+	vector<Function*> &mainCandidates=identifiers.find("start");
+	for(int i=0;i<mainCandidates.size();i++)
+	{
+		if(mainCandidates[i]->name.size()==1 && mainCandidates[i]->arguments.size()==1 && mainCandidates[i]->arguments[0]->type==getType("int")
+			&& mainCandidates[i]->arguments[0]->name=="nArgument")//good enough
+			startFunction=mainCandidates[i];
+	}
+	checkErrors(startFunction==NULL,"r(int) start (int)nArgument not found\n");
 	fp=fopen("../y! code/main.yif","w");
-	debugIntermediateForm(fp);
+	//debugIntermediateForm(fp);
+	printLlvmIrCode(fp);
 	fclose(fp);
 }
 
@@ -207,6 +217,9 @@ void Line::splitCommands( string str )
 			pos++;
 			id=scope->getTempName("string");
 			token.possibleVariable=new Variable(id,getType("string"));
+			String *cString=new String;
+			cString->value=stringContent;
+			token.possibleVariable->constant=cString;
 			token.possibleVariable->mode|=Ob(10000);
 			token.str=id;
 			token.possibilities++;
@@ -219,6 +232,9 @@ void Line::splitCommands( string str )
 				num.push_back(str[pos++]);
 			id=scope->getTempName("int","_"+num);
 			token.possibleVariable=new Variable(id,getType("int"));
+			Int *cInt=new Int();
+			cInt->value=atoi(num.c_str());
+			token.possibleVariable->constant=cInt;
 			token.possibleVariable->mode|=Ob(10000);
 			token.possibilities++;
 			token.str=id;
@@ -574,6 +590,7 @@ Identifier::Identifier( string str,spos &pos )
 
 Variable::Variable( string str,size_t &pos )
 {
+	constant=NULL;
 	mode=0;
 	spos startPos=pos;
 	pos=str.find('(',pos);
