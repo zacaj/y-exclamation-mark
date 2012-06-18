@@ -43,9 +43,10 @@ public:
 	Variable(string str,size_t &pos)
 	{
 		mode=0;
+		spos startPos=pos;
 		pos=str.find('(',pos);
 		checkErrors(pos==string::npos,"Expected ( in variable declaration");
-		for(int i=0;i<pos;i++)
+		for(int i=startPos;i<pos;i++)
 		{
 			switch(str[i])
 			{
@@ -141,9 +142,10 @@ public:
 	vector<Variable*> arguments;
 	vector<Identifier*> name;
 	uint minIdentifiers;
+	float precedence;
 
 	Function()
-		:ret(NULL){}
+		:ret(NULL),precedence(0){}
 	Function(string str)
 		:original(str)
 	{
@@ -157,6 +159,19 @@ public:
 			ret=NULL;
 		while(pos<str.size()-1)
 		{
+			while(str[pos]==' ') pos++;
+			if(str[pos]=='p')
+			{
+				spos pos2=find_not(str," ",pos+1);
+				if(str[pos2]=='=')
+				{
+					pos2=find_not(str," ",pos2+1);
+					pos=find_not(str,"1234567890-.",pos2+1);
+					string num=str.substr(pos2,pos-pos2+1);
+					sscanf(num.c_str(),"%f",&precedence);
+					continue;
+				}
+			}
 			name.push_back(new Identifier(str,pos));
 			identifiers[name.back()->text].push_back(this);
 			minIdentifiers+=!name.back()->optional;
@@ -213,12 +228,18 @@ struct CallToken
 	string str;
 	set<Function*> possibleFunctions;
 	Variable* possibleVariable;
+	Type *type;
 	CallToken()
 	{
 		possibilities=0;
 		newVariable=0;
 		possibleVariable=NULL;
 	}
+};
+struct IndependantFunction 
+{
+	Function *func;
+	int start,end;
 };
 vector<Line*> lines;
 class Line
@@ -395,6 +416,7 @@ public:
 		for(int i=0;i<possibilities.size();i++)
 		{
 #define FAIL(reason) { failReason=reason; goto fail; }
+			string failReason;
 			/*int j=0;
 			int lastFunctionStart=0;//global
 			int lastFunctionToken=-1;//so start on 0      global
@@ -485,7 +507,9 @@ public:
 				}
 			}*/
 
-			while(1)
+			//while(1)
+
+			vector<IndependantFunction> independantFunctionPossibilities;
 			{
 				int j;
 				for(j=0;j<possibilities[i].size();j++)//go thru all ids
@@ -495,7 +519,7 @@ public:
 						Function *func=*possibilities[i][j].possibleFunctions.begin();
 						//find the same id in the function
 							int functionTokenIndexInFunction=0;
-							for(;functionTokenIndexInFunction<func->name.size())
+							for(;functionTokenIndexInFunction<func->name.size();functionTokenIndexInFunction++)
 							{
 								if(func->name[functionTokenIndexInFunction]->text==possibilities[i][j].str)
 									break;
@@ -507,26 +531,74 @@ public:
 						{
 							if(func->name[k]->var!=NULL)
 							{
-								if(poss)
+								if(possibilities[i][j-functionTokenIndexInFunction+k].newVariable)//output
+								{
+									if(!func->name[k]->var->mode&Ob(100))
+										break;
+									else
+										possibilities[i][j-functionTokenIndexInFunction+k].type=func->name[k]->var->type;
+								}
+								else
+								{
+									if(possibilities[i][j-functionTokenIndexInFunction+k].possibleVariable==NULL)
+										break;
+									if(possibilities[i][j-functionTokenIndexInFunction+k].possibleVariable->type!=func->name[k]->var->type)
+										break;
+								}
 							}
+							else
+							{
+								if(!possibilities[i][j-functionTokenIndexInFunction+k].possibleFunctions.size() || *possibilities[i][j-functionTokenIndexInFunction+k].possibleFunctions.begin()!=func ||func->name[k]->text!=possibilities[i][j-functionTokenIndexInFunction+k].str)
+								break;
+							}
+						}
+						if(k==func->name.size())//match
+						{
+							IndependantFunction indf;
+							indf.func=func;
+							indf.start=j-functionTokenIndexInFunction;
+							indf.end=j-functionTokenIndexInFunction+func->name.size();
+							independantFunctionPossibilities.push_back(indf);//todo search for duplicates
 						}
 					}
 				}
-				if(j==possibilities[i].size())
+				if(independantFunctionPossibilities.empty())
 					FAIL("no independent functions");
+
+				float highestPrecedence=-9999999999999;
+				int highestPrecedenceIndex=-1;
+				for(int j=0;j<independantFunctionPossibilities.size();j++)
+				{
+					if(independantFunctionPossibilities[j].func->precedence>highestPrecedence)//change to >= to go rl in case of == p
+					{
+						highestPrecedence=independantFunctionPossibilities[j].func->precedence;
+						highestPrecedenceIndex=j;
+					}
+				}
+				checkErrors(highestPrecedenceIndex==-1,"internal error 3");
+
+
 			}
+
 
 			continue;//skip fail if got to here
 
 fail:
 			possibilities.erase(possibilities.begin()+i--);
 		}
-		checkErrors(possibilities.size()==0,"no function specified");
-		checkErrors(possibilities.size()>=2,"ambiguous call");
+		//checkErrors(possibilities.size()==0,"no function specified");
+		//checkErrors(possibilities.size()>=2,"ambiguous call");
 		for(int i=0;i<possibilities[0].size();i++)
 		{
 			if(possibilities[0][i].newVariable)
-				scope->variables[possibilities[0][i].str]=possibilities[0][i].possibleVariable;
+			{
+				//checkError(possibilities[0][i].possibleVariable==NULL,"internal error 4: %s not created\n",possibilities[0][i].str.c_str());
+				if(possibilities[0][i].possibleVariable==NULL)
+					scope->variables[possibilities[0][i].str]=new Variable(possibilities[0][i].str,possibilities[0][i].type);
+				else
+					scope->variables[possibilities[0][i].str]=possibilities[0][i].possibleVariable;
+			}
+
 		}
 		debug("Processed line %i\n",originalLineNumber);
 		NONE;
@@ -586,8 +658,8 @@ int main(_In_ int _Argc, char **argv)
 	FILE *fp=fopen("../y! code/main.y","r");
 	functions.push_back(new Function("return (int)r"));
 	functions.push_back(new Function("return (string)r"));
-	functions.push_back(new Function("r(int)sum (int)a + (int) b"));
-	functions.push_back(new Function("o(int)a = (int) b"));
+	functions.push_back(new Function("r(int)sum (int)a + (int) b p = -20"));
+	functions.push_back(new Function("o(int)a = (int) b p = -100"));
 	functions.push_back(new Function("r(bool)isLess (int)a < (int)b"));
 	functions.push_back(new Function("print (string)str"));
 	functions.push_back(new Function("if (bool)is"));

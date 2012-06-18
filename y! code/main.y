@@ -21,6 +21,45 @@ printHelloWorlds
 
 getNumberFrom (int)number into o(int) out
 	out = 3 + loadModelFrom pathToModel + number
+	out = 3
+	pathToModel
+	
+	out = 3 + loadModelFrom tempStrPathToModel + number
+	out = 3
+	loadModelFrom tempStrPathToModel
+
+	out = 3 + tempInt2 + number
+	out = 3
+	3 + tempInt2
+	tempInt2 + number
+
+	out = tempInt5 + number
+	out = tempInt5
+	tempInt5+number
+	out=tempInt5number
+
+
+	out = 3 + loadModelFrom temp2 + number
+	out = 3 + temp1 + number
+	out = temp3 + number
+	out = temp4
+
+
+
+	
+	out = 3 + loadModelFrom pathToModel ^ number
+	out = 3 + loadModel str ^ number
+	out = 3 + int2 ^ number
+	out = 3
+	3 + int2
+	int2 ^ number
+
+	=				-1000
+	+				-100
+	^				-50
+	loadModelFrom	0
+	pathToModel		0
+	r(int) (int)a ^ (int)b
 	
 r(string)path pathToModel
 	return "c:/model.s3d"
