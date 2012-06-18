@@ -134,6 +134,7 @@ public:
 class Function;
 map<string,vector<Function*>> identifiers;
 
+class Line;
 class Function
 {
 public:
@@ -143,6 +144,8 @@ public:
 	vector<Identifier*> name;
 	uint minIdentifiers;
 	float precedence;
+	int firstLine,lastLine;
+	vector<Line*> lines;
 
 	Function()
 		:ret(NULL),precedence(0.0){}
@@ -150,6 +153,7 @@ public:
 		:original(str)
 	{
 		Function();
+		firstLine=lastLine=-1;
 		precedence=0;
 		spos pos=0;
 		if(original[0]=='r' && (original[1]=='(' || (original[1]==' ' && original[find_not(original," ",1)]=='(')))//has a return value
@@ -182,6 +186,7 @@ public:
 	}
 };
 vector<Function*> functions;
+Function *currentFunction=NULL;
 
 class FunctionCall
 {
@@ -280,6 +285,7 @@ public:
 	string processed;
 	Scope *scope;
 	string comment;
+	Function *parent;
 	enum LineType {UNKNOWN,INTERPRETER_COMMAND,FUNCTION_DECLARATION,CODE,CODE_WITH_OPTIONS,EMPTY} type;
 
 	Line(string str,uint _lineNumber)
@@ -319,10 +325,16 @@ public:
 					functions.push_back(new Function(original));
 					scope=new Scope(functions.back());
 					type=FUNCTION_DECLARATION;
+					currentFunction=functions.back();
 				}
 			}
 			else
 			{
+				parent=currentFunction;
+				currentFunction->lines.push_back(this);
+				if(currentFunction->firstLine==-1)
+					currentFunction->firstLine=lineNumber;
+				currentFunction->lastLine=lineNumber;
 				if(tab==0)
 					type=CODE;
 				else
@@ -688,5 +700,5 @@ int main(_In_ int _Argc, char **argv)
 		if(lines[i]->type==Line::CODE || lines[i]->type==Line::CODE_WITH_OPTIONS)
 			lines[i]->splitCommands(lines[i]->processed);
 	}
-	NONE;
+	
 }
