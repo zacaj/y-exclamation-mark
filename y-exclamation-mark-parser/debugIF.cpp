@@ -38,7 +38,7 @@ void debugIntermediateForm(FILE *fp)
 				fprintf(fp,"%s ",func->ret->name.c_str());
 		}
 		else
-			fprintf(fp,"void ret ");
+			fprintf(fp,"NORETURN ");
 
 		bool first=1;
 		
@@ -69,7 +69,7 @@ void debugIntermediateForm(FILE *fp)
 				for(int k=0;k<line->level;k++)
 					fprintf(fp,"\t");
 				if(call->ret!=NULL)
-					fprintf(fp,"RET %s %s (",call->ret->name.c_str(),call->function->processedFunctionName.c_str());
+					fprintf(fp,"RET %s :=  %s(",call->ret->name.c_str(),call->function->processedFunctionName.c_str());
 				else
 					fprintf(fp,"%s ( ",call->function->processedFunctionName.c_str());
 
