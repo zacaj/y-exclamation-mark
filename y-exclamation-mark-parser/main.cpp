@@ -10,13 +10,13 @@ using namespace std;
 #include "main.h"
 
 string tempPath;
-int lineNumber=0;
+int realLineNumber=0;
 
 void checkErrors(bool isError,string description="")
 {
 	if(isError)
 	{
-		error("ERROR %i: %s\n",lineNumber,description.c_str());
+		error("ERROR %i: %s\n",realLineNumber,description.c_str());
 	}
 }
 
@@ -279,6 +279,7 @@ public:
 	uint lineNumber,originalLineNumber;;
 	string processed;
 	Scope *scope;
+	string comment;
 	enum LineType {UNKNOWN,INTERPRETER_COMMAND,FUNCTION_DECLARATION,CODE,CODE_WITH_OPTIONS,EMPTY} type;
 
 	Line(string str,uint _lineNumber)
@@ -287,9 +288,17 @@ public:
 		lineNumber=lines.size();
 		removeLeadingTrailingSpaces(str);
 		scope=NULL;
+		original=str;
+
+		spos singleLineCommentPos=str.find("//");
+		if(singleLineCommentPos!=npos)
+		{
+			comment=str.substr(singleLineCommentPos,str.size()-singleLineCommentPos+1);
+			str.erase(singleLineCommentPos,str.size()-singleLineCommentPos+1);
+		}
+
 		if(find_not(str,invisibleCharacers)!=str.size())
 		{
-			original=str;
 			size_t tab=original.find(9);
 			processed=original;
 			if(tab==string::npos)//function declaration or option
@@ -445,98 +454,6 @@ public:
 		for(int i=0;i<possibilities.size();i++)
 		{
 #define FAIL(reason) { failReason=reason; goto fail; }
-			/*int j=0;
-			int lastFunctionStart=0;//global
-			int lastFunctionToken=-1;//so start on 0      global
-			Function *lastFunc=NULL;
-			string failReason;
-			vector<FunctionCall*> functionCall;
-			while(1)
-			{
-				for(j=lastFunctionToken+1;j<possibilities[i].size();j++)//find next function token
-				{
-					if(possibilities[i][j].possibleFunctions.size())
-						break;
-				}
-				if(j==possibilities[i].size())//no more function tokens
-					break;
-				Function *func=*possibilities[i][j].possibleFunctions.begin();
-				if((func!=lastFunc && lastFunc!=NULL))
-				{
-					int newFunctionTokenIndex=0;//local
-					for(;newFunctionTokenIndex<func->name.size();newFunctionTokenIndex++)
-						if(func->name[newFunctionTokenIndex]->text==possibilities[i][j].str)
-							break;
-					checkErrors(newFunctionTokenIndex==func->name.size(),"internal error 2");
-					for(int k=0;k<newFunctionTokenIndex;k++)
-					{
-						if(func->name[k]->var==NULL)
-							FAIL("421 not a variable");
-						if(possibilities[i][k+lastFunctionToken+1].newVariable)
-						{
-							if(!func->name[k]->var->mode&Ob(100))//output
-								FAIL("not an output this position")
-							else
-								possibilities[i][k+lastFunctionToken+1].possibleVariable=new Variable(possibilities[i][k+lastFunctionToken+1].str,func->name[k]->var->type);
-						}
-						else
-						{
-							if(func->name[k]->var->type!=possibilities[i][k+lastFunctionToken+1].possibleVariable->type)
-								FAIL("423 wrong type");
-						}
-					}
-
-					lastFunctionStart=j-newFunctionTokenIndex;
-					lastFunctionToken=newFunctionTokenIndex+lastFunctionStart;
-				}
-				if(func->name[j-lastFunctionStart]->text!=possibilities[i][j].str)
-					FAIL("431 token not match");
-				for(int k=lastFunctionToken+1;k<j;k++)//check between last token (or start) and this one
-				{
-					if(func->name[k-lastFunctionStart]->var==NULL)
-						FAIL("431 not a variable");
-					if(possibilities[i][k].newVariable)
-					{
-						if(!func->name[k-lastFunctionStart]->var->mode&Ob(100))//output
-							FAIL("not an output this position")
-						else
-							possibilities[i][k].possibleVariable=new Variable(possibilities[i][k].str,func->name[k-lastFunctionStart]->var->type);
-					}
-					else
-					{
-						if(func->name[k-lastFunctionStart]->var->type!=possibilities[i][k].possibleVariable->type)
-							FAIL("433 wrong type");
-					}
-				}
-				lastFunctionToken=j;
-				lastFunc=func;
-			}
-			for(j=0;j<possibilities[i].size();j++)
-				if(possibilities[i][j].possibleFunctions.size())
-					break;
-			if(j==possibilities[i].size())
-				FAIL("no function tokens")
-			checkErrors(lastFunc==NULL,"internal error 3");
-			for(j=lastFunctionToken+1;j<possibilities[i].size();j++)//find first function token
-			{
-				if(lastFunc->name[j-lastFunctionStart]->var==NULL)
-					FAIL("451 not a variable")
-				if(possibilities[i][j].newVariable)
-				{
-					if(!lastFunc->name[j-lastFunctionStart]->var->mode&Ob(100))//output
-						FAIL("not an output this position")
-					else
-						possibilities[i][j].possibleVariable=new Variable(possibilities[i][j].str,lastFunc->name[j-lastFunctionStart]->var->type);
-				}
-				else
-				{
-					if(lastFunc->name[j-lastFunctionStart]->var->type!=possibilities[i][j].possibleVariable->type)
-						FAIL("453 wrong type")
-				}
-			}*/
-
-			//while(1)
-
 			vector<CallToken> &possibility=possibilities[i].p;
 			int id=possibilities[i].id;
  			vector<IndependantFunction> independantFunctionPossibilities;
@@ -740,24 +657,30 @@ int main(_In_ int _Argc, char **argv)
 	types["bool"]=new Bool;
 	int start=time(NULL);
 	FILE *fp=fopen("../y! code/main.y","r");
-	functions.push_back(new Function("return (int)r"));
+	/*functions.push_back(new Function("return (int)r"));
 	functions.push_back(new Function("return (string)r"));
 	functions.push_back(new Function("r(int)sum (int)a + (int) b p = -20"));
 	functions.push_back(new Function("o(int)a = (int) b p = -100"));
 	functions.push_back(new Function("r(bool)isLess (int)a < (int)b"));
 	functions.push_back(new Function("print (string)str"));
-	functions.push_back(new Function("if (bool)is"));
-	functions.push_back(new Function("goToLine (int)lineNumber"));
-	lineNumber=1;
+	//functions.push_back(new Function("if (bool)is"));
+	//functions.push_back(new Function("goToLine (int)lineNumber"));*/
+	realLineNumber=1;
 	while(!feof(fp))
 	{
 		string str=readTo(fp,'\n');
 		if(!str.empty())
 		{
 			removeLeadingTrailingSpaces(str);
-			lines.push_back(new Line(str,lineNumber));
+			Line *line=new Line(str,realLineNumber);
+			if(line->type==Line::EMPTY)
+				delete line;
+			else
+			{
+				lines.push_back(line);
+			}
 		}
-		lineNumber++;
+		realLineNumber++;
 	}
 	fclose(fp);
 	for(int i=0;i<lines.size();i++)
@@ -765,4 +688,5 @@ int main(_In_ int _Argc, char **argv)
 		if(lines[i]->type==Line::CODE || lines[i]->type==Line::CODE_WITH_OPTIONS)
 			lines[i]->splitCommands(lines[i]->processed);
 	}
+	NONE;
 }

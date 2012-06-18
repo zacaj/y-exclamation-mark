@@ -1,11 +1,11 @@
 #pragma once
 #include "common.h"
 
-extern int lineNumber;
+extern int realLineNumber;
 void checkErrors(bool isError,string description);
 
 #define WHERESTRE  "ERROR %i: "
-#define WHEREARGE  lineNumber
+#define WHEREARGE  realLineNumber
 #define DEBUGPRINT2E(...)       _print(__VA_ARGS__)
 
 /**
