@@ -77,6 +77,8 @@ public:
 	int firstLine,lastLine;
 	vector<Line*> lines;
 
+	string processedFunctionName;
+
 	Function()
 		:ret(NULL),precedence(0.0){}
 	Function(string str);

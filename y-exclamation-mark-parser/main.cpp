@@ -499,7 +499,8 @@ Variable * Scope::getVariable( string name )
 std::string Scope::getTempName( string typeName,string suffix/*=""*/ )
 {
 	string ret;
-	while(variables.find((ret=string("__ZXQ_temp_")+typeName+i2s(rand())+suffix))!=variables.end());
+//	while(variables.find((ret=string("__ZXQ_temp_")+typeName+i2s(rand())+suffix))!=variables.end());
+	while(variables.find((ret=string("t_")+typeName+i2s(rand()%100)+suffix))!=variables.end());
 	return ret;
 }
 

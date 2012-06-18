@@ -1,0 +1,49 @@
+void ret return ( int r )
+
+void ret return ( string r )
+
+int sum + ( int a, int b )
+
+int product * ( int a, int b )
+
+void ret = ( int a, int b )
+
+bool isLess < ( int a, int b )
+
+void ret print ( string str )
+
+void ret goToLine ( int lineNumber )
+
+void ret if ( bool is )
+
+int success start ( int nArgument )
+	printHelloWorlds ( )
+	return ( tint41_0 )
+
+void ret printHelloWorld (  )
+	print ( tstring67 )
+
+int ret loadModelFrom ( string path )
+	print ( path )
+	return ( tint34_2 )
+
+void ret printHelloWorlds (  )
+	getNumberFromInto ( tint0_4, timesToPrint )
+	= ( timesPrinted, tint69_0 )
+	printHelloWorld ( )
+	RET tint78r-int-sum- + (timesPrinted, tint24_1 )
+	= ( timesPrinted, tint78r-int-sum- )
+	RET tbool62r-bool-isLess- < (timesPrinted, timesToPrint )
+	if ( tbool62r-bool-isLess- )
+		goToLine ( tint64_17 )
+
+void ret getNumberFromInto ( int number, int out )
+	RET tstring81r-string-path-pathToModel pathToModel ()
+	RET tint27r-int-ret-loadModelFrom- loadModelFrom (tstring81r-string-path-pathToModel )
+	RET tint61r-int-product- * (tint27r-int-ret-loadModelFrom-, number )
+	RET tint91r-int-sum- + (tint5_3, tint61r-int-product- )
+	= ( out, tint91r-int-sum- )
+
+string path pathToModel (  )
+	return ( tstring95 )
+
