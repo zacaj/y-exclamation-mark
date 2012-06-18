@@ -145,11 +145,12 @@ public:
 	float precedence;
 
 	Function()
-		:ret(NULL),precedence(0){}
+		:ret(NULL),precedence(0.0){}
 	Function(string str)
 		:original(str)
 	{
 		Function();
+		precedence=0;
 		spos pos=0;
 		if(original[0]=='r' && (original[1]=='(' || (original[1]==' ' && original[find_not(original," ",1)]=='(')))//has a return value
 		{
@@ -198,12 +199,14 @@ public:
 
 class Scope
 {
-public:
 	map<string,Variable*> variables;
+public:
 	uchar level;
+	Scope *parent;
 
-	Scope(Function* function)
+	Scope(Function* function,Scope *_parent=NULL)
 	{
+		parent=_parent;
 		level=0;
 		if(function->ret!=NULL)
 		{
@@ -212,11 +215,28 @@ public:
 		for(int i=0;i<function->arguments.size();i++)
 			variables[function->arguments[i]->name]=function->arguments[i];
 	}
-	string getTempName(string typeName)
+	string getTempName(string typeName,string suffix="")
 	{
 		string ret;
-		while(variables.find((ret=string("__ZXQ_temp_")+typeName+i2s(rand())))!=variables.end());
+		while(variables.find((ret=string("__ZXQ_temp_")+typeName+i2s(rand())+suffix))!=variables.end());
 		return ret;
+	}
+	Variable *getVariable(string name)
+	{
+		map<string,Variable*>::iterator it=variables.find(name);
+		if(it==variables.end())
+		{
+			if(parent!=NULL)
+				return parent->getVariable(name);
+			else
+				return NULL;
+		}
+		else
+			return it->second;
+	}
+	void addVariable(Variable *var)
+	{
+		variables[var->name]=var;
 	}
 };
 class Line;
@@ -229,17 +249,25 @@ struct CallToken
 	set<Function*> possibleFunctions;
 	Variable* possibleVariable;
 	Type *type;
+	Variable *newVariablePtr;
 	CallToken()
 	{
 		possibilities=0;
 		newVariable=0;
 		possibleVariable=NULL;
+		newVariablePtr=NULL;
 	}
 };
 struct IndependantFunction 
 {
 	Function *func;
 	int start,end;
+};
+struct LinePossibility
+{
+	vector<CallToken> p;
+	vector<FunctionCall*> call;
+	int id;
 };
 vector<Line*> lines;
 class Line
@@ -341,7 +369,7 @@ public:
 			token.possibilities=0;
 			token.newVariable=0;
 			token.possibleVariable=NULL;
-			if(id[0]=='\"')
+			if(id[0]=='\"')//todo set variables for literals
 			{
 				spos startOfString=pos;
 				while(pos<str.size()-1)
@@ -351,25 +379,26 @@ public:
 						break;
 				}
 				checkErrors(pos==str.size(),"No closing \" found ");
+				string stringContent=str.substr(startOfString,pos-startOfString+1);
 				pos++;
 				id=scope->getTempName("string");
-				//scope->variables[id]=new Variable(id,getType("string"));
 				token.possibleVariable=new Variable(id,getType("string"));
 				token.possibleVariable->mode|=Ob(10000);
 				token.str=id;
 				token.possibilities++;
-				scope->variables[token.str]=token.possibleVariable;
+				scope->addVariable(token.possibleVariable);
 			}
 			else if(isdigit(id[0]))//todo variables that start with numbers?
 			{
-				while(pos<str.size() && isdigit(str[pos++]));
-				id=scope->getTempName("int");
-				//scope->variables[id]=new Variable(id,getType("int"));
+				string num;
+				while(pos<str.size() && isdigit(str[pos]))
+					num.push_back(str[pos++]);
+				id=scope->getTempName("int","_"+num);
 				token.possibleVariable=new Variable(id,getType("int"));
 				token.possibleVariable->mode|=Ob(10000);
 				token.possibilities++;
 				token.str=id;
-				scope->variables[token.str]=token.possibleVariable;
+				scope->addVariable(token.possibleVariable);
 			}
 			else
 			{
@@ -390,11 +419,11 @@ public:
 						token.possibilities++;
 					}
 				}
-				map<string,Variable*>::iterator vit=scope->variables.find(id);
-				if(vit!=scope->variables.end())
+				Variable *var=scope->getVariable(id);
+				if(var!=NULL)
 				{
 					token.str=id;
-					token.possibleVariable=(vit->second);
+					token.possibleVariable=var;
 					token.possibilities++;
 				}
 				else if(Variable::isValidName(id))
@@ -410,13 +439,12 @@ public:
 		}
 		//checkErrors(possibleFunctions.size()==0,"no function specified");
 		vector<CallToken> attempt;
-		vector<vector<CallToken>> possibilities;
+		vector<LinePossibility> possibilities;
 		parseCode(call,0,possibilities,attempt);
-		vector<vector<FunctionCall*>> possibleCalls;
+		string failReason;
 		for(int i=0;i<possibilities.size();i++)
 		{
 #define FAIL(reason) { failReason=reason; goto fail; }
-			string failReason;
 			/*int j=0;
 			int lastFunctionStart=0;//global
 			int lastFunctionToken=-1;//so start on 0      global
@@ -509,75 +537,119 @@ public:
 
 			//while(1)
 
-			vector<IndependantFunction> independantFunctionPossibilities;
+			vector<CallToken> &possibility=possibilities[i].p;
+			int id=possibilities[i].id;
+ 			vector<IndependantFunction> independantFunctionPossibilities;
+			int j;
+			for(j=0;j<possibility.size();j++)//go thru all ids
 			{
-				int j;
-				for(j=0;j<possibilities[i].size();j++)//go thru all ids
+				if(possibility[j].possibleFunctions.size())//if its a funcion id
 				{
-					if(possibilities[i][j].possibleFunctions.size())//if its a funcion id
-					{
-						Function *func=*possibilities[i][j].possibleFunctions.begin();
-						//find the same id in the function
-							int functionTokenIndexInFunction=0;
-							for(;functionTokenIndexInFunction<func->name.size();functionTokenIndexInFunction++)
-							{
-								if(func->name[functionTokenIndexInFunction]->text==possibilities[i][j].str)
-									break;
-							}
-							checkErrors(functionTokenIndexInFunction==func->name.size(),"internal error 1");
-
-						int k;
-						for(k=0;k<func->name.size();k++)
+					Function *func=*possibility[j].possibleFunctions.begin();
+					//find the same id in the function
+						int functionTokenIndexInFunction=0;
+						for(;functionTokenIndexInFunction<func->name.size();functionTokenIndexInFunction++)
 						{
-							if(func->name[k]->var!=NULL)
+							if(func->name[functionTokenIndexInFunction]->text==possibility[j].str)
+								break;
+						}
+						checkErrors(functionTokenIndexInFunction==func->name.size(),"internal error 1");
+
+					int k;
+					for(k=0;k<func->name.size();k++)
+					{
+						if(func->name[k]->var!=NULL)
+						{
+							if(possibility[j-functionTokenIndexInFunction+k].newVariable)//output
 							{
-								if(possibilities[i][j-functionTokenIndexInFunction+k].newVariable)//output
-								{
-									if(!func->name[k]->var->mode&Ob(100))
-										break;
-									else
-										possibilities[i][j-functionTokenIndexInFunction+k].type=func->name[k]->var->type;
-								}
+								if(!(func->name[k]->var->mode&Ob(100)))
+									break;
 								else
-								{
-									if(possibilities[i][j-functionTokenIndexInFunction+k].possibleVariable==NULL)
-										break;
-									if(possibilities[i][j-functionTokenIndexInFunction+k].possibleVariable->type!=func->name[k]->var->type)
-										break;
-								}
+									possibility[j-functionTokenIndexInFunction+k].newVariablePtr=new Variable(possibility[j-functionTokenIndexInFunction+k].str,func->name[k]->var->type);
 							}
 							else
 							{
-								if(!possibilities[i][j-functionTokenIndexInFunction+k].possibleFunctions.size() || *possibilities[i][j-functionTokenIndexInFunction+k].possibleFunctions.begin()!=func ||func->name[k]->text!=possibilities[i][j-functionTokenIndexInFunction+k].str)
-								break;
+								if(possibility[j-functionTokenIndexInFunction+k].possibleVariable==NULL)
+									break;
+								if(possibility[j-functionTokenIndexInFunction+k].possibleVariable->type!=func->name[k]->var->type)
+									break;
 							}
 						}
-						if(k==func->name.size())//match
+						else
 						{
-							IndependantFunction indf;
-							indf.func=func;
-							indf.start=j-functionTokenIndexInFunction;
-							indf.end=j-functionTokenIndexInFunction+func->name.size();
-							independantFunctionPossibilities.push_back(indf);//todo search for duplicates
+							if(!possibility[j-functionTokenIndexInFunction+k].possibleFunctions.size() || *possibility[j-functionTokenIndexInFunction+k].possibleFunctions.begin()!=func ||func->name[k]->text!=possibility[j-functionTokenIndexInFunction+k].str)
+							break;
 						}
 					}
-				}
-				if(independantFunctionPossibilities.empty())
-					FAIL("no independent functions");
-
-				float highestPrecedence=-9999999999999;
-				int highestPrecedenceIndex=-1;
-				for(int j=0;j<independantFunctionPossibilities.size();j++)
-				{
-					if(independantFunctionPossibilities[j].func->precedence>highestPrecedence)//change to >= to go rl in case of == p
+					if(k==func->name.size())//match
 					{
-						highestPrecedence=independantFunctionPossibilities[j].func->precedence;
-						highestPrecedenceIndex=j;
+						IndependantFunction indf;
+						indf.func=func;
+						indf.start=j-functionTokenIndexInFunction;
+						indf.end=j-functionTokenIndexInFunction+func->name.size();
+						independantFunctionPossibilities.push_back(indf);//todo search for duplicates
 					}
 				}
-				checkErrors(highestPrecedenceIndex==-1,"internal error 3");
+			}
+			if(independantFunctionPossibilities.empty())
+				FAIL("no independent functions");
 
-
+			float highestPrecedence=-9999999999999;
+			int highestPrecedenceIndex=-1;
+			for(int j=0;j<independantFunctionPossibilities.size();j++)
+			{
+				if(independantFunctionPossibilities[j].func->precedence>highestPrecedence)//change to >= to go rl in case of == p
+				{
+					highestPrecedence=independantFunctionPossibilities[j].func->precedence;
+					highestPrecedenceIndex=j;
+				}
+			}
+			checkErrors(highestPrecedenceIndex==-1,"internal error 3");
+			IndependantFunction &indf=independantFunctionPossibilities[highestPrecedenceIndex];
+			if(indf.start==0 && indf.end==possibility.size())//only this call
+			{
+				{
+					FunctionCall *fcall=new FunctionCall();
+					fcall->function=indf.func;
+					fcall->ret=NULL;
+					for(int j=indf.start;j<indf.end;j++)
+					{
+						if(possibility[j].possibleVariable!=NULL)
+							fcall->arguments.push_back(possibility[j].possibleVariable);
+						else if(possibility[j].newVariablePtr!=NULL)
+							fcall->arguments.push_back(possibility[j].newVariablePtr);
+					}
+					checkErrors(fcall->arguments.size()!=fcall->function->arguments.size(),"internal error 4");
+					possibilities[i].call.push_back(fcall);
+				}
+			}
+			else//simplify the call
+			{
+				//checkError(indf.func->ret==NULL,"%s does not return a value")
+				if(indf.func->ret==NULL)
+					FAIL((indf.func->original+" does not return a value"));
+				Variable *var=new Variable(scope->getTempName(indf.func->ret->type->name,tokenize(indf.func->original)),indf.func->ret->type);
+				scope->addVariable(var);
+				{
+					FunctionCall *fcall=new FunctionCall();
+					fcall->function=indf.func;
+					fcall->ret=var;
+					for(int j=indf.start;j<indf.end;j++)
+					{
+						if(possibility[j].possibleVariable!=NULL)
+							fcall->arguments.push_back(possibility[j].possibleVariable);
+						else if(possibility[j].newVariablePtr!=NULL)
+							fcall->arguments.push_back(possibility[j].newVariablePtr);
+					}
+					checkErrors(fcall->arguments.size()!=fcall->function->arguments.size(),"internal error 4");
+					possibilities[i].call.push_back(fcall);
+				}
+				possibility.erase(possibility.begin()+indf.start,possibility.begin()+indf.end);
+				CallToken token;
+				token.str=var->name;
+				token.possibleVariable=var;
+				possibility.insert(possibility.begin()+indf.start,token);
+				i--;
 			}
 
 
@@ -586,24 +658,32 @@ public:
 fail:
 			possibilities.erase(possibilities.begin()+i--);
 		}
-		//checkErrors(possibilities.size()==0,"no function specified");
-		//checkErrors(possibilities.size()>=2,"ambiguous call");
-		for(int i=0;i<possibilities[0].size();i++)
+		checkErrors(possibilities.size()==0,"no function specified");
+		checkErrors(possibilities.size()>=2,"ambiguous call");
+		for(int i=0;i<possibilities[0].p.size();i++)
 		{
-			if(possibilities[0][i].newVariable)
+			if(possibilities[0].p[i].newVariable)
 			{
 				//checkError(possibilities[0][i].possibleVariable==NULL,"internal error 4: %s not created\n",possibilities[0][i].str.c_str());
-				if(possibilities[0][i].possibleVariable==NULL)
-					scope->variables[possibilities[0][i].str]=new Variable(possibilities[0][i].str,possibilities[0][i].type);
+				if(possibilities[0].p[i].newVariablePtr!=NULL)
+				{
+					scope->addVariable(possibilities[0].p[i].newVariablePtr);
+				}
 				else
-					scope->variables[possibilities[0][i].str]=possibilities[0][i].possibleVariable;
+				{
+					if(possibilities[0].p[i].possibleVariable==NULL)
+						scope->addVariable(new Variable(possibilities[0].p[i].str,possibilities[0].p[i].type));
+					else
+						scope->addVariable(possibilities[0].p[i].possibleVariable);
+				}
 			}
 
 		}
+		commands=possibilities[0].call;
 		debug("Processed line %i\n",originalLineNumber);
 		NONE;
 	}
-	void parseNextIsNewVariable(vector<CallToken> &call,uint p,vector<vector<CallToken>> &functions,vector<CallToken> attempt)
+	void parseNextIsNewVariable(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt)
 	{
 		CallToken token;
 		token.newVariable=1;
@@ -611,15 +691,15 @@ fail:
 		attempt.push_back(token);
 		parseCode(call,p+1,functions,attempt);
 	}
-	void parseNextIsVariable(vector<CallToken> &call,uint p,vector<vector<CallToken>> &functions,vector<CallToken> attempt)
+	void parseNextIsVariable(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt)
 	{
 		CallToken token;
-		token.possibleVariable=scope->variables.find(call[p].str)->second;
+		token.possibleVariable=scope->getVariable(call[p].str);
 		token.str=call[p].str;
 		attempt.push_back(token);
 		parseCode(call,p+1,functions,attempt);
 	}
-	void parseNextIsFunction(vector<CallToken> &call,uint p,vector<vector<CallToken>> &functions,vector<CallToken> attempt,Function *function)
+	void parseNextIsFunction(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt,Function *function)
 	{
 		CallToken token;
 		token.possibleFunctions.insert(function);
@@ -627,11 +707,15 @@ fail:
 		attempt.push_back(token);
 		parseCode(call,p+1,functions,attempt);
 	}
-	void parseCode(vector<CallToken> &call,uint p,vector<vector<CallToken>> &functions,vector<CallToken> attempt)
+	void parseCode(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt)
 	{
 		if(p==call.size())
 		{
-			functions.push_back(attempt);
+			LinePossibility lp;
+			lp.p=attempt;
+			static int id=0;
+			lp.id=id++;
+			functions.push_back(lp);
 			return;
 		}
 		else
