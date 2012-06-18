@@ -63,6 +63,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="debugIF.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="types.cpp" />
   </ItemGroup>
