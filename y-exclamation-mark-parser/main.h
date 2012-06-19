@@ -40,7 +40,8 @@ public:
 	Variable(string _name,Type *_type)
 		:name(_name),
 		type(_type),
-		mode(0){}
+		mode(0),
+		constant(NULL){}
 	Variable(string str,size_t &pos);
 	static bool isValidName(string name)
 	{
@@ -92,6 +93,7 @@ public:
 	Function()
 		:ret(NULL),precedence(0.0){}
 	Function(string str);
+	void printC99Declaration(FILE *fp);
 };
 extern Function *startFunction;
 class FunctionCall
@@ -120,6 +122,7 @@ public:
 	string getTempName(string typeName,string suffix="");
 	Variable *getVariable(string name);
 	void addVariable(Variable *var);
+	void writeC99(FILE *fp);
 };
 #include <set>
 struct CallToken

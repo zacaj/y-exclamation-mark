@@ -63,6 +63,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="c99out.cpp" />
     <ClCompile Include="debugIF.cpp" />
     <ClCompile Include="llvmir.cpp" />
     <ClCompile Include="main.cpp" />

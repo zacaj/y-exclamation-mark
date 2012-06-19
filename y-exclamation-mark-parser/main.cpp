@@ -46,6 +46,8 @@ vector<Line*> lines;
 
 void debugIntermediateForm(FILE *fp);
 void printLlvmIrCode(FILE *fp);
+void outputC99(FILE *fp);
+
 
 int main(_In_ int _Argc, char **argv)
 {
@@ -95,10 +97,12 @@ int main(_In_ int _Argc, char **argv)
 			startFunction=mainCandidates[i];
 	}
 	checkErrors(startFunction==NULL,"r(int) start (int)nArgument not found\n");
-	fp=fopen("../y! code/main.ll","w");
+	fp=fopen("../y! code/main.c","w");
+	//fp=fopen("../y! code/main.ll","w");
 	//fp=fopen("../y! code/main.yif","w");
 	//debugIntermediateForm(fp);
-	printLlvmIrCode(fp);
+	//printLlvmIrCode(fp);
+	outputC99(fp);
 	fclose(fp);
 }
 
@@ -137,6 +141,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 			{
 				functions.push_back(new Function(original));
 				scope=new Scope(functions.back());
+				scope->level=1;
 				type=FUNCTION_DECLARATION;
 				currentFunction=functions.back();
 			}
@@ -163,6 +168,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 			else if(level>lines[lineNumber-1]->level)
 			{
 				scope=new Scope(*lines[lineNumber-1]->scope);
+				scope->level=level;
 			}
 			else
 			{
@@ -531,6 +537,7 @@ Function::Function( string str )
 	if(original[0]=='r' && (original[1]=='(' || (original[1]==' ' && original[find_not(original," ",1)]=='(')))//has a return value
 	{
 		ret=new Variable(original,pos);
+		ret->mode|=Ob(100000);
 	}
 	else
 		ret=NULL;
@@ -575,6 +582,7 @@ Identifier::Identifier( string str,spos &pos )
 	{
 		spos old=pos;
 		var=new Variable(str,pos);
+		var->mode|=Ob(100000);
 		text=str.substr(old,pos-old);
 	}
 	else

@@ -11,15 +11,13 @@ public:
 			return 1;
 		return typeName==name;
 	}
-};
-
-class InternalType:public Type
-{
-public:
 	virtual string getLlvmType()=0;
+	virtual string getC99Type()=0;
+	virtual string getC99Constant()=0;
 };
 
-class Int:public InternalType
+
+class Int:public Type
 {
 public:
 	int value;
@@ -32,9 +30,17 @@ public:
 	{
 		return "i32";
 	}
+	string getC99Type()
+	{
+		return "int";
+	}
+	string getC99Constant()
+	{
+		return i2s(value);
+	}
 };
 
-class String:public InternalType
+class String:public Type
 {
 public:
 	string value;
@@ -46,9 +52,17 @@ public:
 	{
 		return "i8*";
 	}
+	string getC99Type()
+	{
+		return "char*";
+	}
+	string getC99Constant()
+	{
+		return value;
+	}
 };
 
-class Bool:public InternalType
+class Bool:public Type
 {
 public:
 	bool value;
@@ -61,6 +75,14 @@ public:
 	string getLlvmType()
 	{
 		return "i1";
+	}
+	string getC99Type()
+	{
+		return "unsigned char";
+	}
+	string getC99Constant()
+	{
+		return i2s(value);
 	}
 };
 

@@ -156,10 +156,10 @@ std::string tokenize( string str )
 	for(int i=0;i<str.size();i++)
 		if(!isalnum(str[i]))
 		{
-			str[i]='-';
+			str[i]='_';
 			if(i!=0)
 			{
-				if(str[i-1]=='-')
+				if(str[i-1]=='_')
 				{
 					str.erase(i--);
 				}

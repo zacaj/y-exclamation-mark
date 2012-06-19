@@ -7,8 +7,7 @@ string getLlvmVariableType(Variable *var)
 {
 	checkError(!var->type->is("internal"),"type %s does not exist",var->type->name.c_str());
 	{
-		InternalType *type=(InternalType*)var->type;
-		return type->getLlvmType();
+		return var->type->getLlvmType();
 	}
 }
 
