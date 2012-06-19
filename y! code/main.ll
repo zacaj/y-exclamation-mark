@@ -1,53 +1,64 @@
-define fastcc void @returnint ( i32 r)
+; declare i32 @startint (i32 %nArgument)
+define void @main()
+{
+	call i32 @startint(i32 0);
+	ret void;
+}
+
+define fastcc void @returnint ( i32 %r)
 {
 	ret void;
 }
 
-define fastcc void @returnstring ( i8* r)
+define fastcc void @returnstring ( i8* %r)
 {
 	ret void;
 }
 
-define fastcc i32 @int.plus.int ( i32 a, i32 b)
+define fastcc i32 @int.plus.int ( i32 %a, i32 %b)
 {
-	ret i32 sum;
+	%sum = add i32 %a, %b
+	ret i32 %sum;
 }
 
-define fastcc i32 @int.asterisk.int ( i32 a, i32 b)
+define fastcc i32 @int.asterisk.int ( i32 %a, i32 %b)
 {
-	ret i32 product;
+	%product = mul i32 %a, %b
+	ret i32 %product;
 }
 
-define fastcc void @int.equal.int ( i32 a, i32 b)
-{
-	ret void;
-}
-
-define fastcc i1 @int.less.int ( i32 a, i32 b)
-{
-	ret i1 isLess;
-}
-
-define fastcc void @printstring ( i8* str)
+define fastcc void @int.equal.int ( i32 %a, i32 %b)
 {
 	ret void;
 }
 
-define fastcc void @goToLineint ( i32 lineNumber)
+define fastcc i1 @int.less.int ( i32 %a, i32 %b)
+{
+	%isLess = icmp slt i32 %a, %b
+	ret i1 %isLess;
+}
+
+define fastcc void @printstring ( i8* %str)
 {
 	ret void;
 }
 
-define fastcc void @ifbool ( i1 is)
+define fastcc void @goToLineint ( i32 %lineNumber)
 {
 	ret void;
 }
 
-define fastcc i32 @startint ( i32 nArgument)
+define fastcc void @ifbool ( i1 %is)
+{
+	ret void;
+}
+
+define fastcc i32 @startint ( i32 %nArgument)
 {
 	call void @printHelloWorlds();
+	%tint410 = add i32 0, 0
 	call void @returnint(i32 %tint410);
-	ret i32 success;
+	ret i32 0;
 }
 
 define fastcc void @printHelloWorld ( )
@@ -56,11 +67,11 @@ define fastcc void @printHelloWorld ( )
 	ret void;
 }
 
-define fastcc i32 @loadModelFromstring ( i8* path)
+define fastcc i32 @loadModelFromstring ( i8* %path)
 {
 	call void @printstring(i8* %path);
 	call void @returnint(i32 %tint342);
-	ret i32 ret;
+	ret i32 %ret;
 }
 
 define fastcc void @printHelloWorlds ( )
@@ -78,7 +89,7 @@ define fastcc void @printHelloWorlds ( )
 	ret void;
 }
 
-define fastcc void @getNumberFromintintoint ( i32 number, i32 out)
+define fastcc void @getNumberFromintintoint ( i32 %number, i32 %out)
 {
 	%tstring81rstringpathpathToModel = call i8* @pathToModel();
 	%tint27rintretloadModelFrom = call i32 @loadModelFromstring(i8* %tstring81rstringpathpathToModel);
@@ -91,6 +102,6 @@ define fastcc void @getNumberFromintintoint ( i32 number, i32 out)
 define fastcc i8* @pathToModel ( )
 {
 	call void @returnstring(i8* %tstring95);
-	ret i8* path;
+	ret i8* %path;
 }
 

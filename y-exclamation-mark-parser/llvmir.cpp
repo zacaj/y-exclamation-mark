@@ -20,6 +20,11 @@ void indentLine(FILE *fp,int level)
 
 void printLlvmIrCode(FILE *fp)
 {
+	fprintf(fp,"define void @main()\n");
+	fprintf(fp,"{\n");
+	fprintf(fp,"\tcall i32 @startint();\n");
+	fprintf(fp,"\tret void;\n");
+	fprintf(fp,"}\n\n");
 	for(int i=0;i<functions.size();i++)
 	{
 		Function *func=functions[i];
@@ -85,7 +90,7 @@ void printLlvmIrCode(FILE *fp)
 		fprintf(fp,"@%s ( ",func->processedFunctionName.c_str());
 		for(int j=0;j<func->arguments.size();j++)
 		{
-			fprintf(fp,"%s %s",getLlvmVariableType(func->arguments[j]).c_str(),func->arguments[j]->llvmName().c_str());
+			fprintf(fp,"%s %%%s",getLlvmVariableType(func->arguments[j]).c_str(),func->arguments[j]->llvmName().c_str());
 			if(j!=func->arguments.size()-1)
 				fprintf(fp,", ");
 		}
@@ -129,9 +134,9 @@ void printLlvmIrCode(FILE *fp)
 				fprintf(fp,"}\n");
 			}
 		if(func->ret==NULL)
-			fprintf(fp,"\tret void;\n}\n\n");
+			fprintf(fp,"\tret void\n}\n\n");
 		else
-			fprintf(fp,"\tret %s %s;\n}\n\n",getLlvmVariableType(func->ret).c_str(),func->ret->llvmName().c_str());
+			fprintf(fp,"\tret %s %%%s\n}\n\n",getLlvmVariableType(func->ret).c_str(),func->ret->llvmName().c_str());
 	}
 }
 
@@ -150,6 +155,6 @@ string FunctionCall::llvmCall()
 	{
 		call+=getLlvmVariableType(arguments[i])+" %"+arguments[i]->llvmName();
 	}
-	call+=");";
+	call+=")";
 	return call;
 }
