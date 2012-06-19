@@ -1,15 +1,16 @@
 uses ConsoleIO
 
 // forward declarations of system code / code that would be in ConsoleIO if 'uses' was actually implemented
-inline return (int)r
-c	return __ZXQ_return_value;
-inline return (string)r
-c	return __ZXQ_return_value;
-inline r(int)sum (int)a + (int)b p = -20
-inline r(int)product (int)a * (int)b p= -10
-inline o(int)a = (int) b p = -100
-inline r(bool)isLess (int)a < (int)b
+r(int)sum (int)a + (int)b p = -20
+c	sum=a+b;
+r(int)product (int)a * (int)b p= -10
+c	product=a*b;
+o(int)a = (int) b p = -100
+c	*a=b;
+r(bool)isLess (int)a < (int)b
+c	isLess=a<b;
 print (string)str
+c	printf(str);
 goToLine (int)lineNumber
 if (bool)is
 
@@ -22,8 +23,9 @@ printHelloWorld
 	print "Hello world\n"
 
 r(int)ret loadModelFrom (string)path
+	ret = 2
 	print path
-	return 2
+	return
 
 printHelloWorlds
 	getNumberFrom 4 into timesToPrint
@@ -37,4 +39,4 @@ getNumberFrom (int)number into o(int) out
 	out = 3 + loadModelFrom pathToModel * number
 	
 r(string)path pathToModel
-	return "c:/model.s3d"
+	return "c:/model.s3d\n"

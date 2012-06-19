@@ -48,6 +48,18 @@ void debugIntermediateForm(FILE *fp);
 void printLlvmIrCode(FILE *fp);
 void outputC99(FILE *fp);
 
+void returnC99(FILE *fp,FunctionCall *call)
+{
+	Function *func=call->function;
+	fprintf(fp,"return %s;\n",call->arguments[0]->name.c_str());
+}
+void returnDefaultC99(FILE *fp,FunctionCall *call)
+{
+	checkErrors(call->callee->ret==NULL,"Function does not return a value!");
+	checkErrors(call->callee->ret->name.empty(),"Function does not have an anonymous return variable!");
+	fprintf(fp,"return %s;\n",call->callee->ret->name.c_str());
+}
+
 
 int main(_In_ int _Argc, char **argv)
 {
@@ -84,6 +96,14 @@ int main(_In_ int _Argc, char **argv)
 		realLineNumber++;
 	}
 	fclose(fp);
+	for(auto it=types.begin();it!=types.end();it++)
+	{
+		functions.push_back(new Function("inline return ("+it->first+")r"));
+		functions.back()->internalPrintC99=returnC99;
+	}
+	functions.push_back(new Function("inline return"));
+	functions.back()->internalPrintC99=returnDefaultC99;
+
 	for(int i=0;i<lines.size();i++)
 	{
 		if(lines[i]->type==Line::CODE || lines[i]->type==Line::CODE_WITH_OPTIONS)
@@ -97,6 +117,7 @@ int main(_In_ int _Argc, char **argv)
 			startFunction=mainCandidates[i];
 	}
 	checkErrors(startFunction==NULL,"r(int) start (int)nArgument not found\n");
+	//return 0;
 	fp=fopen("../y! code/main.c","w");
 	//fp=fopen("../y! code/main.ll","w");
 	//fp=fopen("../y! code/main.yif","w");
@@ -321,6 +342,8 @@ void Line::splitCommands( string str )
 				int k;
 				for(k=0;k<func->name.size();k++)
 				{
+					if(j-functionTokenIndexInFunction+k>=possibility.size())
+						break;
 					if(func->name[k]->var!=NULL)
 					{
 						if(possibility[j-functionTokenIndexInFunction+k].newVariable)//output
@@ -328,7 +351,10 @@ void Line::splitCommands( string str )
 							if(!(func->name[k]->var->mode&Ob(100)))
 								break;
 							else
+							{
 								possibility[j-functionTokenIndexInFunction+k].newVariablePtr=new Variable(possibility[j-functionTokenIndexInFunction+k].str,func->name[k]->var->type);
+								//possibility[j-functionTokenIndexInFunction+k].newVariablePtr->mode|=Ob(100);
+							}	
 						}
 						else
 						{
@@ -375,6 +401,7 @@ void Line::splitCommands( string str )
 				FunctionCall *fcall=new FunctionCall();
 				fcall->function=indf.func;
 				fcall->ret=NULL;
+				fcall->callee=parent;
 				for(int j=indf.start;j<indf.end;j++)
 				{
 					if(possibility[j].possibleVariable!=NULL)
@@ -542,6 +569,7 @@ Function::Function( string str )
 	firstLine=lastLine=-1;
 	precedence=0;
 	spos pos=0;
+	internalPrintC99=NULL;
 	isInline=0;
 	ret=NULL;
 	option:

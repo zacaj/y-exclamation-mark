@@ -30,6 +30,7 @@ void checkErrors(bool isError,string description);
 class Type;
 class Line;
 class Function;
+class FunctionCall;
 class Variable
 {
 public:
@@ -76,6 +77,8 @@ public:
 		optional(0){}
 	Identifier(string str,spos &pos);
 };
+
+
 class Function
 {
 public:
@@ -90,9 +93,10 @@ public:
 	bool isInline;
 
 	string processedFunctionName;
+	void (*internalPrintC99)(FILE*,FunctionCall*);
 
 	Function()
-		:ret(NULL),precedence(0.0){}
+		:ret(NULL),precedence(0.0),internalPrintC99(NULL){}
 	Function(string str);
 	void printC99Declaration(FILE *fp);
 };
@@ -103,6 +107,7 @@ public:
 	Function *function;
 	vector<Variable*> arguments;
 	Variable *ret;
+	Function *callee;
 
 	FunctionCall()
 	{

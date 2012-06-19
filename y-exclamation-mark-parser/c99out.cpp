@@ -47,7 +47,7 @@ void Function::printC99Declaration(FILE *fp)
 				first=0;
 			else
 				fprintf(fp,", ");
-			fprintf(fp,"%s %s",var->type->getC99Type().c_str(),var->name.c_str());
+			fprintf(fp,"%s%s%s",var->type->getC99Type().c_str(),(var->mode&Ob(100))?" *":" ",var->name.c_str());
 		}
 	}
 	fprintf(fp," )");
@@ -55,18 +55,6 @@ void Function::printC99Declaration(FILE *fp)
 
 void outputC99(FILE *fp)
 {
-	fprintf(fp,"#include <stdio.h>\n\n");
-	for(int iFunc=0;iFunc<functions.size();iFunc++)
-	{
-		Function *func=functions[iFunc];
-		func->printC99Declaration(fp);
-		fprintf(fp,";\n");
-	}
-	fprintf(fp,"\n\n");
-	fprintf(fp,"int main(int argc,char **argv)\n");
-	fprintf(fp,"{\n");
-	fprintf(fp,"\treturn startint(argc);\n");
-	fprintf(fp,"}\n\n");
 	for(int i=0;i<functions.size();i++)
 	{
 		Function *func=functions[i];
@@ -117,10 +105,26 @@ void outputC99(FILE *fp)
 			}
 		}
 	}
+	fprintf(fp,"#include <stdio.h>\n\n");
+	for(int iFunc=0;iFunc<functions.size();iFunc++)
+	{
+		Function *func=functions[iFunc];
+		if(func->isInline)
+			continue;
+		func->printC99Declaration(fp);
+		fprintf(fp,";\n");
+	}
+	fprintf(fp,"\n\n");
+	fprintf(fp,"int main(int argc,char **argv)\n");
+	fprintf(fp,"{\n");
+	fprintf(fp,"\treturn startint(argc);\n");
+	fprintf(fp,"}\n\n");
 
 	for(int iFunc=0;iFunc<functions.size();iFunc++)
 	{
 		Function *func=functions[iFunc];
+		if(func->isInline)
+			continue;
 		func->printC99Declaration(fp);
 		fprintf(fp,"\n{\n");
 		if(func->ret!=NULL)
@@ -169,21 +173,26 @@ void outputC99(FILE *fp)
 				{
 					FunctionCall *call=line->commands[j];
 					indentLine(fp,line->level);
-					if(call->ret!=NULL)
-						fprintf(fp,"%s =  %s( ",call->ret->name.c_str(),call->function->processedFunctionName.c_str());
+					if(call->function->internalPrintC99!=NULL)
+						call->function->internalPrintC99(fp,call);
 					else
-						fprintf(fp,"%s( ",call->function->processedFunctionName.c_str());
-
-					for(int k=0;k<call->arguments.size();k++)
 					{
-						fprintf(fp,"%s",call->arguments[k]->name.c_str());
-						if(k==call->arguments.size()-1)
-							fprintf(fp," ");
+						if(call->ret!=NULL)
+							fprintf(fp,"%s =  %s( ",call->ret->name.c_str(),call->function->processedFunctionName.c_str());
 						else
-							fprintf(fp,", ");
-					}
+							fprintf(fp,"%s( ",call->function->processedFunctionName.c_str());
 
-					fprintf(fp,");\n");
+						for(int k=0;k<call->arguments.size();k++)
+						{
+							fprintf(fp,"%s%s%s",(call->function->arguments[k]->mode&Ob(100))?"&":"",(call->arguments[k]->mode&Ob(100))?"*":"",call->arguments[k]->name.c_str());
+							if(k==call->arguments.size()-1)
+								fprintf(fp," ");
+							else
+								fprintf(fp,", ");
+						}
+
+						fprintf(fp,");\n");
+					}
 					lastLine=line;
 				}
 			}
