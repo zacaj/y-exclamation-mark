@@ -1,12 +1,14 @@
 uses ConsoleIO
 
 // forward declarations of system code / code that would be in ConsoleIO if 'uses' was actually implemented
-return (int)r
-return (string)r
-r(int)sum (int)a + (int)b p = -20
-r(int)product (int)a * (int)b p= -10
-o(int)a = (int) b p = -100
-r(bool)isLess (int)a < (int)b
+inline return (int)r
+c	return __ZXQ_return_value;
+inline return (string)r
+c	return __ZXQ_return_value;
+inline r(int)sum (int)a + (int)b p = -20
+inline r(int)product (int)a * (int)b p= -10
+inline o(int)a = (int) b p = -100
+inline r(bool)isLess (int)a < (int)b
 print (string)str
 goToLine (int)lineNumber
 if (bool)is

@@ -5,6 +5,7 @@ void indentLine(FILE *fp,int level);
 
 void Scope::writeC99(FILE *fp)
 {
+	bool written=0;
 	for(map<string,Variable*>::iterator it=variables.begin();it!=variables.end();it++)
 	{
 		Variable *var=it->second;
@@ -17,8 +18,10 @@ void Scope::writeC99(FILE *fp)
 			fprintf(fp," = %s",var->constant->getC99Constant().c_str());
 		}
 		fprintf(fp,";\n");
+		written=1;
 	}
-	fprintf(fp,"\n");
+	if(written)
+		fprintf(fp,"\n");
 }
 
 void Function::printC99Declaration(FILE *fp)
@@ -52,7 +55,14 @@ void Function::printC99Declaration(FILE *fp)
 
 void outputC99(FILE *fp)
 {
-	fprintf(fp,"#include <stdio.h>\n");
+	fprintf(fp,"#include <stdio.h>\n\n");
+	for(int iFunc=0;iFunc<functions.size();iFunc++)
+	{
+		Function *func=functions[iFunc];
+		func->printC99Declaration(fp);
+		fprintf(fp,";\n");
+	}
+	fprintf(fp,"\n\n");
 	fprintf(fp,"int main(int argc,char **argv)\n");
 	fprintf(fp,"{\n");
 	fprintf(fp,"\treturn startint(argc);\n");
@@ -107,13 +117,6 @@ void outputC99(FILE *fp)
 			}
 		}
 	}
-	for(int iFunc=0;iFunc<functions.size();iFunc++)
-	{
-		Function *func=functions[iFunc];
-		func->printC99Declaration(fp);
-		fprintf(fp,";\n");
-	}
-	fprintf(fp,"\n\n");
 
 	for(int iFunc=0;iFunc<functions.size();iFunc++)
 	{
@@ -154,26 +157,35 @@ void outputC99(FILE *fp)
 			}
 			if(lastLine==NULL)
 				line->scope->writeC99(fp);
-			for(int j=0;j<line->commands.size();j++)
+
+			if(line->cString.size())
 			{
-				FunctionCall *call=line->commands[j];
 				indentLine(fp,line->level);
-				if(call->ret!=NULL)
-					fprintf(fp,"%s =  %s( ",call->ret->name.c_str(),call->function->processedFunctionName.c_str());
-				else
-					fprintf(fp,"%s( ",call->function->processedFunctionName.c_str());
-
-				for(int k=0;k<call->arguments.size();k++)
+				fprintf(fp,"%s\n",line->cString.c_str());
+			}
+			else
+			{
+				for(int j=0;j<line->commands.size();j++)
 				{
-					fprintf(fp,"%s",call->arguments[k]->name.c_str());
-					if(k==call->arguments.size()-1)
-						fprintf(fp," ");
+					FunctionCall *call=line->commands[j];
+					indentLine(fp,line->level);
+					if(call->ret!=NULL)
+						fprintf(fp,"%s =  %s( ",call->ret->name.c_str(),call->function->processedFunctionName.c_str());
 					else
-						fprintf(fp,", ");
-				}
+						fprintf(fp,"%s( ",call->function->processedFunctionName.c_str());
 
-				fprintf(fp,");\n");
-				lastLine=line;
+					for(int k=0;k<call->arguments.size();k++)
+					{
+						fprintf(fp,"%s",call->arguments[k]->name.c_str());
+						if(k==call->arguments.size()-1)
+							fprintf(fp," ");
+						else
+							fprintf(fp,", ");
+					}
+
+					fprintf(fp,");\n");
+					lastLine=line;
+				}
 			}
 		}
 		if(lastLine!=NULL && lastLine->level!=1)

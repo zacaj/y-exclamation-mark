@@ -153,12 +153,18 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 			if(currentFunction->firstLine==-1)
 				currentFunction->firstLine=lineNumber;
 			currentFunction->lastLine=lineNumber;
+			size_t commandStart=original.find_first_not_of(9,tab);
 			if(tab==0)
 				type=CODE;
 			else
+			{
+				//todo handle options
 				type=CODE_WITH_OPTIONS;
-			//todo handle options
-			size_t commandStart=original.find_first_not_of(9,tab);
+				if(original[0]=='c')
+				{
+					cString=original.substr(commandStart,original.size()-commandStart+1);
+				}
+			}
 			level=commandStart-tab;
 			processed.erase(processed.begin(),processed.begin()+commandStart);
 			checkErrors(lineNumber==0,"Code outside of a function");
@@ -195,6 +201,8 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 
 void Line::splitCommands( string str )
 {
+	if(cString.size())
+		return;
 	vector<CallToken> call;
 	spos pos=0;
 	//set<Function*> possibleFunctions;
@@ -534,13 +542,21 @@ Function::Function( string str )
 	firstLine=lastLine=-1;
 	precedence=0;
 	spos pos=0;
-	if(original[0]=='r' && (original[1]=='(' || (original[1]==' ' && original[find_not(original," ",1)]=='(')))//has a return value
+	isInline=0;
+	ret=NULL;
+	option:
+	if(original[pos]=='r' && (original[pos+1]=='(' || (original[pos+1]==' ' && original[find_not(original," ",pos+1)]=='(')))//has a return value
 	{
 		ret=new Variable(original,pos);
 		ret->mode|=Ob(100000);
+		goto option;
 	}
-	else
-		ret=NULL;
+	else if(original.substr(pos,6)=="inline")
+	{
+		isInline=1;
+		pos+=7;
+		goto option;
+	}
 	while(pos<str.size()-1)
 	{
 		while(str[pos]==' ') pos++;

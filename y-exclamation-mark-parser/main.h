@@ -87,6 +87,7 @@ public:
 	float precedence;
 	int firstLine,lastLine;
 	vector<Line*> lines;
+	bool isInline;
 
 	string processedFunctionName;
 
@@ -165,6 +166,7 @@ public:
 	string comment;
 	Function *parent;
 	enum LineType {UNKNOWN,INTERPRETER_COMMAND,FUNCTION_DECLARATION,CODE,CODE_WITH_OPTIONS,EMPTY} type;
+	string cString;
 
 	Line(string str,uint _lineNumber);
 		
