@@ -21,8 +21,6 @@ printHelloWorld
 
 r(int)ret loadModelFrom (string)path
 	print path
-		print path
-			print path
 	return 2
 
 printHelloWorlds

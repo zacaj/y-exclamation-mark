@@ -59,12 +59,6 @@ define fastcc void @printHelloWorld ( )
 define fastcc i32 @loadModelFromstring ( i8* path)
 {
 	call void @printstring(i8* %path);
-	{
-		call void @printstring(i8* %path);
-		{
-			call void @printstring(i8* %path);
-		}
-	}
 	call void @returnint(i32 %tint342);
 	ret i32 ret;
 }
@@ -80,6 +74,7 @@ define fastcc void @printHelloWorlds ( )
 	call void @ifbool(i1 %tbool62rboolisLess);
 	{
 		call void @goToLineint(i32 %tint6417);
+	}
 	ret void;
 }
 

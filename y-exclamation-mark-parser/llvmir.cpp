@@ -122,7 +122,12 @@ void printLlvmIrCode(FILE *fp)
 			}
 			lastLine=line;
 		}
-		
+		if(lastLine!=NULL && lastLine->level!=1)
+			for(int i=lastLine->level-1;i>=1;i--)
+			{
+				indentLine(fp,i);
+				fprintf(fp,"}\n");
+			}
 		if(func->ret==NULL)
 			fprintf(fp,"\tret void;\n}\n\n");
 		else
