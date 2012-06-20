@@ -90,7 +90,8 @@ public:
 class Branch:public Type
 {
 public:
-	string value;
+	string destination;
+	bool repeat;
 	Branch()
 	{
 		name="branch";
@@ -101,7 +102,7 @@ public:
 	}
 	string getC99Constant()
 	{
-		return i2s(labels[value]);
+		return i2s(labels[destination]);
 	}
 };
 
