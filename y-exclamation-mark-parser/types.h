@@ -1,5 +1,6 @@
 #pragma once
 #include "common.h"
+#include "main.h"
 
 class Type
 {
@@ -11,9 +12,9 @@ public:
 			return 1;
 		return typeName==name;
 	}
-	virtual string getLlvmType()=0;
-	virtual string getC99Type()=0;
-	virtual string getC99Constant()=0;
+	virtual string getLlvmType(){return "";};
+	virtual string getC99Type(){return "";};
+	virtual string getC99Constant(){return "";};
 };
 
 
@@ -83,6 +84,24 @@ public:
 	string getC99Constant()
 	{
 		return i2s(value);
+	}
+};
+
+class Branch:public Type
+{
+public:
+	string value;
+	Branch()
+	{
+		name="branch";
+	}
+	string getC99Type()
+	{
+		return "branch_t";
+	}
+	string getC99Constant()
+	{
+		return i2s(labels[value]);
 	}
 };
 

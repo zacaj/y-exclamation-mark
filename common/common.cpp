@@ -2,6 +2,7 @@
 #include <stdarg.h>
 
  string invisibleCharacers=" ";
+ string lowerLetters,upperLetters,numerals;
  spos npos=string::npos;
 
 int fileExists(const char *path)
@@ -134,6 +135,12 @@ void initCommon()
 {
 	for(int i=0;i<32;i++)
 		invisibleCharacers.push_back(i);
+	for(char c='a';c<='z';c++)
+		lowerLetters.push_back(c);
+	for(char c='A';c<='Z';c++)
+		upperLetters.push_back(c);
+	for(char c='0';c<='9';c++)
+		numerals.push_back(c);
 }
 
 std::string i2s( int i )

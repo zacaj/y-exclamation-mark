@@ -106,6 +106,7 @@ void outputC99(FILE *fp)
 		}
 	}
 	fprintf(fp,"#include <stdio.h>\n\n");
+	fprintf(fp,"typedef unsigned int branch_t\n\n");
 	for(int iFunc=0;iFunc<functions.size();iFunc++)
 	{
 		Function *func=functions[iFunc];
@@ -193,8 +194,8 @@ void outputC99(FILE *fp)
 
 						fprintf(fp,");\n");
 					}
-					lastLine=line;
 				}
+				lastLine=line;
 			}
 		}
 		if(lastLine!=NULL && lastLine->level!=1)

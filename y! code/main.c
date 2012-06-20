@@ -1,12 +1,13 @@
 #include <stdio.h>
 
+typedef unsigned int branch_t
+
 int int_plus_int ( int a, int b );
 int int_asterisk_int ( int a, int b );
 void int_equal_int ( int *a, int b );
 unsigned char int_less_int ( int a, int b );
 void printstring ( char* str );
-void goToLineint ( int lineNumber );
-void ifbool ( unsigned char is );
+branch_t ifint ( int is );
 int startint ( int nArgument );
 void printHelloWorld (  );
 int loadModelFromstring ( char* path );
@@ -51,12 +52,9 @@ void printstring ( char* str )
 	printf(str);
 }
 
-void goToLineint ( int lineNumber )
+branch_t ifint ( int is )
 {
-}
-
-void ifbool ( unsigned char is )
-{
+	return ;
 }
 
 int startint ( int nArgument )
@@ -89,8 +87,6 @@ int loadModelFromstring ( char* path )
 
 void printHelloWorlds (  )
 {
-	unsigned char t_bool58r_bool_isLess_;
-	unsigned char t_bool62r_bool_isLess_;
 	int t_int0_4 = 4;
 	int t_int24_1 = 1;
 	int t_int69_0 = 0;
@@ -103,12 +99,21 @@ void printHelloWorlds (  )
 	printHelloWorld( );
 	t_int78r_int_sum_ =  int_plus_int( timesPrinted, t_int24_1 );
 	int_equal_int( &timesPrinted, t_int78r_int_sum_ );
-	t_bool62r_bool_isLess_ =  int_less_int( timesPrinted, timesToPrint );
-	ifbool( t_bool62r_bool_isLess_ );
+	ifint( timesPrinted );
 	{
-		int t_int64_17 = 17;
+		int t_int58_17 = 17;
 
-		goToLineint( t_int64_17 );
+		goToLineint( t_int58_17 );
+	}
+	{
+		char* t_string62 = "End\n";
+
+		printstring( t_string62 );
+	}
+	{
+		char* t_string64 = "Start\n";
+
+		printstring( t_string64 );
 	}
 }
 

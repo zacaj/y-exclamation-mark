@@ -68,6 +68,7 @@ int main(_In_ int _Argc, char **argv)
 	types["int"]=new Int;
 	types["string"]=new String;
 	types["bool"]=new Bool;
+	types["branch"]=new Branch;
 	int start=time(NULL);
 	FILE *fp=fopen("../y! code/main.y","r");
 	/*functions.push_back(new Function("return (int)r"));
@@ -126,6 +127,13 @@ int main(_In_ int _Argc, char **argv)
 	outputC99(fp);
 	fclose(fp);
 }
+map<string,int> labels;
+void addLabel( string label )
+{
+	auto it=labels.find(label);
+	if(it==labels.end())
+		labels[label]=labels.size();
+}
 
 Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 {
@@ -143,8 +151,8 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 
 	if(find_not(str,invisibleCharacers)!=str.size())
 	{
-		size_t tab=original.find(9);
-		processed=original;
+		size_t tab=str.find(9);
+		processed=str;
 		if(tab==string::npos)//function declaration or option
 		{
 			level=0;
@@ -152,7 +160,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 			string first;
 			if(firstSpace!=npos)
 			{
-				first=original.substr(0,firstSpace);
+				first=str.substr(0,firstSpace);
 			}
 			if(handlePotentialInterpreterOption(first))
 			{
@@ -160,7 +168,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 			}
 			else
 			{
-				functions.push_back(new Function(original));
+				functions.push_back(new Function(str));
 				scope=new Scope(functions.back());
 				scope->level=1;
 				type=FUNCTION_DECLARATION;
@@ -174,33 +182,39 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 			if(currentFunction->firstLine==-1)
 				currentFunction->firstLine=lineNumber;
 			currentFunction->lastLine=lineNumber;
-			size_t commandStart=original.find_first_not_of(9,tab);
-			if(tab==0)
-				type=CODE;
-			else
+			size_t commandStart=str.find_first_not_of(9,tab);
+			level=commandStart-tab;
+			if(tab!=0)
 			{
 				//todo handle options
 				type=CODE_WITH_OPTIONS;
-				if(original[0]=='c')
+				if(str[0]=='c')
 				{
-					cString=original.substr(commandStart,original.size()-commandStart+1);
+					cString=str.substr(commandStart,str.size()-commandStart+1);
 				}
-			}
-			level=commandStart-tab;
-			processed.erase(processed.begin(),processed.begin()+commandStart);
-			checkErrors(lineNumber==0,"Code outside of a function");
-
-			if(level==lines[lineNumber-1]->level)
-				scope=lines[lineNumber-1]->scope;
-			else if(level>lines[lineNumber-1]->level)
-			{
-				scope=new Scope(*lines[lineNumber-1]->scope);
-				scope->level=level;
 			}
 			else
 			{
+				type=CODE;
+				spos endOfFirstId=find_not(str,lowerLetters+upperLetters+numerals+"_",commandStart);
+				if(endOfFirstId!=str.size() && str[endOfFirstId]==':')//todo code after label
+				{
+					type=LABEL;
+					processed=str.substr(commandStart,endOfFirstId-commandStart);
+					addLabel(processed);
+				}
+			}
+			if(type!=LABEL)
+			{
+				processed.erase(processed.begin(),processed.begin()+commandStart);
+				checkErrors(lineNumber==0,"Code outside of a function");
+			}
+
+			{
 				for(int i=lineNumber-1;i>=0;i--)
 				{
+					if(lines[i]->type!=CODE && lines[i]->type!=CODE_WITH_OPTIONS && lines[i]->type!=FUNCTION_DECLARATION && lines[i]->type!=LABEL)
+						continue;
 					if(lines[i]->level==level)
 					{
 						scope=lines[i]->scope;
@@ -209,6 +223,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 					else if(lines[i]->level<level)
 					{
 						scope=new Scope(*lines[i]->scope);
+						scope->level=level;
 						break;
 					}
 				}
@@ -673,7 +688,10 @@ Variable::Variable( string str,size_t &pos )
 	removeLeadingTrailingSpaces(typeName);
 	type=getType(typeName);
 	pos=endOfType+1;
+
 	pos=str.find_first_not_of(' ',pos);
+	if(pos!=endOfType+1 && mode&Ob(1))
+		return;
 	spos endOfName=find(str,invisibleCharacers,pos);
 	checkErrors((endOfName==pos || endOfName==npos) && !(mode&1),"No variable name specified");
 	name=str.substr(pos,endOfName-pos);

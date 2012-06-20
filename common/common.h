@@ -182,6 +182,9 @@ bool isnumber(string str);
 	}
 
 extern string invisibleCharacers;
+extern string lowerLetters;
+extern string upperLetters;
+extern string numerals;
 extern spos npos;
 
 void _error(string file,const char *format, ...);

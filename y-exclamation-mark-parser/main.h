@@ -170,7 +170,7 @@ public:
 	Scope *scope;
 	string comment;
 	Function *parent;
-	enum LineType {UNKNOWN,INTERPRETER_COMMAND,FUNCTION_DECLARATION,CODE,CODE_WITH_OPTIONS,EMPTY} type;
+	enum LineType {UNKNOWN,INTERPRETER_COMMAND,FUNCTION_DECLARATION,CODE,CODE_WITH_OPTIONS,LABEL,EMPTY} type;
 	string cString;
 
 	Line(string str,uint _lineNumber);
@@ -181,6 +181,10 @@ public:
 	void parseNextIsFunction(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt,Function *function);
 	void parseCode(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt);
 };
+
+extern map<string,int> labels;
+
+void addLabel(string label);
 
 extern vector<Line*> lines;
 extern vector<Function*> functions;
