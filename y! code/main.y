@@ -20,6 +20,8 @@ c	if(is<times)
 		return default
 c	if(is>=times)
 		return else
+r(int) [ (int)a ]
+c	return a;
 
 
 
@@ -49,7 +51,7 @@ printHelloWorlds
 
 
 getNumberFrom (int)number into o(int) out
-	out = 3 + loadModelFrom pathToModel * number
+	out =  3 + loadModelFrom pathToModel  * number
 	
 r(string)path pathToModel
 	return "c:/model.s3d\n"

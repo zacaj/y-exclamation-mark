@@ -168,6 +168,38 @@ void outputC99(FILE *fp)
 				indentLine(fp,line->level);
 				fprintf(fp,"%s\n",line->cString.c_str());
 			}
+			else if(line->commands.size() && line->commands.back()->function->ret!=NULL && line->commands.back()->function->ret->type->is("branch"))
+			{
+				vector<Line*> l=line->getLabels();
+				//l.insert(l.begin(),line);
+				map<int,vector<Line*>> ls;
+				auto ln=l.begin();
+				for(int i=line->lineNumber+1;i<lines.size() && (ln)!=l.end() && i<l.back()->lineNumber;i++)
+				{
+					if(lines[i]->type==Line::LABEL)
+						ln++;
+					else
+					{
+						int labelId=0;//default
+						if((*ln)->type==Line::LABEL)
+						{
+							labelId=labels[(*ln)->processed];
+						}
+						auto it=ls.find(labelId);
+						if(it==ls.end())
+						{
+							vector<Line*> nlns;
+							nlns.push_back(lines[i]);
+							ls[labelId]=nlns;
+						}
+						else
+							ls[labelId].push_back(lines[i]);
+					}
+				}
+
+
+				NONE;
+			}
 			else
 			{
 				for(int j=0;j<line->commands.size();j++)

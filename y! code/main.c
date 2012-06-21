@@ -8,6 +8,7 @@ void int_equal_int ( int *a, int b );
 unsigned char int_less_int ( int a, int b );
 void printstring ( char* str );
 branch_t ifint_less_int ( int is, int times );
+int f_Q_int_Q_ ( int a );
 int startint ( int nArgument );
 void printHelloWorld (  );
 int loadModelFromstring ( char* path );
@@ -55,14 +56,20 @@ void printstring ( char* str )
 branch_t ifint_less_int ( int is, int times )
 {
 	if(is==0)
-		return (branch_t){2/* start */,0};
+		return (branch_t){2 /* start */,0};
 	}
 	if(is<times)
-		return (branch_t){0/* default */,0};
+		return (branch_t){0 /* default */,0};
 	}
 	if(is>=times)
-		return (branch_t){1/* else */,0};
+		return (branch_t){1 /* else */,0};
 	}
+	return ;
+}
+
+int f_Q_int_Q_ ( int a )
+{
+	return a;
 	return ;
 }
 
@@ -110,7 +117,6 @@ void printHelloWorlds (  )
 	printHelloWorld( );
 	t_int78r_int_sum_ =  int_plus_int( timesPrinted, t_int24_1 );
 	int_equal_int( &timesPrinted, t_int78r_int_sum_ );
-	ifint_less_int( timesPrinted, timesToPrint );
 	{
 		int t_int64_17 = 17;
 

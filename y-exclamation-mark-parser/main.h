@@ -91,6 +91,7 @@ public:
 	int firstLine,lastLine;
 	vector<Line*> lines;
 	bool isInline;
+	Line *line;
 
 	string processedFunctionName;
 	void (*internalPrintC99)(FILE*,FunctionCall*);
@@ -181,6 +182,8 @@ public:
 	void parseNextIsVariable(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt);
 	void parseNextIsFunction(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt,Function *function);
 	void parseCode(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt);
+
+	vector<Line*> getLabels();
 };
 
 extern map<string,int> labels;

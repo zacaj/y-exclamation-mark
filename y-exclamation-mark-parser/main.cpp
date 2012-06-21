@@ -185,6 +185,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 			else
 			{
 				functions.push_back(new Function(str));
+				functions.back()->line=this;
 				scope=new Scope(functions.back());
 				scope->level=1;
 				type=FUNCTION_DECLARATION;
@@ -598,6 +599,7 @@ Function::Function( string str )
 	Function();
 	firstLine=lastLine=-1;
 	precedence=0;
+	line=NULL;
 	spos pos=0;
 	internalPrintC99=NULL;
 	isInline=0;
@@ -654,6 +656,35 @@ Function::~Function()
 				}
 		}
 	}
+}
+
+vector<Line*> Line::getLabels()
+{
+	vector<Line*> l;
+	l.push_back(this);
+	//if(type==Line::LABEL)
+	{
+		for(int i=lineNumber+1;i<lines.size();i++)
+		{
+			if(lines[i]->level==level)
+			{
+				if(lines[i]->type==Line::LABEL)
+					l.push_back(lines[i]);
+				else
+				{	
+					l.push_back(lines[i]);
+					break;
+				}
+			}
+			else if(lines[i]->level<level)
+			{	
+				l.push_back(lines[i]);
+				break;
+			}
+		}
+	}
+
+	return l;
 }
 
 Identifier::Identifier( string str,spos &pos )
