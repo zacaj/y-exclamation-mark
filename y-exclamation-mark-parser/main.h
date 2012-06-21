@@ -94,6 +94,7 @@ public:
 
 	string processedFunctionName;
 	void (*internalPrintC99)(FILE*,FunctionCall*);
+	~Function();
 
 	Function()
 		:ret(NULL),precedence(0.0),internalPrintC99(NULL){}

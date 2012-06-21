@@ -12,8 +12,14 @@ c	isLess=a<b;
 print (string)str
 c	printf(str);
 inline goToLine (int)lineNumber
-c:	goto loop;
-r(branch) if (int)is
+c	goto loop;
+r(branch) if (int)is < (int)times
+c	if(is==0)
+		return start
+c	if(is<times)
+		return default
+c	if(is>=times)
+		return else
 
 
 
@@ -34,7 +40,7 @@ printHelloWorlds
 	timesPrinted = 0
 	printHelloWorld
 	timesPrinted = timesPrinted + 1
-	if timesPrinted // < timesToPrint
+	if timesPrinted < timesToPrint
 		goToLine 17
 	else:
 		print "End\n"

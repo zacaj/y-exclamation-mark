@@ -59,6 +59,12 @@ void returnDefaultC99(FILE *fp,FunctionCall *call)
 	checkErrors(call->callee->ret->name.empty(),"Function does not have an anonymous return variable!");
 	fprintf(fp,"return %s;\n",call->callee->ret->name.c_str());
 }
+void returnLabelC99(FILE *fp,FunctionCall *call)
+{
+	checkErrors(call->callee->ret==NULL,"Function does not return a value!");
+	checkErrors(!call->callee->ret->type->is("branch"),"Function does not return a branch");
+	fprintf(fp,"return (branch_t){%i,%i};\n",call->callee->ret->name.c_str());
+}
 
 
 int main(_In_ int _Argc, char **argv)
@@ -97,13 +103,14 @@ int main(_In_ int _Argc, char **argv)
 		realLineNumber++;
 	}
 	fclose(fp);
-	for(auto it=types.begin();it!=types.end();it++)
+	/*for(auto it=types.begin();it!=types.end();it++)
 	{
 		functions.push_back(new Function("inline return ("+it->first+")r"));
 		functions.back()->internalPrintC99=returnC99;
-	}
+	}*/
 	functions.push_back(new Function("inline return"));
 	functions.back()->internalPrintC99=returnDefaultC99;
+	functions.push_back(new Function("inline return default"));
 
 	for(int i=0;i<lines.size();i++)
 	{
@@ -241,6 +248,25 @@ void Line::splitCommands( string str )
 		return;
 	vector<CallToken> call;
 	spos pos=0;
+	vector<int> returnFunctions;
+	if(parent->ret!=NULL)
+	{
+		if(parent->ret->type->is("branch"))
+		{
+			for(auto it=labels.begin();it!=labels.end();it++)
+			{
+				returnFunctions.push_back(functions.size());
+				functions.push_back(new Function("inline return "+it->first+""));
+				returnFunctions.push_back(functions.size());
+				functions.push_back(new Function("inline return (int)r"+it->first+""));
+			}
+		}
+		else
+		{
+			returnFunctions.push_back(functions.size());
+			functions.push_back(new Function("inline return ("+parent->ret->type->name+")r"));
+		}
+	}
 	//set<Function*> possibleFunctions;
 	while(pos<str.size())
 	{
@@ -487,6 +513,11 @@ fail:
 	commands=possibilities[0].call;
 	debug("Processed line %i\n",originalLineNumber);
 	NONE;
+	for(int i=returnFunctions.size()-1;i>=0;i--)//go in reverse to indices arent invalidated
+	{
+		delete functions[returnFunctions[i]];
+		functions.erase(functions.begin()+returnFunctions[i]);
+	}
 }
 
 void Line::parseNextIsNewVariable( vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt )
@@ -621,6 +652,23 @@ Function::Function( string str )
 		minIdentifiers+=!name.back()->optional;
 		if(name.back()->var!=NULL)
 			arguments.push_back(name.back()->var);
+	}
+}
+
+Function::~Function()
+{
+	for(int i=0;i<name.size();i++)
+	{
+		if(name[i]->var==NULL)
+		{
+			auto it=identifiers.find(name[i]->text);
+			checkErrors(it==identifiers.end(),"internal error 56");
+			for(int j=0;j<it->second.size();j++)
+				if(it->second[j]==this)
+				{
+					it->second.erase(it->second.begin()+j--);
+				}
+		}
 	}
 }
 
