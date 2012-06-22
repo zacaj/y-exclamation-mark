@@ -1,6 +1,10 @@
 #include <stdio.h>
 
-typedef unsigned int branch_t
+typedef struct 
+{
+	int labelId;
+	unsigned char repeat;
+} branch_t;
 
 int int_plus_int ( int a, int b );
 int int_asterisk_int ( int a, int b );
@@ -59,15 +63,17 @@ void printstring ( char* str )
 branch_t ifint_less_int ( int is, int times )
 {
 	if(is==0)
-		return (branch_t){2 /* start */,0};
+	{
+		return (branch_t){3 /* start */,0};
 	}
 	if(is<times)
+	{
 		return (branch_t){0 /* default */,0};
 	}
 	if(is>=times)
-		return (branch_t){1 /* else */,0};
+	{
+		return (branch_t){2 /* else */,0};
 	}
-	return ;
 }
 
 int startint ( int nArgument )
@@ -102,80 +108,87 @@ void printHelloWorlds (  )
 {
 	int t_int0_4 = 4;
 	int t_int24_1 = 1;
-	int t_int69_0 = 0;
+	int t_int69_ = -1;
 	int t_int78r_int_sum_;
 	int timesPrinted;
 	int timesToPrint;
 
 	getNumberFromintintoint( t_int0_4, &timesToPrint );
-	int_equal_int( &timesPrinted, t_int69_0 );
+	int_equal_int( &timesPrinted, t_int69_ );
+loop:
 	printHelloWorld( );
 	t_int78r_int_sum_ =  int_plus_int( timesPrinted, t_int24_1 );
 	int_equal_int( &timesPrinted, t_int78r_int_sum_ );
+	branch_t t_branch54 = ifint_less_int( timesPrinted, timesToPrint );
+	if( t_branch54.labelId==0 )
 	{
 		int t_int64_17 = 17;
 
-		goToLineint( t_int64_17 );
+		{
+			goto loop;
+		}
 	}
+	else if( t_branch54.labelId==2 )
 	{
 		char* t_string5 = "End\n";
 
 		printstring( t_string5 );
 	}
+	else if( t_branch54.labelId==3 )
 	{
+		int t_int81_17 = 17;
 		char* t_string45 = "Start\n";
 
 		printstring( t_string45 );
+		{
+			goto loop;
+		}
 	}
 }
 
 void getNumberFromintintoint ( int number, int *out )
 {
-	int t_int23r_int_ret_loadModelFrom_;
-	int t_int29r_int_;
-	int t_int41r_int_sum_;
-	int t_int78r_int_product_;
-	int t_int81_3 = 3;
-	char* t_string59r_string_path_pathToModel;
+	int t_int16r_int_product_;
+	int t_int27_3 = 3;
+	int t_int29r_int_sum_;
+	int t_int41r_int_ret_loadModelFrom_;
+	int t_int78r_int_;
+	char* t_string23r_string_path_pathToModel;
 
-	t_string59r_string_path_pathToModel =  pathToModel( );
-	t_int23r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string59r_string_path_pathToModel );
-	t_int41r_int_sum_ =  int_plus_int( t_int81_3, t_int23r_int_ret_loadModelFrom_ );
-	t_int29r_int_ =  f_Q_int_Q_( t_int41r_int_sum_ );
-	t_int78r_int_product_ =  int_asterisk_int( t_int29r_int_, number );
-	int_equal_int( &*out, t_int78r_int_product_ );
+	t_string23r_string_path_pathToModel =  pathToModel( );
+	t_int41r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string23r_string_path_pathToModel );
+	t_int29r_int_sum_ =  int_plus_int( t_int27_3, t_int41r_int_ret_loadModelFrom_ );
+	t_int78r_int_ =  f_Q_int_Q_( t_int29r_int_sum_ );
+	t_int16r_int_product_ =  int_asterisk_int( t_int78r_int_, number );
+	int_equal_int( &*out, t_int16r_int_product_ );
 }
 
 char* pathToModel (  )
 {
 	char* path;
-	char* t_string48 = "c:/model.s3d\n";
+	char* t_string84 = "c:/model.s3d\n";
 
-	return t_string48;
+	return t_string84;
 	return path;
 }
 
 unsigned char f_Q_bool_Q_ ( unsigned char a )
 {
 	return a;
-	return ;
 }
 
 branch_t f_Q_branch_Q_ ( branch_t a )
 {
 	return a;
-	return ;
 }
 
 int f_Q_int_Q_ ( int a )
 {
 	return a;
-	return ;
 }
 
 char* f_Q_string_Q_ ( char* a )
 {
 	return a;
-	return ;
 }
 

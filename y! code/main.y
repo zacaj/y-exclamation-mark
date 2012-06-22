@@ -11,7 +11,7 @@ r(bool)isLess (int)a < (int)b
 c	isLess=a<b;
 print (string)str
 c	printf(str);
-inline goToLine (int)lineNumber
+inline goto (int)lineNumber
 c	goto loop;
 r(branch) if (int)is < (int)times
 c	if(is==0)
@@ -38,15 +38,17 @@ r(int)ret loadModelFrom (string)path
 
 printHelloWorlds
 	getNumberFrom 4 into timesToPrint
-	timesPrinted = 0
+	timesPrinted = -1
+loop:
 	printHelloWorld
 	timesPrinted = timesPrinted + 1
 	if timesPrinted < timesToPrint
-		goToLine 17
+		goto loop
 	else:
 		print "End\n"
 	start:
 		print "Start\n"
+		goto loop
 
 
 getNumberFrom (int)number into o(int) out

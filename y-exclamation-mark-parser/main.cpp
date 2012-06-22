@@ -92,6 +92,7 @@ int main(_In_ int _Argc, char **argv)
 	int start=time(NULL);
 	FILE *fp=fopen("../y! code/main.y","r");
 	addLabel("default");
+	addLabel("else");
 	/*functions.push_back(new Function("return (int)r"));
 	functions.push_back(new Function("return (string)r"));
 	functions.push_back(new Function("r(int)sum (int)a + (int) b p = -20"));
@@ -188,6 +189,17 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 			if(handlePotentialInterpreterOption(first))
 			{
 				type=INTERPRETER_COMMAND;
+				return;
+			}
+			
+			spos endOfFirstId=find_not(str,lowerLetters+upperLetters+numerals+"_");
+			if(endOfFirstId!=str.size() && str[endOfFirstId]==':')//todo code after label
+			{
+				type=LABEL;
+				processed=str.substr(0,endOfFirstId);
+				addLabel(processed);
+				checkErrors(lineNumber==0,"Cannot have a label on the first line");
+				level=lines[lineNumber-1]->level;
 			}
 			else
 			{
@@ -197,9 +209,10 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 				scope->level=1;
 				type=FUNCTION_DECLARATION;
 				currentFunction=functions.back();
+				return;
 			}
 		}
-		else
+		//else
 		{
 			parent=currentFunction;
 			currentFunction->lines.push_back(this);
@@ -207,8 +220,9 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 				currentFunction->firstLine=lineNumber;
 			currentFunction->lastLine=lineNumber;
 			size_t commandStart=str.find_first_not_of(9,tab);
-			level=commandStart-tab;
-			if(tab!=0)
+			if(commandStart!=npos)
+				level=commandStart-tab;
+			if(tab!=0 && tab!=npos)
 			{
 				//todo handle options
 				type=CODE_WITH_OPTIONS;
@@ -217,7 +231,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 					cString=str.substr(commandStart,str.size()-commandStart+1);
 				}
 			}
-			else
+			else if(tab!=npos)
 			{
 				type=CODE;
 				spos endOfFirstId=find_not(str,lowerLetters+upperLetters+numerals+"_",commandStart);
@@ -228,7 +242,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 					addLabel(processed);
 				}
 			}
-			if(type!=LABEL)
+			if(type!=LABEL && commandStart!=npos)
 			{
 				processed.erase(processed.begin(),processed.begin()+commandStart);
 				checkErrors(lineNumber==0,"Code outside of a function");
@@ -299,10 +313,10 @@ void Line::splitCommands( string str )
 			token.possibilities++;
 			scope->addVariable(token.possibleVariable);
 		}
-		else if(isdigit(id[0]))//todo variables that start with numbers?
+		else if(isdigit(id[0]) || id[0]=='-')//todo variables that start with numbers?
 		{
 			string num;
-			while(pos<str.size() && isdigit(str[pos]))
+			while(pos<str.size() && (isdigit(str[pos]) || id[0]=='-'))
 				num.push_back(str[pos++]);
 			id=scope->getTempName("int","_"+num);
 			token.possibleVariable=new Variable(id,getType("int"));
@@ -605,7 +619,7 @@ std::string Scope::getTempName( string typeName,string suffix/*=""*/ )
 {
 	string ret;
 //	while(variables.find((ret=string("__ZXQ_temp_")+typeName+i2s(rand())+suffix))!=variables.end());
-	while(variables.find((ret=string("t_")+typeName+i2s(rand()%100)+suffix))!=variables.end());
+	while(variables.find((ret=string("t_")+typeName+i2s(rand()%100)+tokenize(suffix)))!=variables.end());
 	return ret;
 }
 

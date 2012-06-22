@@ -117,6 +117,7 @@ public:
 		function=NULL;
 	}
 	string llvmCall();
+	void printC99(FILE *fp);
 };
 
 class Scope
@@ -185,6 +186,8 @@ public:
 	void parseCode(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt);
 
 	vector<Line*> getLabels();
+
+	int printC99(FILE *fp,int replacementLevel=-1);
 };
 
 extern map<string,int> labels;
