@@ -136,26 +136,28 @@ void printHelloWorlds (  )
 
 void getNumberFromintintoint ( int number, int *out )
 {
-	int t_int42r_int_sum_;
+	int t_int27r_int_product_;
+	int t_int42r_int_;
 	int t_int81_3 = 3;
 	int t_int91r_int_ret_loadModelFrom_;
-	int t_int95r_int_product_;
+	int t_int95r_int_sum_;
 	char* t_string27r_string_path_pathToModel;
 	char* t_string61r_string_path_pathToModel;
 
 	t_string61r_string_path_pathToModel =  pathToModel( );
 	t_int91r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string61r_string_path_pathToModel );
-	t_int95r_int_product_ =  int_asterisk_int( t_int91r_int_ret_loadModelFrom_, number );
-	t_int42r_int_sum_ =  int_plus_int( t_int81_3, t_int95r_int_product_ );
-	int_equal_int( &*out, t_int42r_int_sum_ );
+	t_int95r_int_sum_ =  int_plus_int( t_int81_3, t_int91r_int_ret_loadModelFrom_ );
+	t_int42r_int_ =  f_Q_int_Q_( t_int95r_int_sum_ );
+	t_int27r_int_product_ =  int_asterisk_int( t_int42r_int_, number );
+	int_equal_int( &*out, t_int27r_int_product_ );
 }
 
 char* pathToModel (  )
 {
 	char* path;
-	char* t_string27 = "c:/model.s3d\n";
+	char* t_string36 = "c:/model.s3d\n";
 
-	return t_string27;
+	return t_string36;
 	return path;
 }
 

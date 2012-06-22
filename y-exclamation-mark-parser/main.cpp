@@ -617,6 +617,7 @@ Function::Function( string str )
 		pos+=7;
 		goto option;
 	}
+
 	while(pos<str.size()-1)
 	{
 		while(str[pos]==' ') pos++;
@@ -700,14 +701,30 @@ Identifier::Identifier( string str,spos &pos )
 	}
 	text=str.substr(pos,str.find(' ',pos+1)-pos);
 	removeLeadingTrailingSpaces(text);
-	if(text.find('(')!=npos)//variable
+	if((text.find('('))!=npos)//variable?
 	{
+		spos thisOpen=str.find('(',pos);
 		spos old=pos;
+		spos nextClose=str.find(')',thisOpen);
+		spos nextOpen=str.find('(',thisOpen+1);
+		spos nextAny=find_not(str,invisibleCharacers,pos+1);
+		if(nextClose==npos || (nextOpen!=npos && nextOpen<nextClose) || nextAny==npos)
+			goto id;
+		string betweenParen=str.substr(thisOpen+1,nextClose-thisOpen-1);
+		removeLeadingTrailingSpaces(betweenParen);
+		if(find_not(betweenParen,invisibleCharacers)==betweenParen.size())
+			goto id;
+		if(types.find(betweenParen)==types.end())
+			goto id;
+		if(find_not(str,invisibleCharacers,nextClose)==str.size())
+			goto id;
+
 		var=new Variable(str,pos);
 		var->mode|=Ob(100000);
 		text=str.substr(old,pos-old);
+		return;
 	}
-	else
+	id:
 	{
 		spos end=find(str,invisibleCharacers+']',pos+1);
 		if(end!=str.size())
