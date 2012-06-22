@@ -20,8 +20,7 @@ c	if(is<times)
 		return default
 c	if(is>=times)
 		return else
-r(int) ( (int)a )
-c	return a;
+
 
 
 

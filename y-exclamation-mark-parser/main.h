@@ -130,6 +130,7 @@ public:
 	string getTempName(string typeName,string suffix="");
 	Variable *getVariable(string name);
 	void addVariable(Variable *var);
+	void removeVariable(string name);
 	void writeC99(FILE *fp);
 };
 #include <set>

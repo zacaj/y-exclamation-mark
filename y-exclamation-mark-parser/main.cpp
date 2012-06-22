@@ -66,7 +66,21 @@ void returnLabelC99(FILE *fp,FunctionCall *call)
 	fprintf(fp,"return (branch_t){%i /* %s */,%i};\n",labels[call->function->name[1]->text],call->function->name[1]->text.c_str(),call->function->arguments.size());
 }
 
-
+void parseSourceLine(string str)
+{
+	if(!str.empty())
+	{
+		removeLeadingTrailingSpaces(str);
+		Line *line=new Line(str,realLineNumber);
+		if(line->type==Line::EMPTY)
+			delete line;
+		else
+		{
+			lines.push_back(line);
+		}
+	}
+	realLineNumber++;
+}
 int main(_In_ int _Argc, char **argv)
 {
 
@@ -90,25 +104,9 @@ int main(_In_ int _Argc, char **argv)
 	while(!feof(fp))
 	{
 		string str=readTo(fp,'\n');
-		if(!str.empty())
-		{
-			removeLeadingTrailingSpaces(str);
-			Line *line=new Line(str,realLineNumber);
-			if(line->type==Line::EMPTY)
-				delete line;
-			else
-			{
-				lines.push_back(line);
-			}
-		}
-		realLineNumber++;
+		parseSourceLine(str);
 	}
 	fclose(fp);
-	for(auto it=types.begin();it!=types.end();it++)
-	{
-		functions.push_back(new Function("inline return ("+it->first+")r"));
-		functions.back()->internalPrintC99=returnC99;
-	}
 	functions.push_back(new Function("inline return"));
 	functions.back()->internalPrintC99=returnDefaultC99;
 
@@ -119,6 +117,15 @@ int main(_In_ int _Argc, char **argv)
 
 		functions.push_back(new Function("inline return "+it->first+" (int)r"));
 		functions.back()->internalPrintC99=returnLabelC99;//todo change for optional?
+	}
+
+	for(auto it=types.begin();it!=types.end();it++)
+	{
+		functions.push_back(new Function("inline return ("+it->first+")r"));
+		functions.back()->internalPrintC99=returnC99;
+
+		parseSourceLine("r("+it->first+") ( ("+it->first+")a )");
+		parseSourceLine("\treturn a");
 	}
 
 	for(int i=0;i<lines.size();i++)
@@ -450,6 +457,7 @@ void Line::splitCommands( string str )
 			if(indf.func->ret==NULL)
 				FAIL((indf.func->original+" does not return a value"));
 			Variable *var=new Variable(scope->getTempName(indf.func->ret->type->name,tokenize(indf.func->original)),indf.func->ret->type);
+			var->mode|=Ob(10000000);
 			scope->addVariable(var);
 			{
 				FunctionCall *fcall=new FunctionCall();
@@ -477,6 +485,14 @@ void Line::splitCommands( string str )
 		continue;//skip fail if got to here
 
 fail:
+		for(int j=0;j<possibilities[i].call.size();j++)//remove unused temp vars
+		{
+			//for(int k=0;k<possibilities[i].call[j]->arguments.size();k++)
+			{
+				if(possibilities[i].call[j]->ret!=NULL && possibilities[i].call[j]->ret->mode&Ob(10000000))
+					scope->removeVariable(possibilities[i].call[j]->ret->name);
+			}
+		}
 		possibilities.erase(possibilities.begin()+i--);
 	}
 	checkErrors(possibilities.size()==0,"no function specified");
@@ -591,6 +607,11 @@ std::string Scope::getTempName( string typeName,string suffix/*=""*/ )
 //	while(variables.find((ret=string("__ZXQ_temp_")+typeName+i2s(rand())+suffix))!=variables.end());
 	while(variables.find((ret=string("t_")+typeName+i2s(rand()%100)+suffix))!=variables.end());
 	return ret;
+}
+
+void Scope::removeVariable( string name )
+{
+	variables.erase(name);
 }
 
 Function::Function( string str )

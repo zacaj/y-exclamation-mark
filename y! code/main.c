@@ -8,13 +8,16 @@ void int_equal_int ( int *a, int b );
 unsigned char int_less_int ( int a, int b );
 void printstring ( char* str );
 branch_t ifint_less_int ( int is, int times );
-int f_Q_int_Q_ ( int a );
 int startint ( int nArgument );
 void printHelloWorld (  );
 int loadModelFromstring ( char* path );
 void printHelloWorlds (  );
 void getNumberFromintintoint ( int number, int *out );
 char* pathToModel (  );
+unsigned char f_Q_bool_Q_ ( unsigned char a );
+branch_t f_Q_branch_Q_ ( branch_t a );
+int f_Q_int_Q_ ( int a );
+char* f_Q_string_Q_ ( char* a );
 
 
 int main(int argc,char **argv)
@@ -67,12 +70,6 @@ branch_t ifint_less_int ( int is, int times )
 	return ;
 }
 
-int f_Q_int_Q_ ( int a )
-{
-	return a;
-	return ;
-}
-
 int startint ( int nArgument )
 {
 	int success;
@@ -103,8 +100,6 @@ int loadModelFromstring ( char* path )
 
 void printHelloWorlds (  )
 {
-	unsigned char t_bool58r_bool_isLess_;
-	unsigned char t_bool62r_bool_isLess_;
 	int t_int0_4 = 4;
 	int t_int24_1 = 1;
 	int t_int69_0 = 0;
@@ -136,28 +131,51 @@ void printHelloWorlds (  )
 
 void getNumberFromintintoint ( int number, int *out )
 {
-	int t_int27r_int_product_;
-	int t_int42r_int_;
+	int t_int23r_int_ret_loadModelFrom_;
+	int t_int29r_int_;
+	int t_int41r_int_sum_;
+	int t_int78r_int_product_;
 	int t_int81_3 = 3;
-	int t_int91r_int_ret_loadModelFrom_;
-	int t_int95r_int_sum_;
-	char* t_string27r_string_path_pathToModel;
-	char* t_string61r_string_path_pathToModel;
+	char* t_string59r_string_path_pathToModel;
 
-	t_string61r_string_path_pathToModel =  pathToModel( );
-	t_int91r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string61r_string_path_pathToModel );
-	t_int95r_int_sum_ =  int_plus_int( t_int81_3, t_int91r_int_ret_loadModelFrom_ );
-	t_int42r_int_ =  f_Q_int_Q_( t_int95r_int_sum_ );
-	t_int27r_int_product_ =  int_asterisk_int( t_int42r_int_, number );
-	int_equal_int( &*out, t_int27r_int_product_ );
+	t_string59r_string_path_pathToModel =  pathToModel( );
+	t_int23r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string59r_string_path_pathToModel );
+	t_int41r_int_sum_ =  int_plus_int( t_int81_3, t_int23r_int_ret_loadModelFrom_ );
+	t_int29r_int_ =  f_Q_int_Q_( t_int41r_int_sum_ );
+	t_int78r_int_product_ =  int_asterisk_int( t_int29r_int_, number );
+	int_equal_int( &*out, t_int78r_int_product_ );
 }
 
 char* pathToModel (  )
 {
 	char* path;
-	char* t_string36 = "c:/model.s3d\n";
+	char* t_string48 = "c:/model.s3d\n";
 
-	return t_string36;
+	return t_string48;
 	return path;
+}
+
+unsigned char f_Q_bool_Q_ ( unsigned char a )
+{
+	return a;
+	return ;
+}
+
+branch_t f_Q_branch_Q_ ( branch_t a )
+{
+	return a;
+	return ;
+}
+
+int f_Q_int_Q_ ( int a )
+{
+	return a;
+	return ;
+}
+
+char* f_Q_string_Q_ ( char* a )
+{
+	return a;
+	return ;
 }
 
