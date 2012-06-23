@@ -11,8 +11,8 @@ inline o(int)a = (int) b p = -100
 c	*a=b;
 
 o(string)a = (string)b p = -100
-c	a=malloc(strlen(b));
-c	strcpy(a,b);
+c	*a=malloc(strlen(b));
+c	strcpy(*a,b);
 
 r(bool)isLess (int)a < (int)b
 c	isLess=a<b;

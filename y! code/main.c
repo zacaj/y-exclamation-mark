@@ -45,8 +45,8 @@ int int_asterisk_int ( int a, int b )
 
 void string_equal_string ( char* *a, char* b )
 {
-	a=malloc(strlen(b));
-	strcpy(a,b);
+	*a=malloc(strlen(b));
+	strcpy(*a,b);
 }
 
 unsigned char int_less_int ( int a, int b )
@@ -95,10 +95,10 @@ int loadModelFromstring ( char* path )
 	int t_int34_2 = 2;
 
 	{//inline call to int_equal_int
-		int a = ret;
+		int *a = &ret;
 		int b = t_int34_2;
 		*a=b;
-		t_Label43:
+		t_Label43:;
 	}
 	printstring( path );
 	return ret;
@@ -116,19 +116,19 @@ void printHelloWorlds (  )
 
 	getNumberFromintintoint( t_int0_4, &timesToPrint );
 	{//inline call to int_equal_int
-		int a = timesPrinted;
+		int *a = &timesPrinted;
 		int b = t_int69_;
 		*a=b;
-		t_Label23:
+		t_Label23:;
 	}
 loop:
 	printHelloWorld( );
 	t_int78r_int_sum_ =  int_plus_int( timesPrinted, t_int24_1 );
 	{//inline call to int_equal_int
-		int a = timesPrinted;
+		int *a = &timesPrinted;
 		int b = t_int78r_int_sum_;
 		*a=b;
-		t_Label87:
+		t_Label87:;
 	}
 	t_bool64r_bool_isLess_ =  int_less_int( timesPrinted, timesToPrint );
 	branch_t t_branch14 = ifbool( t_bool64r_bool_isLess_ );
@@ -156,7 +156,7 @@ void getNumberFromintintoint ( int number, int *out )
 	char* t_string81 = "foo";
 
 	{//inline call to pathToModelstringstring
-		char* t_string48;
+		char* path;
 		char* text = t_string81;
 		char* text2 = t_string27;
 		char* t_string93 = "c:/model.s3d\n";
@@ -165,20 +165,18 @@ void getNumberFromintintoint ( int number, int *out )
 		printstring( text2 );
 		printstring( text2 );
 		string_equal_string( &path, t_string93 );
-		t_string48 = path;
-}
-		t_Label3:
-		t_string31inline_r_string_path_pathToModel_ = t_string48;
+		t_Label3:;
+		t_string31inline_r_string_path_pathToModel_ = path;
 	}
 	t_int8r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string31inline_r_string_path_pathToModel_ );
 	t_int44r_int_sum_ =  int_plus_int( t_int45_3, t_int8r_int_ret_loadModelFrom_ );
 	t_int39r_int_ =  f_C_int_D_( t_int44r_int_sum_ );
 	t_int26r_int_product_ =  int_asterisk_int( t_int39r_int_, number );
 	{//inline call to int_equal_int
-		int a = out;
+		int *a = &*out;
 		int b = t_int26r_int_product_;
 		*a=b;
-		t_Label0:
+		t_Label48:;
 	}
 }
 

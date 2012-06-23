@@ -210,14 +210,20 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 				lastLineLevel=replacementLevel+1;
 				if(call->function->ret!=NULL)
 				{
-					inlineReturnVariableName=scope->getTempName(call->function->ret->type->name);
+					if(call->function->ret->name.empty())
+						inlineReturnVariableName=scope->getTempName(call->function->ret->type->name);
+					else
+						inlineReturnVariableName=call->function->ret->name;
 					indentLine(fp,lastLineLevel);
 					fprintf(fp,"%s %s;\n",call->function->ret->type->getC99Type().c_str(),inlineReturnVariableName.c_str());
 				}
 				for(int k=0;k<call->function->arguments.size();k++)
 				{
 					indentLine(fp,lastLineLevel);
-					fprintf(fp,"%s %s = %s;\n",call->function->arguments[k]->type->getC99Type().c_str(),call->function->arguments[k]->name.c_str(),call->arguments[k]->name.c_str());
+					fprintf(fp,"%s%s%s = %s%s%s;\n",call->function->arguments[k]->type->getC99Type().c_str(),(call->function->arguments[k]->mode&Ob(100))?" *":" ",call->function->arguments[k]->name.c_str()
+						,(call->function->arguments[k]->mode&Ob(100))?"&":""
+						,(call->arguments[k]->mode&Ob(100))?"*":""
+						,call->arguments[k]->name.c_str());
 				}
 
 				for(int k=0;k<call->function->lines.size();k++)
@@ -225,7 +231,7 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 
 				fixLevels(fp,replacementLevel+1,line);
 
-				if(call->function->ret==NULL || call->function->ret->name.empty() || lastReturn>lastReturnSet)
+			/*	if(call->function->ret==NULL || call->function->ret->name.empty() || lastReturn>lastReturnSet)
 				{
 
 				}
@@ -233,10 +239,10 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 				{
 					indentLine(fp,replacementLevel+1);
 					fprintf(fp,"%s = %s;\n",inlineReturnVariableName.c_str(),call->function->ret->name.c_str());
-				}
+				}*/
 
 				indentLine(fp,replacementLevel+1);
-				fprintf(fp,"%s:\n",inlineReturnLabel.c_str());
+				fprintf(fp,"%s:;\n",inlineReturnLabel.c_str());
 				if(call->ret!=NULL)
 				{
 					indentLine(fp,replacementLevel+1);
