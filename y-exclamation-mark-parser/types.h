@@ -114,6 +114,10 @@ public:
 	{
 		name="Label";
 	}
+	string getC99Type()
+	{
+		return "int";
+	}
 };
 
 extern map<string,Type*> types;

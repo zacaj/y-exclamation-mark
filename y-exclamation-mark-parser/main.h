@@ -110,11 +110,13 @@ public:
 	vector<Variable*> arguments;
 	Variable *ret;
 	Function *callee;
+	Line *line;
 
 	FunctionCall()
 	{
 		ret=NULL;
 		function=NULL;
+		line=NULL;
 	}
 	string llvmCall();
 	void printC99(FILE *fp);
@@ -132,7 +134,7 @@ public:
 	Variable *getVariable(string name);
 	void addVariable(Variable *var);
 	void removeVariable(string name);
-	void writeC99(FILE *fp);
+	void writeC99(FILE *fp,int level=-1);
 };
 #include <set>
 struct CallToken

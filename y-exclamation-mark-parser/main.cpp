@@ -47,23 +47,49 @@ vector<Line*> lines;
 void debugIntermediateForm(FILE *fp);
 void printLlvmIrCode(FILE *fp);
 void outputC99(FILE *fp);
-
+extern int lastReturn;
+extern bool currentlyInline;
+extern string inlineReturnVariableName,inlineReturnLabel;
 void returnC99(FILE *fp,FunctionCall *call)
 {
 	Function *func=call->function;
-	fprintf(fp,"return %s;\n",call->arguments[0]->name.c_str());
+	if(currentlyInline)
+	{
+		fprintf(fp,"%s = %s;\ngoto %s;\n",inlineReturnVariableName.c_str(),call->arguments[0]->name.c_str(),inlineReturnLabel.c_str());
+	}
+	else
+	{
+		fprintf(fp,"return %s;\n",call->arguments[0]->name.c_str());
+		lastReturn=call->line->lineNumber;
+	}
 }
 void returnDefaultC99(FILE *fp,FunctionCall *call)
 {
 	checkErrors(call->callee->ret==NULL,"Function does not return a value!");
 	checkErrors(call->callee->ret->name.empty(),"Function does not have an anonymous return variable!");
-	fprintf(fp,"return %s;\n",call->callee->ret->name.c_str());
+	if(currentlyInline)
+	{
+		fprintf(fp,"%s = %s;\ngoto %s;\n",inlineReturnVariableName.c_str(),call->callee->ret->name.c_str(),inlineReturnLabel.c_str());
+	}
+	else
+	{
+		fprintf(fp,"return %s;\n",call->callee->ret->name.c_str());
+		lastReturn=call->line->lineNumber;
+	}
 }
 void returnLabelC99(FILE *fp,FunctionCall *call)
 {
 	checkErrors(call->callee->ret==NULL,"Function does not return a value!");
 	checkErrors(!call->callee->ret->type->is("branch"),"Function does not return a branch");
-	fprintf(fp,"return (branch_t){%i /* %s */,%i};\n",labels[call->function->name[1]->text],call->function->name[1]->text.c_str(),call->function->arguments.size());
+	if(currentlyInline)
+	{
+		fprintf(fp,"%s = (branch_t){%i /* %s */,%i};\ngoto %s;\n",inlineReturnVariableName.c_str(),labels[call->function->name[1]->text],call->function->name[1]->text.c_str(),inlineReturnLabel.c_str());
+	}
+	else
+	{
+		fprintf(fp,"return (branch_t){%i /* %s */,%i};\n",labels[call->function->name[1]->text],call->function->name[1]->text.c_str(),call->function->arguments.size());
+		lastReturn=call->line->lineNumber;
+	}
 }
 void gotoC99(FILE *fp,FunctionCall *call)
 {
@@ -490,6 +516,7 @@ void Line::splitCommands( string str )
 				fcall->function=indf.func;
 				fcall->ret=NULL;
 				fcall->callee=parent;
+				fcall->line=this;
 				for(int j=indf.start;j<indf.end;j++)
 				{
 					if(possibility[j].possibleVariable!=NULL)
@@ -515,6 +542,8 @@ void Line::splitCommands( string str )
 				FunctionCall *fcall=new FunctionCall();
 				fcall->function=indf.func;
 				fcall->ret=var;
+				fcall->line=this;
+				fcall->callee=parent;
 				for(int j=indf.start;j<indf.end;j++)
 				{
 					if(possibility[j].possibleVariable!=NULL)
@@ -668,8 +697,15 @@ Variable * Scope::getVariable( string name )
 std::string Scope::getTempName( string typeName,string suffix/*=""*/ )
 {
 	string ret;
-//	while(variables.find((ret=string("__ZXQ_temp_")+typeName+i2s(rand())+suffix))!=variables.end());
-	while(variables.find((ret=string("t_")+typeName+i2s(rand()%100)+tokenize(suffix)))!=variables.end());
+	if(typeName=="Label")
+	{
+		while(labels.find((ret=string("t_")+typeName+i2s(rand()%100)+tokenize(suffix)))!=labels.end());
+	}
+	else
+	{
+		//	while(variables.find((ret=string("__ZXQ_temp_")+typeName+i2s(rand())+suffix))!=variables.end());
+		while(variables.find((ret=string("t_")+typeName+i2s(rand()%100)+tokenize(suffix)))!=variables.end());
+	}
 	return ret;
 }
 

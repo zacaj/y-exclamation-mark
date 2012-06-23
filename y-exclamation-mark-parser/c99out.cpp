@@ -3,10 +3,16 @@
 
 void indentLine(FILE *fp,int level);
 
+
 Line *lastLine=NULL;
+int lastReturn=-1;
+int lastReturnSet=-1;
 uchar lastLineLevel=-1;
-void Scope::writeC99(FILE *fp)
+
+void Scope::writeC99( FILE *fp,int level/*=-1*/ )
 {
+	if(level==-1)
+		level=this->level;
 	bool written=0;
 	for(map<string,Variable*>::iterator it=variables.begin();it!=variables.end();it++)
 	{
@@ -61,12 +67,19 @@ void Function::printC99Declaration(FILE *fp)
 void FunctionCall::printC99(FILE *fp)
 {
 	if(ret!=NULL)
+	{
+		if(callee->ret!=NULL && ret->name==callee->ret->name)
+			lastReturnSet=line->lineNumber;
 		fprintf(fp,"%s =  %s( ",ret->name.c_str(),function->processedFunctionName.c_str());
+	}
 	else
 		fprintf(fp,"%s( ",function->processedFunctionName.c_str());
 
 	for(int k=0;k<arguments.size();k++)
 	{
+		if(ret!=NULL && function->arguments[k]->mode&Ob(100) && arguments[k]->name==ret->name)
+			lastReturnSet=line->lineNumber;
+
 		fprintf(fp,"%s%s%s",(function->arguments[k]->mode&Ob(100))?"&":"",(arguments[k]->mode&Ob(100))?"*":"",arguments[k]->name.c_str());
 		if(k==arguments.size()-1)
 			fprintf(fp," ");
@@ -90,7 +103,7 @@ void fixLevels(FILE *fp,int level,Line *line)
 				indentLine(fp,i);
 				fprintf(fp,"{\n");
 			}
-			line->scope->writeC99(fp);
+			line->scope->writeC99(fp,level);
 		}
 		else if(lastLineLevel>level)
 		{
@@ -102,7 +115,8 @@ void fixLevels(FILE *fp,int level,Line *line)
 		}
 	}
 }
-
+bool currentlyInline=0;
+string inlineReturnVariableName,inlineReturnLabel;
 int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 {
 	if(replacementLevel==-1)
@@ -111,7 +125,7 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 	Line *line=this;
 	fixLevels(fp,replacementLevel,line);
 	if(lastLine==NULL)
-		line->scope->writeC99(fp);
+		line->scope->writeC99(fp,replacementLevel);
 
 	if(line->cString.size())
 	{
@@ -189,9 +203,51 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 			}
 			else if(call->function->isInline)//todo handle arguments and returns
 			{
+				currentlyInline=1;
+				inlineReturnLabel=scope->getTempName("Label");
+				indentLine(fp,replacementLevel);
+				fprintf(fp,"{//inline call to %s\n",call->function->processedFunctionName.c_str());
+				lastLineLevel=replacementLevel+1;
+				if(call->function->ret!=NULL)
+				{
+					inlineReturnVariableName=scope->getTempName(call->function->ret->type->name);
+					indentLine(fp,lastLineLevel);
+					fprintf(fp,"%s %s;\n",call->function->ret->type->getC99Type().c_str(),inlineReturnVariableName.c_str());
+				}
+				for(int k=0;k<call->function->arguments.size();k++)
+				{
+					indentLine(fp,lastLineLevel);
+					fprintf(fp,"%s %s = %s;\n",call->function->arguments[k]->type->getC99Type().c_str(),call->function->arguments[k]->name.c_str(),call->arguments[k]->name.c_str());
+				}
+
 				for(int k=0;k<call->function->lines.size();k++)
 					call->function->lines[k]->printC99(fp,call->function->lines[k]->level+replacementLevel);
-				replacementLevel=call->function->lines.back()->level+replacementLevel;
+
+				fixLevels(fp,replacementLevel+1,line);
+
+				if(call->function->ret==NULL || call->function->ret->name.empty() || lastReturn>lastReturnSet)
+				{
+
+				}
+				else
+				{
+					indentLine(fp,replacementLevel+1);
+					fprintf(fp,"%s = %s;\n",inlineReturnVariableName.c_str(),call->function->ret->name.c_str());
+				}
+
+				indentLine(fp,replacementLevel+1);
+				fprintf(fp,"%s:\n",inlineReturnLabel.c_str());
+				if(call->ret!=NULL)
+				{
+					indentLine(fp,replacementLevel+1);
+					fprintf(fp,"%s = %s;\n",call->ret->name.c_str(),inlineReturnVariableName.c_str());
+				}
+				lastLineLevel=replacementLevel;
+				indentLine(fp,lastLineLevel);
+				fprintf(fp,"}\n");
+				currentlyInline=0;
+
+				lastLineLevel=replacementLevel;
 			}
 			else
 			{
@@ -281,10 +337,12 @@ void outputC99(FILE *fp)
 
 	for(int iFunc=0;iFunc<functions.size();iFunc++)
 	{
+		lastReturn=lastReturnSet=-1;
 		Function *func=functions[iFunc];
 		if(func->isInline)
 			continue;
 		func->printC99Declaration(fp);
+		Variable *ret=func->ret;
 		lastLine=func->line;
 		lastLineLevel=0;
 		lastLine=NULL;
@@ -313,7 +371,7 @@ void outputC99(FILE *fp)
 			}
 		}
 
-		if(func->ret==NULL || func->ret->name.empty())
+		if(func->ret==NULL || func->ret->name.empty() || lastReturn>lastReturnSet)
 			fprintf(fp,"}\n");
 		else
 		{

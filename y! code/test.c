@@ -15,4 +15,9 @@ int main()
 {
 	branch_t branch=test();
 	printf("%i,%i\n",branch.labelId,branch.repeat);
+	loop:
+	{
+		loop:
+		goto loop;
+	}
 }

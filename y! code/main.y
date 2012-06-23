@@ -7,8 +7,12 @@ c	sum=a+b;
 r(int)product (int)a * (int)b p= -10
 c	product=a*b;
 
-o(int)a = (int) b p = -100
+inline o(int)a = (int) b p = -100
 c	*a=b;
+
+o(string)a = (string)b p = -100
+c	a=malloc(strlen(b));
+c	strcpy(a,b);
 
 r(bool)isLess (int)a < (int)b
 c	isLess=a<b;
@@ -21,15 +25,6 @@ c	if(is)
 		return default
 c	else
 		return else
-
-r(branch) loop (int)is test (int)times
-c	if(is==0)
-		return start
-c	if(is<times)
-		return default
-c	if(is>=times)
-		return else
-
 
 
 
@@ -55,13 +50,13 @@ loop:
 		goto loop
 	else:
 		print "End\n"
-	start:
-		print "Start\n"
-		goto loop
 
 
 getNumberFrom (int)number into o(int) out
-	out = ( 3 + loadModelFrom pathToModel ) * number
+	out = ( 3 + loadModelFrom pathToModel "foo" "bar" ) * number
 	
-r(string)path pathToModel
-	return "c:/model.s3d\n"
+inline r(string)path pathToModel (string)text (string)text2
+	print text
+	print text2
+	print text2
+	path = "c:/model.s3d\n"
