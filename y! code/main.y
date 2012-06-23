@@ -49,11 +49,9 @@ loop:
 	timesPrinted = timesPrinted + 1
 	if timesPrinted < timesToPrint
 		goto loop
-	else: 
-		if shouldPrintEnd < 1
-			print "End\n"
-		else: 
-			print "Other\n"
+	else: if shouldPrintEnd < 1
+		print "End\n"
+	else: print "Other\n"
 
 
 getNumberFrom (int)number into o(int) out

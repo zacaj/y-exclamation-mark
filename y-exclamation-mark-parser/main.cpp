@@ -10,6 +10,8 @@ using namespace std;
 
 string tempPath;
 int realLineNumber=0;
+int lineIndent=0;
+vector<int> lineIndentLevel;
 
 void checkErrors(bool isError,string description="")
 {
@@ -106,7 +108,7 @@ void parseSourceLine(string str)
 			delete line;
 		else
 		{
-			lines.push_back(line);
+		//	lines.push_back(line);
 		}
 	}
 	realLineNumber++;
@@ -221,6 +223,8 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 	{
 		size_t tab=str.find(9);
 		processed=str;
+		bool dontAdd=0;
+		string newString;
 		if(tab==string::npos)//function declaration or option
 		{
 			level=0;
@@ -233,6 +237,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 			if(handlePotentialInterpreterOption(first))
 			{
 				type=INTERPRETER_COMMAND;
+				lines.push_back(this);
 				return;
 			}
 			
@@ -253,6 +258,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 				scope->level=1;
 				type=FUNCTION_DECLARATION;
 				currentFunction=functions.back();
+				lines.push_back(this);
 				return;
 			}
 		}
@@ -265,7 +271,15 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 			currentFunction->lastLine=lineNumber;
 			size_t commandStart=str.find_first_not_of(9,tab);
 			if(commandStart!=npos)
+			{
 				level=commandStart-tab;
+				if(lineIndentLevel.size() && level<lineIndentLevel.back())
+				{
+					lineIndentLevel.pop_back();
+					lineIndent--;
+				}
+				level+=lineIndent;
+			}
 			if(tab!=0 && tab!=npos)
 			{
 				//todo handle options
@@ -284,6 +298,15 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 					type=LABEL;
 					processed=str.substr(commandStart,endOfFirstId-commandStart);
 					addLabel(processed,parent);
+					if(find_not(str,invisibleCharacers,endOfFirstId+1)!=str.size())//code after label
+					{
+						for(int i=0;i<level;i++)
+							newString.push_back('\t');
+						newString+=str.substr(endOfFirstId+1,str.size()-endOfFirstId);
+						lineIndent++;
+						lineIndentLevel.push_back(level);
+						dontAdd=1;
+					}
 				}
 			}
 			if(type!=LABEL && commandStart!=npos)
@@ -316,6 +339,9 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 				checkErrors(scope==NULL,"Code outside of a function");
 			}
 		}
+		lines.push_back(this);
+		if(dontAdd)
+			new Line(newString,originalLineNumber);
 	}
 	else
 		type=EMPTY;

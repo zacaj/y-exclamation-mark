@@ -166,6 +166,10 @@ struct LinePossibility
 	vector<FunctionCall*> call;
 	int id;
 };
+
+extern int lineIndent;
+extern vector<int> lineIndentLevel;
+
 class Line
 {
 public:

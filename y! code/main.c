@@ -146,66 +146,75 @@ loop:
 		}
 		else if( t_branch58.labelId==1 )
 		{
-			char* t_string91 = "Other\n";
+			{
+				char* t_string91 = "Other\n";
 
-			printstring( t_string91 );
+				printstring( t_string91 );
+			}
 		}
 	}
 }
 
 void getNumberFromintintoint ( int number, int *out )
 {
-	int t_int18r_int_;
-	int t_int37r_int_ret_loadModelFrom_;
-	int t_int38r_int_sum_;
-	int t_int82r_int_product_;
-	int t_int95_3 = 3;
-	char* t_string23r_string_path_pathToModel_;
-	char* t_string27 = "bar";
-	char* t_string42 = "foo";
+		int t_int18r_int_;
+		int t_int37r_int_ret_loadModelFrom_;
+		int t_int38r_int_sum_;
+		int t_int82r_int_product_;
+		int t_int95_3 = 3;
+		char* t_string23r_string_path_pathToModel_;
+		char* t_string27 = "bar";
+		char* t_string42 = "foo";
 
-	t_string23r_string_path_pathToModel_ =  pathToModelstringstring( t_string42, t_string27 );
-	t_int37r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string23r_string_path_pathToModel_ );
-	t_int38r_int_sum_ =  int_plus_int( t_int95_3, t_int37r_int_ret_loadModelFrom_ );
-	t_int18r_int_ =  f_C_int_D_( t_int38r_int_sum_ );
-	t_int82r_int_product_ =  int_asterisk_int( t_int18r_int_, number );
-	int_equal_int( &*out, t_int82r_int_product_ );
+		t_string23r_string_path_pathToModel_ =  pathToModelstringstring( t_string42, t_string27 );
+		t_int37r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string23r_string_path_pathToModel_ );
+		t_int38r_int_sum_ =  int_plus_int( t_int95_3, t_int37r_int_ret_loadModelFrom_ );
+		t_int18r_int_ =  f_C_int_D_( t_int38r_int_sum_ );
+		t_int82r_int_product_ =  int_asterisk_int( t_int18r_int_, number );
+		int_equal_int( &*out, t_int82r_int_product_ );
+	}
 }
 
 char* pathToModelstringstring ( char* text, char* text2 )
 {
 	char* path;
-	char* t_string48 = "c:/model.s3d\n";
+		char* t_string48 = "c:/model.s3d\n";
 
-	printstring( text );
-	printstring( text2 );
-	printstring( text2 );
-	string_equal_string( &path, t_string48 );
+		printstring( text );
+		printstring( text2 );
+		printstring( text2 );
+		string_equal_string( &path, t_string48 );
+	}
 	return path;
 }
 
 int f_C_Label_D_ ( int a )
 {
-	return a;
+		return a;
+	}
 }
 
 unsigned char f_C_bool_D_ ( unsigned char a )
 {
-	return a;
+		return a;
+	}
 }
 
 branch_t f_C_branch_D_ ( branch_t a )
 {
-	return a;
+		return a;
+	}
 }
 
 int f_C_int_D_ ( int a )
 {
-	return a;
+		return a;
+	}
 }
 
 char* f_C_string_D_ ( char* a )
 {
-	return a;
+		return a;
+	}
 }
 
