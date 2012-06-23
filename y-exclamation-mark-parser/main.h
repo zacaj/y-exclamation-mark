@@ -144,6 +144,7 @@ struct CallToken
 	Variable* possibleVariable;
 	Type *type;
 	Variable *newVariablePtr;
+	string label;
 	CallToken()
 	{
 		possibilities=0;
@@ -182,6 +183,7 @@ public:
 	void splitCommands(string str);
 	void parseNextIsNewVariable(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt);
 	void parseNextIsVariable(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt);
+	void parseNextIsLabel(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt);
 	void parseNextIsFunction(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt,Function *function);
 	void parseCode(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt);
 
@@ -191,8 +193,9 @@ public:
 };
 
 extern map<string,int> labels;
+extern map<string,set<Function*>> labelLocations;
 
-void addLabel(string label);
+void addLabel(string label,Function *location);
 
 extern vector<Line*> lines;
 extern vector<Function*> functions;
