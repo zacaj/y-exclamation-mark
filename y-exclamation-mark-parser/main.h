@@ -177,7 +177,7 @@ public:
 	Scope *scope;
 	string comment;
 	Function *parent;
-	enum LineType {UNKNOWN,INTERPRETER_COMMAND,FUNCTION_DECLARATION,CODE,CODE_WITH_OPTIONS,LABEL,EMPTY} type;
+	enum LineType {UNKNOWN,INTERPRETER_COMMAND,FUNCTION_DECLARATION,CODE,CODE_WITH_OPTIONS,LABEL,LABEL_WITH_CODE,EMPTY} type;
 	string cString;
 
 	Line(string str,uint _lineNumber);
