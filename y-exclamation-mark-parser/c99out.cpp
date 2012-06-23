@@ -244,6 +244,12 @@ void outputC99(FILE *fp)
 				case '<':
 					replacement="less";
 					break;
+				case '(':
+					replacement="C";
+					break;
+				case ')':
+					replacement="D";
+					break;
 				default:
 					warn("No known replacement for %c\n",c);
 					break;

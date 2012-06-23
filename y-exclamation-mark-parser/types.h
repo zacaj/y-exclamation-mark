@@ -106,6 +106,16 @@ public:
 	}
 };
 
+class Label:public Type
+{
+public:
+	string label;
+	Label()
+	{
+		name="Label";
+	}
+};
+
 extern map<string,Type*> types;
 
 Type* getType(string name);

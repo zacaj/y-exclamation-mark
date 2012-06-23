@@ -65,7 +65,11 @@ void returnLabelC99(FILE *fp,FunctionCall *call)
 	checkErrors(!call->callee->ret->type->is("branch"),"Function does not return a branch");
 	fprintf(fp,"return (branch_t){%i /* %s */,%i};\n",labels[call->function->name[1]->text],call->function->name[1]->text.c_str(),call->function->arguments.size());
 }
-
+void gotoC99(FILE *fp,FunctionCall *call)
+{
+	checkErrors(call->arguments.size()!=1,"goto needs a label");
+	fprintf(fp,"goto %s;\n",call->arguments[0]->name.c_str());
+}
 void parseSourceLine(string str)
 {
 	if(!str.empty())
@@ -89,10 +93,11 @@ int main(_In_ int _Argc, char **argv)
 	types["string"]=new String;
 	types["bool"]=new Bool;
 	types["branch"]=new Branch;
+	types["Label"]=new Label;
 	int start=time(NULL);
 	FILE *fp=fopen("../y! code/main.y","r");
-	addLabel("default");
-	addLabel("else");
+	addLabel("default",NULL);
+	addLabel("else",NULL);
 	/*functions.push_back(new Function("return (int)r"));
 	functions.push_back(new Function("return (string)r"));
 	functions.push_back(new Function("r(int)sum (int)a + (int) b p = -20"));
@@ -129,6 +134,9 @@ int main(_In_ int _Argc, char **argv)
 		parseSourceLine("\treturn a");
 	}
 
+	functions.push_back(new Function("inline goto (Label)label"));
+	functions.back()->internalPrintC99=gotoC99;
+
 	for(int i=0;i<lines.size();i++)
 	{
 		if(lines[i]->type==Line::CODE || lines[i]->type==Line::CODE_WITH_OPTIONS)
@@ -152,11 +160,21 @@ int main(_In_ int _Argc, char **argv)
 	fclose(fp);
 }
 map<string,int> labels;
-void addLabel( string label )
+map<string,set<Function*>> labelLocations;
+void addLabel( string label ,Function *location)
 {
 	auto it=labels.find(label);
 	if(it==labels.end())
 		labels[label]=labels.size();
+	auto it2=labelLocations.find(label);
+	if(it2==labelLocations.end())
+	{
+		set<Function*> locations;
+		locations.insert(location);
+		labelLocations[label]=locations;
+	}
+	else
+		it2->second.insert(location);
 }
 
 Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
@@ -197,7 +215,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 			{
 				type=LABEL;
 				processed=str.substr(0,endOfFirstId);
-				addLabel(processed);
+				addLabel(processed,currentFunction);
 				checkErrors(lineNumber==0,"Cannot have a label on the first line");
 				level=lines[lineNumber-1]->level;
 			}
@@ -239,7 +257,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 				{
 					type=LABEL;
 					processed=str.substr(commandStart,endOfFirstId-commandStart);
-					addLabel(processed);
+					addLabel(processed,parent);
 				}
 			}
 			if(type!=LABEL && commandStart!=npos)
@@ -360,6 +378,16 @@ void Line::splitCommands( string str )
 				token.str=id;
 				token.possibilities++;
 			}
+
+			if(labels.find(id)!=labels.end())
+			{
+				if(labelLocations[id].find(parent)!=labelLocations[id].end())
+				{
+					token.label=id;
+					token.str=id;
+					token.possibilities++;
+				}
+			}
 		}
 		checkError(token.possibilities==0,"%s not found\n",id.c_str());
 
@@ -407,6 +435,14 @@ void Line::splitCommands( string str )
 								possibility[j-functionTokenIndexInFunction+k].newVariablePtr=new Variable(possibility[j-functionTokenIndexInFunction+k].str,func->name[k]->var->type);
 								//possibility[j-functionTokenIndexInFunction+k].newVariablePtr->mode|=Ob(100);
 							}	
+						}
+						else if(possibility[j-functionTokenIndexInFunction+k].label.size())
+						{
+							if(func->name[k]->var==NULL)
+								break;
+							if(!func->name[k]->var->type->is("Label"))
+								break;
+
 						}
 						else
 						{
@@ -460,6 +496,8 @@ void Line::splitCommands( string str )
 						fcall->arguments.push_back(possibility[j].possibleVariable);
 					else if(possibility[j].newVariablePtr!=NULL)
 						fcall->arguments.push_back(possibility[j].newVariablePtr);
+					else if(possibility[j].label.size())
+						fcall->arguments.push_back(new Variable(possibility[j].label,getType("Label")));
 				}
 				checkErrors(fcall->arguments.size()!=fcall->function->arguments.size(),"internal error 4");
 				possibilities[i].call.push_back(fcall);
@@ -483,6 +521,8 @@ void Line::splitCommands( string str )
 						fcall->arguments.push_back(possibility[j].possibleVariable);
 					else if(possibility[j].newVariablePtr!=NULL)
 						fcall->arguments.push_back(possibility[j].newVariablePtr);
+					else if(possibility[j].label.size())
+						fcall->arguments.push_back(new Variable(possibility[j].label,getType("Label")));
 				}
 				checkErrors(fcall->arguments.size()!=fcall->function->arguments.size(),"internal error 4");
 				possibilities[i].call.push_back(fcall);
@@ -553,6 +593,14 @@ void Line::parseNextIsVariable( vector<CallToken> &call,uint p,vector<LinePossib
 	parseCode(call,p+1,functions,attempt);
 }
 
+void Line::parseNextIsLabel( vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt )
+{
+	CallToken token;
+	token.label=call[p].label;
+	token.str=call[p].str;
+	attempt.push_back(token);
+	parseCode(call,p+1,functions,attempt);
+}
 void Line::parseNextIsFunction( vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt,Function *function )
 {
 	CallToken token;
@@ -579,6 +627,8 @@ void Line::parseCode( vector<CallToken> &call,uint p,vector<LinePossibility> &fu
 			parseNextIsNewVariable(call,p,functions,attempt);
 		if(call[p].possibleVariable!=NULL)
 			parseNextIsVariable(call,p,functions,attempt);
+		if(call[p].label.size())
+			parseNextIsLabel(call,p,functions,attempt);
 
 		for(set<Function*>::iterator it=call[p].possibleFunctions.begin();it!=call[p].possibleFunctions.end();it++)
 			parseNextIsFunction(call,p,functions,attempt,*it);
