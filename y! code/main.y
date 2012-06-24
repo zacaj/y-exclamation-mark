@@ -41,7 +41,7 @@ r(int)ret loadModelFrom (string)path
 	return
 
 printHelloWorlds
-	getNumberFrom 4 into timesToPrint
+	getNumberFrom 1 into timesToPrint
 	timesPrinted = -1
 loop:
 	printHelloWorld
