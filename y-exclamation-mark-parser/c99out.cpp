@@ -154,7 +154,7 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 				auto ln=l.begin();
 				for(int i=line->lineNumber+1;i<lines.size() && (ln)!=l.end() && i<l.back()->lineNumber;i++)
 				{
-					if(lines[i]->type==Line::LABEL && lines[i]->level==replacementLevel)
+					if(lines[i]->type==Line::LABEL)
 						ln++;
 					else
 					{
@@ -194,16 +194,14 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 					for(int k=0;k<it->second.size();k++)
 					{
 						Line *line=it->second[k];
-						int linesWritten=line->printC99(fp);
-						k+=linesWritten;
-						lastLineNumber=(line->lineNumber+linesWritten>lastLineNumber)?line->lineNumber+linesWritten:lineNumber;
+						line->printC99(fp);
+						lastLineNumber=(line->lineNumber>lastLineNumber)?line->lineNumber:lineNumber;
 					}
-					fflush(fp);
 				}
 
 				return lastLineNumber-line->lineNumber;
 			}
-			else if(call->function->isInline)
+			else if(call->function->isInline)//todo handle arguments and returns
 			{
 				currentlyInline=1;
 				inlineReturnLabel=scope->getTempName("Label");
@@ -232,6 +230,16 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 					call->function->lines[k]->printC99(fp,call->function->lines[k]->level+replacementLevel);
 
 				fixLevels(fp,replacementLevel+1,line);
+
+			/*	if(call->function->ret==NULL || call->function->ret->name.empty() || lastReturn>lastReturnSet)
+				{
+
+				}
+				else
+				{
+					indentLine(fp,replacementLevel+1);
+					fprintf(fp,"%s = %s;\n",inlineReturnVariableName.c_str(),call->function->ret->name.c_str());
+				}*/
 
 				indentLine(fp,replacementLevel+1);
 				fprintf(fp,"%s:;\n",inlineReturnLabel.c_str());

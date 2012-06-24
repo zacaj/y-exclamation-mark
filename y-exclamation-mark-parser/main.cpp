@@ -316,25 +316,21 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 			}
 
 			{
-				int minLevel=100000;
 				for(int i=lineNumber-1;i>=0;i--)
 				{
 					if(lines[i]->type!=CODE && lines[i]->type!=CODE_WITH_OPTIONS && lines[i]->type!=FUNCTION_DECLARATION && lines[i]->type!=LABEL)
 						continue;
-					if(lines[i]->level==level && lines[i]->level<=minLevel)
+					if(lines[i]->level==level)
 					{
 						scope=lines[i]->scope;
 						break;
 					}
-					else if(lines[i]->level<level && lines[i]->level<=minLevel)
+					else if(lines[i]->level<level)
 					{
 						scope=new Scope(*lines[i]->scope);
 						scope->level=level;
-						scope->parent=lines[i]->scope;
 						break;
 					}
-					if(lines[i]->level<minLevel)
-						minLevel=lines[i]->level;
 				}
 				checkErrors(scope==NULL,"Code outside of a function");
 			}
@@ -365,7 +361,7 @@ void Line::splitCommands( string str )
 		token.possibilities=0;
 		token.newVariable=0;
 		token.possibleVariable=NULL;
-		if(id[0]=='\"')
+		if(id[0]=='\"')//todo set variables for literals
 		{
 			spos startOfString=pos;
 			while(pos<str.size()-1)

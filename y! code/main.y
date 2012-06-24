@@ -7,7 +7,7 @@ c	sum=a+b;
 r(int)product (int)a * (int)b p= -10
 c	product=a*b;
 
-o(int)a = (int) b p = -100
+inline o(int)a = (int) b p = -100
 c	*a=b;
 
 o(string)a = (string)b p = -100
@@ -43,21 +43,19 @@ r(int)ret loadModelFrom (string)path
 printHelloWorlds
 	getNumberFrom 4 into timesToPrint
 	timesPrinted = -1
-	shouldPrintEnd = 1
 loop:
 	printHelloWorld
 	timesPrinted = timesPrinted + 1
 	if timesPrinted < timesToPrint
 		goto loop
-	else: if shouldPrintEnd < 1
+	else:
 		print "End\n"
-	else: print "Other\n"
 
 
 getNumberFrom (int)number into o(int) out
 	out = ( 3 + loadModelFrom pathToModel "foo" "bar" ) * number
 	
-r(string)path pathToModel (string)text (string)text2
+inline r(string)path pathToModel (string)text (string)text2
 	print text
 	print text2
 	print text2
