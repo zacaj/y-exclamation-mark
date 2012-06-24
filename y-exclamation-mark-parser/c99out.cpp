@@ -149,7 +149,45 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 			else if(call->function->ret!=NULL && call->function->ret->type->is("branch"))
 			{
 				indentLine(fp,replacementLevel);
-				vector<Line*> l=line->getLabels();
+				string branchName=line->scope->getTempName("branch");
+				fprintf(fp,"branch_t %s = ",branchName.c_str());
+				call->printC99(fp);
+				int k;
+				indentLine(fp,replacementLevel);
+				fprintf(fp,"if( %s.labelId==%i )\n",branchName.c_str(),labels["default"]);
+				fflush(fp);
+				for(k=line->lineNumber+1;k<lines.size();k++)
+				{
+					Line *line2=lines[k];
+					if(lines[k]->level<level)
+						break;
+					if(lines[k]->level>level)
+					{
+						k+=lines[k]->printC99(fp,replacementLevel+1);
+						lastLineNumber=(lines[k]->lineNumber>lastLineNumber)?lines[k]->lineNumber:lineNumber;
+					}
+					else if(lines[k]->level==level)
+					{
+						if(lines[k]->type==LABEL || lines[k]->type==LABEL_WITH_CODE)
+						{
+							fixLevels(fp,replacementLevel,line);
+							indentLine(fp,replacementLevel);
+							fprintf(fp,"else if( %s.labelId==%i )\n",branchName.c_str(),labels[lines[k]->processed]);
+							lastLineLevel=replacementLevel;
+						}
+						else if(lines[k-1]->type==LABEL_WITH_CODE)
+						{
+
+							k+=lines[k]->printC99(fp,replacementLevel+1);
+							lastLineNumber=(lines[k]->lineNumber>lastLineNumber)?lines[k]->lineNumber:lineNumber;
+						}
+						else
+							break;
+					}
+					fflush(fp);
+				}
+				return lastLineNumber-line->lineNumber;
+				/*vector<Line*> l=line->getLabels();
 				map<int,vector<Line*>> ls;
 				auto ln=l.begin();
 				for(int i=line->lineNumber+1;i<lines.size() && (ln)!=l.end() && i<l.back()->lineNumber;i++)
@@ -199,7 +237,7 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 					}
 				}
 
-				return lastLineNumber-line->lineNumber;
+				return lastLineNumber-line->lineNumber;*/
 			}
 			else if(call->function->isInline)//todo handle arguments and returns
 			{
@@ -264,6 +302,7 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 	}
 	lastLine=line;
 	lastLineLevel=replacementLevel;
+	lastLineNumber=(line->lineNumber>lastLineNumber)?line->lineNumber:lineNumber;
 	return 0;
 }
 

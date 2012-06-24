@@ -278,7 +278,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 					lineIndentLevel.pop_back();
 					lineIndent--;
 				}
-				level+=lineIndent;
+				//level+=lineIndent;
 			}
 			if(tab!=0 && tab!=npos)
 			{
@@ -303,13 +303,14 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 						for(int i=0;i<level;i++)
 							newString.push_back('\t');
 						newString+=str.substr(endOfFirstId+1,str.size()-endOfFirstId);
-						lineIndent++;
-						lineIndentLevel.push_back(level);
+						//lineIndent++;
+						//lineIndentLevel.push_back(level);
 						dontAdd=1;
+						type=LABEL_WITH_CODE;
 					}
 				}
 			}
-			if(type!=LABEL && commandStart!=npos)
+			if(type!=LABEL && commandStart!=npos && type!=LABEL_WITH_CODE)
 			{
 				processed.erase(processed.begin(),processed.begin()+commandStart);
 				checkErrors(lineNumber==0,"Code outside of a function");
@@ -816,12 +817,13 @@ vector<Line*> Line::getLabels()
 		{
 			if(lines[i]->level==level)
 			{
-				if(lines[i]->type==Line::LABEL)
+				if(lines[i]->type==Line::LABEL || lines[i]->type==Line::LABEL_WITH_CODE)
 					l.push_back(lines[i]);
-				else
+				else if(lines[i-1]->type!=Line::LABEL_WITH_CODE)
 				{	
 					l.push_back(lines[i]);
-					break;
+					
+						break;
 				}
 			}
 			else if(lines[i]->level<level)
