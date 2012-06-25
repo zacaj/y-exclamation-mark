@@ -304,8 +304,16 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 	lastLineLevel=replacementLevel;
 	lastLineNumber=(line->lineNumber>lastLineNumber)?line->lineNumber:lineNumber;
 	return 0;
-}
-
+}//add as necessary http://medinazar.com/C/C_in_21_Days/apb.htm
+char *reserved[]=
+{
+	"asm",
+	"auto",
+	"break",
+	"default",
+	"continue"
+};
+#define RESERVED_NUM 5
 void outputC99(FILE *fp)
 {
 	for(int i=0;i<functions.size();i++)
@@ -362,6 +370,11 @@ void outputC99(FILE *fp)
 				func->processedFunctionName.insert(j,replacement);
 				j+=replacement.size();
 			}
+		}
+		for(int j=0;j<RESERVED_NUM;j++)
+		{
+			if(func->processedFunctionName==reserved[j])
+				func->processedFunctionName.push_back('_');
 		}
 	}
 	fprintf(fp,"#include <stdio.h>\n\n");

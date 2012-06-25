@@ -14,9 +14,9 @@ unsigned char int_less_int ( int a, int b );
 void printstring ( char* str );
 branch_t ifbool ( unsigned char is );
 void switchint ( int var );
-void default (  );
+void default_ (  );
 void caseint ( int i );
-void continue (  );
+void continue_ (  );
 int startint ( int nArgument );
 void printHelloWorlds (  );
 void getNumberFromintintoint ( int number, int *out );
@@ -89,7 +89,7 @@ void switchint ( int var )
 {
 }
 
-void default (  )
+void default_ (  )
 {
 }
 
@@ -97,7 +97,7 @@ void caseint ( int i )
 {
 }
 
-void continue (  )
+void continue_ (  )
 {
 }
 
@@ -260,7 +260,7 @@ void empty (  )
 		char* t_string92 = "5\n";
 
 		printstring( t_string92 );
-		continue( );
+		continue_( );
 	}
 	caseint( t_int38_4 );
 	{
@@ -268,7 +268,7 @@ void empty (  )
 
 		printstring( t_string79 );
 	}
-	default( );
+	default_( );
 	{
 		char* t_string90 = "?\n";
 
