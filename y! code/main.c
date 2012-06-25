@@ -13,12 +13,17 @@ void string_equal_string ( char* *a, char* b );
 unsigned char int_less_int ( int a, int b );
 void printstring ( char* str );
 branch_t ifbool ( unsigned char is );
+void switchint ( int var );
+void default (  );
+void caseint ( int i );
+void continue (  );
 int startint ( int nArgument );
 void printHelloWorlds (  );
 void getNumberFromintintoint ( int number, int *out );
 char* pathToModelstringstring ( char* text, char* text2 );
 void printHelloWorld (  );
 int loadModelFromstring ( char* path );
+void empty (  );
 int f_C_Label_D_ ( int a );
 unsigned char f_C_bool_D_ ( unsigned char a );
 branch_t f_C_branch_D_ ( branch_t a );
@@ -80,6 +85,22 @@ branch_t ifbool ( unsigned char is )
 	}
 }
 
+void switchint ( int var )
+{
+}
+
+void default (  )
+{
+}
+
+void caseint ( int i )
+{
+}
+
+void continue (  )
+{
+}
+
 int startint ( int nArgument )
 {
 	int success;
@@ -92,18 +113,12 @@ int startint ( int nArgument )
 void printHelloWorlds (  )
 {
 	int shouldPrintEnd;
-	unsigned char t_bool45r_bool_isLess_;
 	unsigned char t_bool62r_bool_isLess_;
-	unsigned char t_bool95r_bool_isLess_;
 	int t_int0_1 = 1;
 	int t_int24r_int_sum_;
-	int t_int27_4 = 4;
 	int t_int34_ = -1;
-	int t_int61_6 = 6;
-	int t_int64_1 = 1;
 	int t_int67_1 = 1;
 	int t_int69_1 = 1;
-	char* t_string27 = "3\n";
 	char* t_string36 = "Real end\n";
 	int timesPrinted;
 	int timesToPrint;
@@ -116,83 +131,41 @@ loop:
 	t_int24r_int_sum_ =  int_plus_int( timesPrinted, t_int69_1 );
 	int_equal_int( &timesPrinted, t_int24r_int_sum_ );
 	t_bool62r_bool_isLess_ =  int_less_int( timesPrinted, timesToPrint );
-	branch_t t_branch81 = ifbool( t_bool62r_bool_isLess_ );
-	if( t_branch81.labelId==0 )
+	branch_t t_branch58 = ifbool( t_bool62r_bool_isLess_ );
+	if( t_branch58.labelId==0 )
 	{
 		goto loop;
 	}
-	else if( t_branch81.labelId==1 )
+	else if( t_branch58.labelId==1 )
 	{
-		int shouldPrintEnd;
 		unsigned char t_bool45r_bool_isLess_;
-		unsigned char t_bool62r_bool_isLess_;
-		unsigned char t_bool95r_bool_isLess_;
-		int t_int0_1 = 1;
-		int t_int24r_int_sum_;
-		int t_int27_4 = 4;
-		int t_int34_ = -1;
-		int t_int61_6 = 6;
 		int t_int64_1 = 1;
-		int t_int67_1 = 1;
-		int t_int69_1 = 1;
-		char* t_string27 = "3\n";
-		char* t_string36 = "Real end\n";
-		int timesPrinted;
-		int timesToPrint;
 
 		t_bool45r_bool_isLess_ =  int_less_int( shouldPrintEnd, t_int64_1 );
-		branch_t t_branch89 = ifbool( t_bool45r_bool_isLess_ );
-		if( t_branch89.labelId==0 )
+		branch_t t_branch91 = ifbool( t_bool45r_bool_isLess_ );
+		if( t_branch91.labelId==0 )
 		{
 			char* t_string81 = "End\n";
 
 			printstring( t_string81 );
 		}
-		else if( t_branch89.labelId==1 )
+		else if( t_branch91.labelId==1 )
 		{
-			int shouldPrintEnd;
-			unsigned char t_bool45r_bool_isLess_;
-			unsigned char t_bool62r_bool_isLess_;
 			unsigned char t_bool95r_bool_isLess_;
-			int t_int0_1 = 1;
-			int t_int24r_int_sum_;
 			int t_int27_4 = 4;
-			int t_int34_ = -1;
 			int t_int61_6 = 6;
-			int t_int64_1 = 1;
-			int t_int67_1 = 1;
-			int t_int69_1 = 1;
-			char* t_string27 = "3\n";
-			char* t_string36 = "Real end\n";
-			int timesPrinted;
-			int timesToPrint;
 
 			t_bool95r_bool_isLess_ =  int_less_int( t_int27_4, t_int61_6 );
-			branch_t t_branch98 = ifbool( t_bool95r_bool_isLess_ );
-			if( t_branch98.labelId==0 )
+			branch_t t_branch15 = ifbool( t_bool95r_bool_isLess_ );
+			if( t_branch15.labelId==0 )
 			{
 				char* t_string42 = "Other\n";
 
 				printstring( t_string42 );
 			}
-			else if( t_branch98.labelId==1 )
+			else if( t_branch15.labelId==1 )
 			{
-				int shouldPrintEnd;
-				unsigned char t_bool45r_bool_isLess_;
-				unsigned char t_bool62r_bool_isLess_;
-				unsigned char t_bool95r_bool_isLess_;
-				int t_int0_1 = 1;
-				int t_int24r_int_sum_;
-				int t_int27_4 = 4;
-				int t_int34_ = -1;
-				int t_int61_6 = 6;
-				int t_int64_1 = 1;
-				int t_int67_1 = 1;
-				int t_int69_1 = 1;
 				char* t_string27 = "3\n";
-				char* t_string36 = "Real end\n";
-				int timesPrinted;
-				int timesToPrint;
 
 				printstring( t_string27 );
 			}
@@ -247,6 +220,62 @@ int loadModelFromstring ( char* path )
 	int_equal_int( &ret, t_int98_1 );
 	printstring( path );
 	return ret;
+}
+
+void empty (  )
+{
+	int t_int38_4 = 4;
+	int t_int38_5 = 5;
+	int t_int72_1 = 1;
+	int t_int81_0 = 0;
+	int t_int89_0 = 0;
+	int t_int9_2 = 2;
+	char* t_string57 = "End\n";
+	int timesPrinted;
+
+	int_equal_int( &timesPrinted, t_int81_0 );
+	switchint( timesPrinted );
+	caseint( t_int89_0 );
+	{
+		char* t_string98 = "Start\n";
+
+		printstring( t_string98 );
+	}
+	caseint( t_int9_2 );
+	{
+		char* t_string57 = "2\n";
+
+		printstring( t_string57 );
+	}
+	caseint( t_int72_1 );
+	{
+		{
+			char* t_string22 = "Hello\n";
+
+			printstring( t_string22 );
+		}
+	}
+	caseint( t_int38_5 );
+	{
+		char* t_string92 = "5\n";
+
+		printstring( t_string92 );
+		continue( );
+	}
+	caseint( t_int38_4 );
+	{
+		char* t_string79 = "4\n";
+
+		printstring( t_string79 );
+	}
+	default( );
+	{
+		char* t_string90 = "?\n";
+
+		printstring( t_string90 );
+	}
+	printstring( t_string57 );
+	return ;
 }
 
 int f_C_Label_D_ ( int a )

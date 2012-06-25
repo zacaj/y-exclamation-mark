@@ -67,15 +67,15 @@ void returnC99(FILE *fp,FunctionCall *call)
 }
 void returnDefaultC99(FILE *fp,FunctionCall *call)
 {
-	checkErrors(call->callee->ret==NULL,"Function does not return a value!");
-	checkErrors(call->callee->ret->name.empty(),"Function does not have an anonymous return variable!");
+	checkErrors(call->callee->ret==NULL && call->arguments.size(),"Function does not return a value!");
+	checkErrors(call->callee->ret!=NULL && call->callee->ret->name.empty(),"Function does not have an anonymous return variable!");
 	if(currentlyInline)
 	{
 		fprintf(fp,"%s = %s;\ngoto %s;\n",inlineReturnVariableName.c_str(),call->callee->ret->name.c_str(),inlineReturnLabel.c_str());
 	}
 	else
 	{
-		fprintf(fp,"return %s;\n",call->callee->ret->name.c_str());
+		fprintf(fp,"return %s;\n",call->callee->ret==NULL?"":call->callee->ret->name.c_str());
 		lastReturn=call->line->lineNumber;
 	}
 }
@@ -317,18 +317,37 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 			}
 
 			{
+				if(lines[lineNumber-1]->type==LABEL_WITH_CODE && lines[lineNumber-1]->level<=level)
+				{
+					scope=new Scope(*lines[lineNumber-1]->scope);
+					scope->parent=lines[lineNumber-1]->scope;
+					scope->level=level;
+
+				}
+				else
 				for(int i=lineNumber-1;i>=0;i--)
 				{
-					if(lines[i]->type!=CODE && lines[i]->type!=CODE_WITH_OPTIONS && lines[i]->type!=FUNCTION_DECLARATION && lines[i]->type!=LABEL)
+					if(lines[i]->type!=CODE && lines[i]->type!=CODE_WITH_OPTIONS && lines[i]->type!=FUNCTION_DECLARATION && lines[i]->type!=LABEL && lines[i]->type!=LABEL_WITH_CODE)
 						continue;
-					if(lines[i]->level==level)
+					if(lines[i]->level==level && lines[i]->type!=LABEL_WITH_CODE && lines[i-1]->type!=LABEL_WITH_CODE)
 					{
-						scope=lines[i]->scope;
-						break;
+					/*	if(lines[i]->type==LABEL_WITH_CODE)
+						{
+							scope=new Scope(*lines[i]->scope);
+							scope->parent=lines[i]->scope;
+							scope->level=level;
+							break;
+						}
+						else*/
+						{
+							scope=lines[i]->scope;
+							break;
+						}
 					}
 					else if(lines[i]->level<level)
 					{
 						scope=new Scope(*lines[i]->scope);
+						scope->parent=lines[i]->scope;
 						scope->level=level;
 						break;
 					}

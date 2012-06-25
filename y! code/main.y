@@ -26,6 +26,11 @@ c	if(is)
 c	else
 		return else
 
+switch (int)var
+default
+case (int)i
+continue
+
 
 
 r(int)success start (int) nArgument
@@ -66,4 +71,25 @@ printHelloWorld
 r(int)ret loadModelFrom (string)path
 	ret = 1
 	print path
+	return
+
+empty
+	timesPrinted = 0
+	switch timesPrinted
+	case 0
+		print "Start\n"
+	case 2
+		print "2\n"
+	case 1
+		//if shouldPrintEnd < 1
+			print "Hello\n"
+		//else: print "Goodbye\n"
+	case 5
+		print "5\n"
+		continue
+	case 4
+		print "4\n"
+	default
+		print "?\n"
+	print "End\n"
 	return
