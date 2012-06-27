@@ -25,12 +25,10 @@ c	if(is)
 		return default
 c	else
 		return else
-
-switch (int)var
-default
-case (int)i
+//default
+//case (int)i :
 continue
-
+continue (Label)label
 
 
 r(int)success start (int) nArgument
@@ -45,14 +43,28 @@ printHelloWorlds
 loop:
 	printHelloWorld
 	timesPrinted = timesPrinted + 1
-
+	
+	timesPrinted = 0
+	switch timesPrinted
+	case 0
+		print "Start\n"
+	case 2
+		print "2\n"
+	case 1
+		//if shouldPrintEnd < 1
+			print "Hello\n"
+		//else: print "Goodbye\n"
+		continue default
+	case 5
+		print "5\n"
+		continue
+	case 4
+		print "4\n"
+	default:
+		print "?\n"
 	if timesPrinted < timesToPrint
 		goto loop
-	else: if shouldPrintEnd < 1
-		print "End\n"
-	else: if 4 < 6
-		print "Other\n"
-	else: print "3\n"
+	print "End\n"
 	print "Real end\n"
 
 
@@ -74,22 +86,3 @@ r(int)ret loadModelFrom (string)path
 	return
 
 empty
-	timesPrinted = 0
-	switch timesPrinted
-	case 0
-		print "Start\n"
-	case 2
-		print "2\n"
-	case 1
-		//if shouldPrintEnd < 1
-			print "Hello\n"
-		//else: print "Goodbye\n"
-	case 5
-		print "5\n"
-		continue
-	case 4
-		print "4\n"
-	default
-		print "?\n"
-	print "End\n"
-	return

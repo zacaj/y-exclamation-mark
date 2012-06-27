@@ -205,3 +205,13 @@ void addLabel(string label,Function *location);
 
 extern vector<Line*> lines;
 extern vector<Function*> functions;
+
+
+void returnDefaultC99(FILE *fp,FunctionCall *call);
+void returnLabelC99(FILE *fp,FunctionCall *call);
+void gotoC99(FILE *fp,FunctionCall *call);
+void switchC99(FILE *fp,FunctionCall *call);
+void switchEndC99(FILE *fp,FunctionCall *call);
+void caseC99(FILE *fp,FunctionCall *call);
+void returnC99(FILE *fp,FunctionCall *call);
+void caseEndC99(FILE *f,FunctionCall *call);

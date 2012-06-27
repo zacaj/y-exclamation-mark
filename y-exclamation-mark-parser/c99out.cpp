@@ -441,3 +441,107 @@ void outputC99(FILE *fp)
 		//fprintf(fp,"}\n\n");
 	}
 }
+
+void returnC99(FILE *fp,FunctionCall *call)
+{
+	Function *func=call->function;
+	if(currentlyInline)
+	{
+		fprintf(fp,"%s = %s;\ngoto %s;\n",inlineReturnVariableName.c_str(),call->arguments[0]->name.c_str(),inlineReturnLabel.c_str());
+	}
+	else
+	{
+		fprintf(fp,"return %s;\n",call->arguments[0]->name.c_str());
+		lastReturn=call->line->lineNumber;
+	}
+}
+void returnDefaultC99(FILE *fp,FunctionCall *call)
+{
+	checkErrors(call->callee->ret==NULL && call->arguments.size(),"Function does not return a value!");
+	checkErrors(call->callee->ret!=NULL && call->callee->ret->name.empty(),"Function does not have an anonymous return variable!");
+	if(currentlyInline)
+	{
+		fprintf(fp,"%s = %s;\ngoto %s;\n",inlineReturnVariableName.c_str(),call->callee->ret->name.c_str(),inlineReturnLabel.c_str());
+	}
+	else
+	{
+		fprintf(fp,"return %s;\n",call->callee->ret==NULL?"":call->callee->ret->name.c_str());
+		lastReturn=call->line->lineNumber;
+	}
+}
+void returnLabelC99(FILE *fp,FunctionCall *call)
+{
+	checkErrors(call->callee->ret==NULL,"Function does not return a value!");
+	checkErrors(!call->callee->ret->type->is("branch"),"Function does not return a branch");
+	if(currentlyInline)
+	{
+		fprintf(fp,"%s = (branch_t){%i /* %s */,%i};\ngoto %s;\n",inlineReturnVariableName.c_str(),labels[call->function->name[1]->text],call->function->name[1]->text.c_str(),inlineReturnLabel.c_str());
+	}
+	else
+	{
+		fprintf(fp,"return (branch_t){%i /* %s */,%i};\n",labels[call->function->name[1]->text],call->function->name[1]->text.c_str(),call->function->arguments.size());
+		lastReturn=call->line->lineNumber;
+	}
+}
+void gotoC99(FILE *fp,FunctionCall *call)
+{
+	checkErrors(call->arguments.size()!=1,"goto needs a label");
+	fprintf(fp,"goto %s;\n",call->arguments[0]->name.c_str());
+}
+void switchC99(FILE *fp,FunctionCall *call)
+{
+	fprintf(fp,"switch( %s )\n",call->arguments[0]->name.c_str());
+	indentLine(fp,call->line->level);
+	fprintf(fp,"{\n");
+	FunctionCall *c=new FunctionCall();
+	c->function=switchEndFunction;
+	c->callee=call->callee;
+	c->ret=NULL;
+	bool first=1;
+	for(int i=call->line->lineNumber;i<call->callee->lastLine+1;i++)
+	{
+		if(lines[i]->level<call->line->level)
+		{
+			c->line=lines[i];
+			lines[i]->commands.insert(lines[i]->commands.begin(),c);
+			break;
+		}
+		if(lines[i]->level==call->line->level)
+		{
+			if(lines[i]->commands[0]->function==caseFunction || (lines[i]->type==Line::LABEL && lines[i]->processed=="default"))
+			{
+				if(first)
+					first=0;
+				else
+				{
+					FunctionCall *e=new FunctionCall();
+					e->function=caseEndFunction;
+					e->callee=call->callee;
+					e->ret=NULL;
+					e->line=lines[i];
+					lines[i]->commands.push_back(e);
+				}
+			}
+			else
+			{
+				c->line=lines[i];
+				lines[i]->commands.insert(lines[i]->commands.begin(),c);
+				break;
+			}
+		}
+	}
+}
+extern Function *switchEndFunction,*caseFunction,*caseEndFunction;
+void switchEndC99(FILE *fp,FunctionCall *call)
+{
+	fprintf(fp,"}\n",call->arguments[0]->name.c_str());
+	
+}
+void caseC99(FILE *fp,FunctionCall *call)
+{
+	fprintf(fp,"case %s:\n",call->arguments[0]->constant->getC99Constant().c_str());
+}
+void caseEndC99(FILE *fp,FunctionCall *call)
+{
+	fprintf(fp,"break;\n");
+}

@@ -52,52 +52,7 @@ void outputC99(FILE *fp);
 extern int lastReturn;
 extern bool currentlyInline;
 extern string inlineReturnVariableName,inlineReturnLabel;
-void returnC99(FILE *fp,FunctionCall *call)
-{
-	Function *func=call->function;
-	if(currentlyInline)
-	{
-		fprintf(fp,"%s = %s;\ngoto %s;\n",inlineReturnVariableName.c_str(),call->arguments[0]->name.c_str(),inlineReturnLabel.c_str());
-	}
-	else
-	{
-		fprintf(fp,"return %s;\n",call->arguments[0]->name.c_str());
-		lastReturn=call->line->lineNumber;
-	}
-}
-void returnDefaultC99(FILE *fp,FunctionCall *call)
-{
-	checkErrors(call->callee->ret==NULL && call->arguments.size(),"Function does not return a value!");
-	checkErrors(call->callee->ret!=NULL && call->callee->ret->name.empty(),"Function does not have an anonymous return variable!");
-	if(currentlyInline)
-	{
-		fprintf(fp,"%s = %s;\ngoto %s;\n",inlineReturnVariableName.c_str(),call->callee->ret->name.c_str(),inlineReturnLabel.c_str());
-	}
-	else
-	{
-		fprintf(fp,"return %s;\n",call->callee->ret==NULL?"":call->callee->ret->name.c_str());
-		lastReturn=call->line->lineNumber;
-	}
-}
-void returnLabelC99(FILE *fp,FunctionCall *call)
-{
-	checkErrors(call->callee->ret==NULL,"Function does not return a value!");
-	checkErrors(!call->callee->ret->type->is("branch"),"Function does not return a branch");
-	if(currentlyInline)
-	{
-		fprintf(fp,"%s = (branch_t){%i /* %s */,%i};\ngoto %s;\n",inlineReturnVariableName.c_str(),labels[call->function->name[1]->text],call->function->name[1]->text.c_str(),inlineReturnLabel.c_str());
-	}
-	else
-	{
-		fprintf(fp,"return (branch_t){%i /* %s */,%i};\n",labels[call->function->name[1]->text],call->function->name[1]->text.c_str(),call->function->arguments.size());
-		lastReturn=call->line->lineNumber;
-	}
-}
-void gotoC99(FILE *fp,FunctionCall *call)
-{
-	checkErrors(call->arguments.size()!=1,"goto needs a label");
-	fprintf(fp,"goto %s;\n",call->arguments[0]->name.c_str());
-}
+
 void parseSourceLine(string str)
 {
 	if(!str.empty())
@@ -113,6 +68,7 @@ void parseSourceLine(string str)
 	}
 	realLineNumber++;
 }
+Function *switchEndFunction,*caseFunction,*caseEndFunction;
 int main(_In_ int _Argc, char **argv)
 {
 
@@ -141,29 +97,48 @@ int main(_In_ int _Argc, char **argv)
 		parseSourceLine(str);
 	}
 	fclose(fp);
-	functions.push_back(new Function("inline return"));
-	functions.back()->internalPrintC99=returnDefaultC99;
 
-	for(auto it=labels.begin();it!=labels.end();it++)
 	{
-		functions.push_back(new Function("inline return "+it->first+""));
-		functions.back()->internalPrintC99=returnLabelC99;
+		functions.push_back(new Function("inline return"));
+		functions.back()->internalPrintC99=returnDefaultC99;
 
-		functions.push_back(new Function("inline return "+it->first+" (int)r"));
-		functions.back()->internalPrintC99=returnLabelC99;//todo change for optional?
+		for(auto it=labels.begin();it!=labels.end();it++)
+		{
+			functions.push_back(new Function("inline return "+it->first+""));
+			functions.back()->internalPrintC99=returnLabelC99;
+
+			functions.push_back(new Function("inline return "+it->first+" (int)r"));
+			functions.back()->internalPrintC99=returnLabelC99;//todo change for optional?
+		}
+
+		for(auto it=types.begin();it!=types.end();it++)
+		{
+			functions.push_back(new Function("inline return ("+it->first+")r"));
+			functions.back()->internalPrintC99=returnC99;
+
+			parseSourceLine("r("+it->first+") ( ("+it->first+")a )");
+			parseSourceLine("\treturn a");
+		}
+
+		functions.push_back(new Function("inline goto (Label)label"));
+		functions.back()->internalPrintC99=gotoC99;
+
+		{
+			functions.push_back(new Function("switch (int)var"));
+			functions.back()->internalPrintC99=switchC99;
+
+			functions.push_back(new Function("case (int)var"));
+			functions.back()->internalPrintC99=caseC99;
+			caseFunction=functions.back();
+			functions.push_back(new Function("switchEnd"));
+			functions.back()->internalPrintC99=switchEndC99;
+			switchEndFunction=functions.back();
+			functions.push_back(new Function("caseEnd"));
+			functions.back()->internalPrintC99=caseEndC99;
+			caseEndFunction=functions.back();
+		}
+
 	}
-
-	for(auto it=types.begin();it!=types.end();it++)
-	{
-		functions.push_back(new Function("inline return ("+it->first+")r"));
-		functions.back()->internalPrintC99=returnC99;
-
-		parseSourceLine("r("+it->first+") ( ("+it->first+")a )");
-		parseSourceLine("\treturn a");
-	}
-
-	functions.push_back(new Function("inline goto (Label)label"));
-	functions.back()->internalPrintC99=gotoC99;
 
 	for(int i=0;i<lines.size();i++)
 	{
