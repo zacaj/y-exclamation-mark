@@ -1,5 +1,6 @@
 #include "main.h"
 #include "types.h"
+#include <stack>
 
 void indentLine(FILE *fp,int level);
 
@@ -441,7 +442,8 @@ void outputC99(FILE *fp)
 		//fprintf(fp,"}\n\n");
 	}
 }
-
+vector<string> switchStack;
+extern Function *switchEndFunction,*caseFunction,*caseEndFunction,*continueFunction,*continueCaseFunction,*continueDefaultFunction;
 void returnC99(FILE *fp,FunctionCall *call)
 {
 	Function *func=call->function;
@@ -488,9 +490,14 @@ void gotoC99(FILE *fp,FunctionCall *call)
 	checkErrors(call->arguments.size()!=1,"goto needs a label");
 	fprintf(fp,"goto %s;\n",call->arguments[0]->name.c_str());
 }
+
+
 void switchC99(FILE *fp,FunctionCall *call)
 {
 	fprintf(fp,"switch( %s )\n",call->arguments[0]->name.c_str());
+	string prefix;
+	find <string> (switchStack,prefix);
+	//while(find<string>(switchStack,(prefix=string("t_sw")+i2s(rand()%100)+tokenize(call->arguments[0]->name)))!=switchStack.end());
 	indentLine(fp,call->line->level);
 	fprintf(fp,"{\n");
 	FunctionCall *c=new FunctionCall();
@@ -498,7 +505,7 @@ void switchC99(FILE *fp,FunctionCall *call)
 	c->callee=call->callee;
 	c->ret=NULL;
 	bool first=1;
-	for(int i=call->line->lineNumber;i<call->callee->lastLine+1;i++)
+	for(int i=call->line->lineNumber+1;i<call->callee->lastLine+1;i++)
 	{
 		if(lines[i]->level<call->line->level)
 		{
@@ -508,7 +515,7 @@ void switchC99(FILE *fp,FunctionCall *call)
 		}
 		if(lines[i]->level==call->line->level)
 		{
-			if(lines[i]->commands[0]->function==caseFunction || (lines[i]->type==Line::LABEL && lines[i]->processed=="default"))
+			if((lines[i]->commands.size() && lines[i]->commands[0]->function==caseFunction) || (lines[i]->type==Line::LABEL && lines[i]->processed=="default"))
 			{
 				if(first)
 					first=0;
@@ -518,8 +525,8 @@ void switchC99(FILE *fp,FunctionCall *call)
 					e->function=caseEndFunction;
 					e->callee=call->callee;
 					e->ret=NULL;
-					e->line=lines[i];
-					lines[i]->commands.push_back(e);
+					e->line=lines[i-1];
+					lines[i-1]->commands.push_back(e);
 				}
 			}
 			else
@@ -531,17 +538,30 @@ void switchC99(FILE *fp,FunctionCall *call)
 		}
 	}
 }
-extern Function *switchEndFunction,*caseFunction,*caseEndFunction;
 void switchEndC99(FILE *fp,FunctionCall *call)
 {
-	fprintf(fp,"}\n",call->arguments[0]->name.c_str());
-	
+	fprintf(fp,"}\n");
+	switchStack.pop_back();
 }
 void caseC99(FILE *fp,FunctionCall *call)
 {
 	fprintf(fp,"case %s:\n",call->arguments[0]->constant->getC99Constant().c_str());
+	fprintf(fp,"case%s%s:",call->arguments[0]->constant->getC99Constant().c_str(),switchStack.back().c_str());
 }
 void caseEndC99(FILE *fp,FunctionCall *call)
 {
 	fprintf(fp,"break;\n");
+}
+void continueC99(FILE *fp,FunctionCall *call)
+{
+	fprintf(fp,"break;\n");
+}
+void continueDefaultC99(FILE *fp,FunctionCall *call)
+{
+	fprintf(fp,"goto default;\n");
+}
+void continueCaseC99(FILE *fp,FunctionCall *call)
+{
+	checkErrors(call->arguments[0]->constant==NULL,"case labels must have a constant input");
+	fprintf(fp,"goto case %s;\n",call->arguments[0]->constant->getC99Constant().c_str());
 }

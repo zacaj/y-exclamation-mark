@@ -173,6 +173,8 @@ string i2s(int i);
 string tokenize(string str);
 
 bool isnumber(string str);
+template <class T>
+typename std::vector<T>::iterator find(typename std::vector<T> &v,T f);
 
 #define vectorFind(a,i,f) \
 	for(i=0;i<a.size();i++) \

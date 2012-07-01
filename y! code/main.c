@@ -13,8 +13,6 @@ void string_equal_string ( char* *a, char* b );
 unsigned char int_less_int ( int a, int b );
 void printstring ( char* str );
 branch_t ifbool ( unsigned char is );
-void continue_ (  );
-void continueLabel ( int label );
 int startint ( int nArgument );
 void printHelloWorlds (  );
 void getNumberFromintintoint ( int number, int *out );
@@ -31,6 +29,9 @@ void switchint ( int var );
 void caseint ( int var );
 void switchEnd (  );
 void caseEnd (  );
+void continue_ (  );
+void continuedefault (  );
+void continuecaseint ( int i );
 
 
 int main(int argc,char **argv)
@@ -87,14 +88,6 @@ branch_t ifbool ( unsigned char is )
 	}
 }
 
-void continue_ (  )
-{
-}
-
-void continueLabel ( int label )
-{
-}
-
 int startint ( int nArgument )
 {
 	int success;
@@ -107,20 +100,20 @@ int startint ( int nArgument )
 void printHelloWorlds (  )
 {
 	int shouldPrintEnd;
-	unsigned char t_bool91r_bool_isLess_;
+	unsigned char t_bool4r_bool_isLess_;
 	int t_int0_1 = 1;
 	int t_int24r_int_sum_;
 	int t_int34_ = -1;
+	int t_int42_4 = 4;
 	int t_int58_0 = 0;
 	int t_int5_2 = 2;
-	int t_int61_5 = 5;
 	int t_int62_0 = 0;
 	int t_int67_1 = 1;
 	int t_int69_1 = 1;
 	int t_int81_1 = 1;
-	int t_int95_4 = 4;
-	char* t_string2 = "Real end\n";
-	char* t_string4 = "End\n";
+	int t_int91_5 = 5;
+	char* t_string2 = "End\n";
+	char* t_string53 = "Real end\n";
 	int timesPrinted;
 	int timesToPrint;
 
@@ -139,12 +132,15 @@ loop:
 		char* t_string64 = "Start\n";
 
 		printstring( t_string64 );
+		goto default;
+		break;
 	}
 	case 2:
 	{
 		char* t_string45 = "2\n";
 
 		printstring( t_string45 );
+		break;
 	}
 	case 1:
 	{
@@ -153,80 +149,84 @@ loop:
 
 			printstring( t_string27 );
 		}
-		continueLabel( default );
+		goto case 4;
+		break;
 	}
 	case 5:
 	{
-		char* t_string91 = "5\n";
+		char* t_string95 = "5\n";
 
-		printstring( t_string91 );
-		continue_( );
+		printstring( t_string95 );
+		break;
+		break;
 	}
 	case 4:
 	{
-		char* t_string42 = "4\n";
+		char* t_string27 = "4\n";
 
-		printstring( t_string42 );
+		printstring( t_string27 );
+		break;
 	}
 default:
 	{
-		char* t_string27 = "?\n";
+		char* t_string36 = "?\n";
 
-		printstring( t_string27 );
+		printstring( t_string36 );
 	}
-	t_bool91r_bool_isLess_ =  int_less_int( timesPrinted, timesToPrint );
-	branch_t t_branch98 = ifbool( t_bool91r_bool_isLess_ );
-	if( t_branch98.labelId==0 )
+	}
+	t_bool4r_bool_isLess_ =  int_less_int( timesPrinted, timesToPrint );
+	branch_t t_branch9 = ifbool( t_bool4r_bool_isLess_ );
+	if( t_branch9.labelId==0 )
 		goto loop;
 	}
-	printstring( t_string4 );
 	printstring( t_string2 );
+	printstring( t_string53 );
 }
 
 void getNumberFromintintoint ( int number, int *out )
 {
-	int t_int15r_int_ret_loadModelFrom_;
-	int t_int39r_int_sum_;
-	int t_int4r_int_product_;
-	int t_int53_3 = 3;
-	int t_int58r_int_;
-	char* t_string33r_string_path_pathToModel_;
-	char* t_string82 = "bar";
-	char* t_string92 = "foo";
+	int t_int30r_int_product_;
+	int t_int39r_int_ret_loadModelFrom_;
+	int t_int4r_int_;
+	int t_int58r_int_sum_;
+	int t_int92_3 = 3;
+	char* t_string15r_string_path_pathToModel_;
+	char* t_string21 = "bar";
+	char* t_string82 = "foo";
 
-	t_string33r_string_path_pathToModel_ =  pathToModelstringstring( t_string92, t_string82 );
-	t_int15r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string33r_string_path_pathToModel_ );
-	t_int39r_int_sum_ =  int_plus_int( t_int53_3, t_int15r_int_ret_loadModelFrom_ );
-	t_int58r_int_ =  f_C_int_D_( t_int39r_int_sum_ );
-	t_int4r_int_product_ =  int_asterisk_int( t_int58r_int_, number );
-	int_equal_int( &*out, t_int4r_int_product_ );
+	t_string15r_string_path_pathToModel_ =  pathToModelstringstring( t_string82, t_string21 );
+	t_int39r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string15r_string_path_pathToModel_ );
+	t_int58r_int_sum_ =  int_plus_int( t_int92_3, t_int39r_int_ret_loadModelFrom_ );
+	t_int4r_int_ =  f_C_int_D_( t_int58r_int_sum_ );
+	t_int30r_int_product_ =  int_asterisk_int( t_int4r_int_, number );
+	int_equal_int( &*out, t_int30r_int_product_ );
 }
 
 char* pathToModelstringstring ( char* text, char* text2 )
 {
 	char* path;
-	char* t_string98 = "c:/model.s3d\n";
+	char* t_string81 = "c:/model.s3d\n";
 
 	printstring( text );
 	printstring( text2 );
 	printstring( text2 );
-	string_equal_string( &path, t_string98 );
+	string_equal_string( &path, t_string81 );
 	return path;
 }
 
 void printHelloWorld (  )
 {
-	char* t_string81 = "Hello world\n";
+	char* t_string89 = "Hello world\n";
 
-	printstring( t_string81 );
+	printstring( t_string89 );
 }
 
 int loadModelFromstring ( char* path )
 {
 	int ret;
-	int t_int89_1 = 1;
+	int t_int98_1 = 1;
 
-	int_equal_int( &ret, t_int89_1 );
+	int_equal_int( &ret, t_int98_1 );
 	printstring( path );
 	return ret;
 }
@@ -273,6 +273,18 @@ void switchEnd (  )
 }
 
 void caseEnd (  )
+{
+}
+
+void continue_ (  )
+{
+}
+
+void continuedefault (  )
+{
+}
+
+void continuecaseint ( int i )
 {
 }
 

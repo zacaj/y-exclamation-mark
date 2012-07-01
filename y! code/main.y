@@ -25,10 +25,6 @@ c	if(is)
 		return default
 c	else
 		return else
-//default
-//case (int)i :
-continue
-continue (Label)label
 
 
 r(int)success start (int) nArgument
@@ -48,13 +44,14 @@ loop:
 	switch timesPrinted
 	case 0
 		print "Start\n"
+		continue default
 	case 2
 		print "2\n"
 	case 1
 		//if shouldPrintEnd < 1
 			print "Hello\n"
 		//else: print "Goodbye\n"
-		continue default
+		continue case 4
 	case 5
 		print "5\n"
 		continue

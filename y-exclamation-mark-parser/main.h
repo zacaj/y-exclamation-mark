@@ -215,3 +215,6 @@ void switchEndC99(FILE *fp,FunctionCall *call);
 void caseC99(FILE *fp,FunctionCall *call);
 void returnC99(FILE *fp,FunctionCall *call);
 void caseEndC99(FILE *f,FunctionCall *call);
+void continueC99(FILE *fp,FunctionCall *call);
+void continueDefaultC99(FILE *fp,FunctionCall *call);
+void continueCaseC99(FILE *fp,FunctionCall *call);
