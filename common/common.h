@@ -13,6 +13,7 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <map>
 using namespace std;
 
@@ -173,8 +174,6 @@ string i2s(int i);
 string tokenize(string str);
 
 bool isnumber(string str);
-template <class T>
-typename std::vector<T>::iterator find(typename std::vector<T> &v,T f);
 
 #define vectorFind(a,i,f) \
 	for(i=0;i<a.size();i++) \
@@ -232,3 +231,13 @@ void _error(string file,const char *format, ...);
 
 
 void initCommon();
+#define For(a,v) foreach
+#define fore(a,v) foreach
+
+#ifdef MSVC
+#define foreach(a,v) \
+	for each(auto &v in a)
+#else
+#define foreach(a,v) \
+	for(auto &v : a)
+#endif

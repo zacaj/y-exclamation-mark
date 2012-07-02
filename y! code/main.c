@@ -127,7 +127,7 @@ loop:
 	int_equal_int( &timesPrinted, t_int58_0 );
 	switch( timesPrinted )
 	{
-	case 0:
+	case 0: case0t_sw9timesPrinted:
 	{
 		char* t_string64 = "Start\n";
 
@@ -135,14 +135,14 @@ loop:
 		goto default;
 		break;
 	}
-	case 2:
+	case 2: case2t_sw9timesPrinted:
 	{
 		char* t_string45 = "2\n";
 
 		printstring( t_string45 );
 		break;
 	}
-	case 1:
+	case 1: case1t_sw9timesPrinted:
 	{
 		{
 			char* t_string27 = "Hello\n";
@@ -152,7 +152,7 @@ loop:
 		goto case 4;
 		break;
 	}
-	case 5:
+	case 5: case5t_sw9timesPrinted:
 	{
 		char* t_string95 = "5\n";
 
@@ -160,7 +160,7 @@ loop:
 		break;
 		break;
 	}
-	case 4:
+	case 4: case4t_sw9timesPrinted:
 	{
 		char* t_string27 = "4\n";
 
@@ -175,8 +175,8 @@ default:
 	}
 	}
 	t_bool4r_bool_isLess_ =  int_less_int( timesPrinted, timesToPrint );
-	branch_t t_branch9 = ifbool( t_bool4r_bool_isLess_ );
-	if( t_branch9.labelId==0 )
+	branch_t t_branch57 = ifbool( t_bool4r_bool_isLess_ );
+	if( t_branch57.labelId==0 )
 		goto loop;
 	}
 	printstring( t_string2 );

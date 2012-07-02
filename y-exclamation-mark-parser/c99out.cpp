@@ -1,6 +1,7 @@
 #include "main.h"
 #include "types.h"
 #include <stack>
+#include <algorithm>
 
 void indentLine(FILE *fp,int level);
 
@@ -496,8 +497,9 @@ void switchC99(FILE *fp,FunctionCall *call)
 {
 	fprintf(fp,"switch( %s )\n",call->arguments[0]->name.c_str());
 	string prefix;
-	find <string> (switchStack,prefix);
-	//while(find<string>(switchStack,(prefix=string("t_sw")+i2s(rand()%100)+tokenize(call->arguments[0]->name)))!=switchStack.end());
+	//find (switchStack,prefix);
+	while(find(switchStack.begin(),switchStack.end(),(prefix=string("t_sw")+i2s(rand()%100)+tokenize(call->arguments[0]->name)))!=switchStack.end());
+	switchStack.push_back(prefix);
 	indentLine(fp,call->line->level);
 	fprintf(fp,"{\n");
 	FunctionCall *c=new FunctionCall();
@@ -545,8 +547,8 @@ void switchEndC99(FILE *fp,FunctionCall *call)
 }
 void caseC99(FILE *fp,FunctionCall *call)
 {
-	fprintf(fp,"case %s:\n",call->arguments[0]->constant->getC99Constant().c_str());
-	fprintf(fp,"case%s%s:",call->arguments[0]->constant->getC99Constant().c_str(),switchStack.back().c_str());
+	fprintf(fp,"case %s: ",call->arguments[0]->constant->getC99Constant().c_str());
+	fprintf(fp,"case%s%s:\n",call->arguments[0]->constant->getC99Constant().c_str(),switchStack.back().c_str());
 }
 void caseEndC99(FILE *fp,FunctionCall *call)
 {
@@ -558,10 +560,10 @@ void continueC99(FILE *fp,FunctionCall *call)
 }
 void continueDefaultC99(FILE *fp,FunctionCall *call)
 {
-	fprintf(fp,"goto default;\n");
+	fprintf(fp,"goto default%s;\n",switchStack.back().c_str());
 }
 void continueCaseC99(FILE *fp,FunctionCall *call)
 {
 	checkErrors(call->arguments[0]->constant==NULL,"case labels must have a constant input");
-	fprintf(fp,"goto case %s;\n",call->arguments[0]->constant->getC99Constant().c_str());
+	fprintf(fp,"goto case%s%s;\n",call->arguments[0]->constant->getC99Constant().c_str(),switchStack.back().c_str());
 }

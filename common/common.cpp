@@ -174,13 +174,3 @@ std::string tokenize( string str )
 		}
 	return str;
 }
-template <class T>
-typename std::vector<T>::iterator find(typename std::vector<T> &v,T f)
-{
-	for(auto it=v.begin();it!=v.end();it++)
-	{
-		if(*it==f)
-			return it;
-	}
-	return v.end();
-}
