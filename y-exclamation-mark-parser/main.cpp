@@ -68,7 +68,7 @@ void parseSourceLine(string str)
 	}
 	realLineNumber++;
 }
-Function *switchEndFunction,*caseFunction,*caseEndFunction,*continueFunction,*continueCaseFunction,*continueDefaultFunction;
+Function *switchEndFunction,*caseFunction,*caseEndFunction,*continueFunction,*continueCaseFunction,*continueDefaultFunction,*defaultFunction;
 int main(_In_ int _Argc, char **argv)
 {
 	initCommon();
@@ -144,6 +144,9 @@ int main(_In_ int _Argc, char **argv)
 			functions.push_back(new Function("continue case (int)i"));
 			functions.back()->internalPrintC99=continueCaseC99;
 			continueCaseFunction=functions.back();
+			functions.push_back(new Function("default"));
+			functions.back()->internalPrintC99=defaultC99;
+			defaultFunction=functions.back();
 		}
 
 	}

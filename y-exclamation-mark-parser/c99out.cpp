@@ -444,7 +444,7 @@ void outputC99(FILE *fp)
 	}
 }
 vector<string> switchStack;
-extern Function *switchEndFunction,*caseFunction,*caseEndFunction,*continueFunction,*continueCaseFunction,*continueDefaultFunction;
+extern Function *switchEndFunction,*caseFunction,*caseEndFunction,*continueFunction,*continueCaseFunction,*continueDefaultFunction,*defaultFunction;
 void returnC99(FILE *fp,FunctionCall *call)
 {
 	Function *func=call->function;
@@ -517,7 +517,7 @@ void switchC99(FILE *fp,FunctionCall *call)
 		}
 		if(lines[i]->level==call->line->level)
 		{
-			if((lines[i]->commands.size() && lines[i]->commands[0]->function==caseFunction) || (lines[i]->type==Line::LABEL && lines[i]->processed=="default"))
+			if((lines[i]->commands.size() && (lines[i]->commands[0]->function==caseFunction || lines[i]->commands[0]->function==defaultFunction))/* || (lines[i]->type==Line::LABEL && lines[i]->processed=="default")*/)
 			{
 				if(first)
 					first=0;
@@ -542,6 +542,7 @@ void switchC99(FILE *fp,FunctionCall *call)
 }
 void switchEndC99(FILE *fp,FunctionCall *call)
 {
+	lastLineLevel=call->line->level;
 	fprintf(fp,"}\n");
 	switchStack.pop_back();
 }
@@ -566,4 +567,8 @@ void continueCaseC99(FILE *fp,FunctionCall *call)
 {
 	checkErrors(call->arguments[0]->constant==NULL,"case labels must have a constant input");
 	fprintf(fp,"goto case%s%s;\n",call->arguments[0]->constant->getC99Constant().c_str(),switchStack.back().c_str());
+}
+void defaultC99(FILE *fp,FunctionCall *call)
+{
+	fprintf(fp,"default: default%s:\n",switchStack.back().c_str());
 }

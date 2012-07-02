@@ -218,3 +218,4 @@ void caseEndC99(FILE *f,FunctionCall *call);
 void continueC99(FILE *fp,FunctionCall *call);
 void continueDefaultC99(FILE *fp,FunctionCall *call);
 void continueCaseC99(FILE *fp,FunctionCall *call);
+void defaultC99(FILE *fp,FunctionCall *call);

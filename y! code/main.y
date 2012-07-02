@@ -39,8 +39,7 @@ printHelloWorlds
 loop:
 	printHelloWorld
 	timesPrinted = timesPrinted + 1
-	
-	timesPrinted = 0
+
 	switch timesPrinted
 	case 0
 		print "Start\n"
@@ -57,7 +56,7 @@ loop:
 		continue
 	case 4
 		print "4\n"
-	default:
+	default
 		print "?\n"
 	if timesPrinted < timesToPrint
 		goto loop
