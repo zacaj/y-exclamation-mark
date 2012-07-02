@@ -47,13 +47,13 @@ loop:
 	case 2
 		print "2\n"
 	case 1
-		//if shouldPrintEnd < 1
+		if shouldPrintEnd < 1
 			print "Hello\n"
-		//else: print "Goodbye\n"
+		else: print "Goodbye\n"
 		continue case 4
 	case 5
-		print "5\n"
 		continue
+		print "5\n"
 	case 4
 		print "4\n"
 	default

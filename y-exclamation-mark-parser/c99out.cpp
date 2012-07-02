@@ -557,7 +557,22 @@ void caseEndC99(FILE *fp,FunctionCall *call)
 }
 void continueC99(FILE *fp,FunctionCall *call)
 {
-	fprintf(fp,"break;\n");
+	for(int i=call->line->lineNumber+1;i<call->callee->lastLine+1;i++)
+	{
+		if(lines[i]->level<call->line->level)
+		{
+			if((lines[i]->commands.size() && (lines[i]->commands[0]->function==caseFunction))/* || (lines[i]->type==Line::LABEL && lines[i]->processed=="default")*/)
+			{
+				fprintf(fp,"goto case%s%s;\n",lines[i]->commands[0]->arguments[0]->constant->getC99Constant().c_str(),switchStack.back().c_str());
+				break;
+			}
+			if((lines[i]->commands.size() && (lines[i]->commands[0]->function==defaultFunction))/* || (lines[i]->type==Line::LABEL && lines[i]->processed=="default")*/)
+			{
+				fprintf(fp,"goto default%s;\n",switchStack.back().c_str());
+				break;
+			}
+		}
+	}
 }
 void continueDefaultC99(FILE *fp,FunctionCall *call)
 {
