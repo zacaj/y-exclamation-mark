@@ -871,7 +871,9 @@ Identifier::Identifier( string str,spos &pos )
 			goto id;
 		if(types.find(betweenParen)==types.end())
 			goto id;
-		if(find_not(str,invisibleCharacers,nextClose)==str.size())
+		if(find_not(str,invisibleCharacers,nextClose+1)==str.size())
+			goto id;
+		if(str[find_not(str,invisibleCharacers,nextClose+1)]=='(')
 			goto id;
 
 		var=new Variable(str,pos);

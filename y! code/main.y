@@ -31,6 +31,8 @@ c	if(is)
 		return default 1
 	return none
 
+r(string) (int) (int)i
+
 
 r(int)success start (int) nArgument
 	printHelloWorlds
@@ -39,12 +41,14 @@ r(int)success start (int) nArgument
 printHelloWorlds
 	getNumberFrom 1 into timesToPrint
 
-	timesPrinted = -1
 	shouldPrintEnd = 1
+
+	
+	timesPrinted = -1
 	while timesPrinted < timesToPrint
 		printHelloWorld
 		timesPrinted = timesPrinted + 1
-
+		print (int) timesPrinted
 		switch timesPrinted
 		case 0
 			print "Start\n"
@@ -64,7 +68,30 @@ printHelloWorlds
 		default
 			print "?\n"
 	print "Real end\n"
+	return
+	i = 0
+	//for { i = 0 } i < timesToPrint { i = i + 1 }
+		printHelloWorld
+		switch i
+		case 0
+			print "Start\n"
+			continue default
+		case 2
+			print "2\n"
+		case 1
+			if shouldPrintEnd < 1
+				print "Hello\n"
+			else: print "Goodbye\n"
+			continue case 4
+		case 5
+			continue
+			print "5\n"
+		case 4
+			print "4\n"
+		default
+			print "?\n"
 
+	return
 
 getNumberFrom (int)number into o(int) out
 	out = ( 3 + loadModelFrom pathToModel "foo" "bar" ) * number
