@@ -81,6 +81,7 @@ int main(_In_ int _Argc, char **argv)
 	FILE *fp=fopen("../y! code/main.y","r");
 	addLabel("default",NULL);
 	addLabel("else",NULL);
+	addLabel("none",NULL);
 	/*functions.push_back(new Function("return (int)r"));
 	functions.push_back(new Function("return (string)r"));
 	functions.push_back(new Function("r(int)sum (int)a + (int) b p = -20"));

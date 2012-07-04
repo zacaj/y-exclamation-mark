@@ -13,6 +13,7 @@ void string_equal_string ( char* *a, char* b );
 unsigned char int_less_int ( int a, int b );
 void printstring ( char* str );
 branch_t ifbool ( unsigned char is );
+branch_t whilebool ( unsigned char is );
 int startint ( int nArgument );
 void printHelloWorlds (  );
 void getNumberFromintintoint ( int number, int *out );
@@ -89,110 +90,122 @@ branch_t ifbool ( unsigned char is )
 	}
 }
 
+branch_t whilebool ( unsigned char is )
+{
+	if(is)
+	{
+		int t_int41_1 = 1;
+
+		return (branch_t){0 /* default */,1};
+	}
+	return (branch_t){2 /* none */,0};
+}
+
 int startint ( int nArgument )
 {
 	int success;
-	int t_int41_0 = 0;
+	int t_int67_0 = 0;
 
 	printHelloWorlds( );
-	return t_int41_0;
+	return t_int67_0;
 }
 
 void printHelloWorlds (  )
 {
 	int shouldPrintEnd;
-	unsigned char t_bool92r_bool_isLess_;
-	int t_int0_1 = 1;
-	int t_int24r_int_sum_;
-	int t_int27_5 = 5;
-	int t_int34_ = -1;
-	int t_int45_1 = 1;
-	int t_int58_0 = 0;
-	int t_int64_2 = 2;
-	int t_int67_1 = 1;
+	unsigned char t_bool78r_bool_isLess_;
+	int t_int0_ = -1;
+	int t_int34_1 = 1;
 	int t_int69_1 = 1;
-	int t_int91_4 = 4;
 	char* t_string21 = "Real end\n";
-	char* t_string82 = "End\n";
 	int timesPrinted;
 	int timesToPrint;
 
-	getNumberFromintintoint( t_int67_1, &timesToPrint );
-	int_equal_int( &timesPrinted, t_int34_ );
-	int_equal_int( &shouldPrintEnd, t_int0_1 );
-loop:
-	printHelloWorld( );
-	t_int24r_int_sum_ =  int_plus_int( timesPrinted, t_int69_1 );
-	int_equal_int( &timesPrinted, t_int24r_int_sum_ );
-	switch( timesPrinted )
+	getNumberFromintintoint( t_int34_1, &timesToPrint );
+	int_equal_int( &timesPrinted, t_int0_ );
+	int_equal_int( &shouldPrintEnd, t_int69_1 );
+	lt_branch22:;
+	t_bool78r_bool_isLess_ =  int_less_int( timesPrinted, timesToPrint );
+	branch_t t_branch22 = whilebool( t_bool78r_bool_isLess_ );
+	if( t_branch22.labelId==0 )
 	{
-	case 0: case0t_sw22timesPrinted:
-	{
-		char* t_string62 = "Start\n";
+		int t_int4_5 = 5;
+		int t_int53_4 = 4;
+		int t_int58_1 = 1;
+		int t_int5_0 = 0;
+		int t_int61_1 = 1;
+		int t_int62r_int_sum_;
+		int t_int81_2 = 2;
 
-		printstring( t_string62 );
-		goto defaultt_sw22timesPrinted;
-		break;
-	}
-	case 2: case2t_sw22timesPrinted:
-	{
-		char* t_string5 = "2\n";
-
-		printstring( t_string5 );
-		break;
-	}
-	case 1: case1t_sw22timesPrinted:
-	{
-		unsigned char t_bool61r_bool_isLess_;
-		int t_int42_4 = 4;
-		int t_int81_1 = 1;
-
-		t_bool61r_bool_isLess_ =  int_less_int( shouldPrintEnd, t_int81_1 );
-		branch_t t_branch38 = ifbool( t_bool61r_bool_isLess_ );
-		if( t_branch38.labelId==0 )
+		printHelloWorld( );
+		t_int62r_int_sum_ =  int_plus_int( timesPrinted, t_int58_1 );
+		int_equal_int( &timesPrinted, t_int62r_int_sum_ );
+		switch( timesPrinted )
 		{
-			char* t_string91 = "Hello\n";
-
-			printstring( t_string91 );
-		}
-		else if( t_branch38.labelId==1 )
+		case 0: case0t_sw38timesPrinted:
 		{
-			char* t_string95 = "Goodbye\n";
+			char* t_string45 = "Start\n";
 
-			printstring( t_string95 );
+			printstring( t_string45 );
+			goto defaultt_sw38timesPrinted;
+			break;
 		}
-		goto case4t_sw22timesPrinted;
-		break;
-	}
-	case 5: case5t_sw22timesPrinted:
-	{
-		char* t_string36 = "5\n";
+		case 2: case2t_sw38timesPrinted:
+		{
+			char* t_string27 = "2\n";
 
-		goto case4t_sw22timesPrinted;
-		printstring( t_string36 );
-		break;
-	}
-	case 4: case4t_sw22timesPrinted:
-	{
-		char* t_string4 = "4\n";
+			printstring( t_string27 );
+			break;
+		}
+		case 1: case1t_sw38timesPrinted:
+		{
+			unsigned char t_bool42r_bool_isLess_;
+			int t_int91_1 = 1;
+			int t_int91_4 = 4;
 
-		printstring( t_string4 );
-		break;
-	}
-	default: defaultt_sw22timesPrinted:
-	{
-		char* t_string2 = "?\n";
+			lt_branch92:;
+			t_bool42r_bool_isLess_ =  int_less_int( shouldPrintEnd, t_int91_1 );
+			branch_t t_branch92 = ifbool( t_bool42r_bool_isLess_ );
+			if( t_branch92.labelId==0 )
+			{
+				char* t_string27 = "Hello\n";
 
-		printstring( t_string2 );
+				printstring( t_string27 );
+			}
+			else if( t_branch92.labelId==1 )
+			{
+				char* t_string36 = "Goodbye\n";
+
+				printstring( t_string36 );
+			}
+			if( t_branch92.repeat!=0 ) goto lt_branch92;
+			goto case4t_sw38timesPrinted;
+			break;
+		}
+		case 5: case5t_sw38timesPrinted:
+		{
+			char* t_string2 = "5\n";
+
+			goto case4t_sw38timesPrinted;
+			printstring( t_string2 );
+			break;
+		}
+		case 4: case4t_sw38timesPrinted:
+		{
+			char* t_string92 = "4\n";
+
+			printstring( t_string92 );
+			break;
+		}
+		default: defaultt_sw38timesPrinted:
+		{
+			char* t_string82 = "?\n";
+
+			printstring( t_string82 );
+			}
+		}
 	}
-	}
-	t_bool92r_bool_isLess_ =  int_less_int( timesPrinted, timesToPrint );
-	branch_t t_branch92 = ifbool( t_bool92r_bool_isLess_ );
-	if( t_branch92.labelId==0 )
-	{
-		goto loop;
-	}
-	printstring( t_string82 );
+	if( t_branch22.repeat!=0 ) goto lt_branch22;
 	printstring( t_string21 );
 }
 

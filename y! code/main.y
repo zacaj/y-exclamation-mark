@@ -26,6 +26,11 @@ c	if(is)
 c	else
 		return else
 
+r(branch) while (bool)is
+c	if(is)
+		return default 1
+	return none
+
 
 r(int)success start (int) nArgument
 	printHelloWorlds
@@ -36,31 +41,28 @@ printHelloWorlds
 
 	timesPrinted = -1
 	shouldPrintEnd = 1
-loop:
-	printHelloWorld
-	timesPrinted = timesPrinted + 1
+	while timesPrinted < timesToPrint
+		printHelloWorld
+		timesPrinted = timesPrinted + 1
 
-	switch timesPrinted
-	case 0
-		print "Start\n"
-		continue default
-	case 2
-		print "2\n"
-	case 1
-		if shouldPrintEnd < 1
-			print "Hello\n"
-		else: print "Goodbye\n"
-		continue case 4
-	case 5
-		continue
-		print "5\n"
-	case 4
-		print "4\n"
-	default
-		print "?\n"
-	if timesPrinted < timesToPrint
-		goto loop
-	print "End\n"
+		switch timesPrinted
+		case 0
+			print "Start\n"
+			continue default
+		case 2
+			print "2\n"
+		case 1
+			if shouldPrintEnd < 1
+				print "Hello\n"
+			else: print "Goodbye\n"
+			continue case 4
+		case 5
+			continue
+			print "5\n"
+		case 4
+			print "4\n"
+		default
+			print "?\n"
 	print "Real end\n"
 
 

@@ -140,6 +140,13 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 	}
 	else
 	{
+		string branchName;
+		if(line->commands.back()->function->ret!=NULL && line->commands.back()->function->ret->type->is("branch"))
+		{
+			branchName=line->scope->getTempName("branch");
+			indentLine(fp,replacementLevel);
+			fprintf(fp,"l%s:;\n",branchName.c_str());
+		}
 		for(int j=0;j<line->commands.size();j++)
 		{
 			FunctionCall *call=line->commands[j];
@@ -150,8 +157,8 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 			}
 			else if(call->function->ret!=NULL && call->function->ret->type->is("branch"))
 			{
+				//string branchName=line->scope->getTempName("branch");
 				indentLine(fp,replacementLevel);
-				string branchName=line->scope->getTempName("branch");
 				fprintf(fp,"branch_t %s = ",branchName.c_str());
 				call->printC99(fp);
 				int k;
@@ -165,7 +172,7 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 						break;
 					if(lines[k]->level>level)
 					{
-						k+=lines[k]->printC99(fp,replacementLevel+1);
+						k+=lines[k]->printC99(fp,replacementLevel-line->level+lines[k]->level);
 						lastLineNumber=(lines[k]->lineNumber>lastLineNumber)?lines[k]->lineNumber:lineNumber;
 					}
 					else if(lines[k]->level==level)
@@ -184,62 +191,17 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 							lastLineNumber=(lines[k]->lineNumber>lastLineNumber)?lines[k]->lineNumber:lineNumber;
 						}
 						else
+						{
 							break;
+						}
 					}
 					fflush(fp);
 				}
+				fixLevels(fp,replacementLevel,line);
+				indentLine(fp,replacementLevel);
+				fprintf(fp,"if( %s.repeat!=0 ) goto l%s;\n",branchName.c_str(),branchName.c_str());
+				lastLineLevel=replacementLevel;
 				return lastLineNumber-line->lineNumber;
-				/*vector<Line*> l=line->getLabels();
-				map<int,vector<Line*>> ls;
-				auto ln=l.begin();
-				for(int i=line->lineNumber+1;i<lines.size() && (ln)!=l.end() && i<l.back()->lineNumber;i++)
-				{
-					if(lines[i]->type==Line::LABEL)
-						ln++;
-					else
-					{
-						int labelId=0;//default
-						if((*ln)->type==Line::LABEL)
-						{
-							labelId=labels[(*ln)->processed];
-						}
-						auto it=ls.find(labelId);
-						if(it==ls.end())
-						{
-							vector<Line*> nlns;
-							nlns.push_back(lines[i]);
-							ls[labelId]=nlns;
-						}
-						else
-							ls[labelId].push_back(lines[i]);
-					}
-				}
-
-				string branchName=line->scope->getTempName("branch");
-				fprintf(fp,"branch_t %s = ",branchName.c_str());
-				call->printC99(fp);
-
-				for(auto it=ls.begin();it!=ls.end();it++)
-				{
-					fixLevels(fp,replacementLevel,line);
-					indentLine(fp,replacementLevel);
-					if(it==ls.begin())
-						fprintf(fp,"if( %s.labelId==%i )\n",branchName.c_str(),it->first);
-					else
-					{
-						fprintf(fp,"else if( %s.labelId==%i )\n",branchName.c_str(),it->first);
-						lastLineLevel=replacementLevel;
-					}
-
-					for(int k=0;k<it->second.size();k++)
-					{
-						Line *line=it->second[k];
-						line->printC99(fp);
-						lastLineNumber=(line->lineNumber>lastLineNumber)?line->lineNumber:lineNumber;
-					}
-				}
-
-				return lastLineNumber-line->lineNumber;*/
 			}
 			else if(call->function->isInline)//todo handle arguments and returns
 			{
@@ -270,16 +232,6 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 					call->function->lines[k]->printC99(fp,call->function->lines[k]->level+replacementLevel);
 
 				fixLevels(fp,replacementLevel+1,line);
-
-			/*	if(call->function->ret==NULL || call->function->ret->name.empty() || lastReturn>lastReturnSet)
-				{
-
-				}
-				else
-				{
-					indentLine(fp,replacementLevel+1);
-					fprintf(fp,"%s = %s;\n",inlineReturnVariableName.c_str(),call->function->ret->name.c_str());
-				}*/
 
 				indentLine(fp,replacementLevel+1);
 				fprintf(fp,"%s:;\n",inlineReturnLabel.c_str());
@@ -512,7 +464,7 @@ void switchC99(FILE *fp,FunctionCall *call)
 		if(lines[i]->level<call->line->level)
 		{
 			c->line=lines[i];
-			lines[i]->commands.insert(lines[i]->commands.begin(),c);
+			lines[i-1]->commands.insert(lines[i-1]->commands.end(),c);
 			break;
 		}
 		if(lines[i]->level==call->line->level)
@@ -534,7 +486,7 @@ void switchC99(FILE *fp,FunctionCall *call)
 			else
 			{
 				c->line=lines[i];
-				lines[i]->commands.insert(lines[i]->commands.begin(),c);
+				lines[i-1]->commands.insert(lines[i-1]->commands.end(),c);
 				break;
 			}
 		}
