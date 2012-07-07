@@ -187,11 +187,11 @@ public:
 	Line(string str,uint _lineNumber);
 		
 	void splitCommands(string str);
-	void parseNextIsNewVariable(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt);
-	void parseNextIsVariable(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt);
-	void parseNextIsLabel(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt);
-	void parseNextIsFunction(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt,Function *function);
-	void parseCode(vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt);
+	void parseNextIsNewVariable(vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt);
+	void parseNextIsVariable(vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt);
+	void parseNextIsLabel(vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt);
+	void parseNextIsFunction(vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt,Function *function);
+	void parseCode(vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt);
 
 	vector<Line*> getLabels();
 

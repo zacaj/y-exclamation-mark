@@ -454,14 +454,15 @@ void Line::splitCommands( string str )
 	}
 	//checkErrors(possibleFunctions.size()==0,"no function specified");
 	vector<CallToken> attempt;
-	vector<LinePossibility> possibilities;
+	vector<LinePossibility*> possibilities;
 	parseCode(call,0,possibilities,attempt);
 	string failReason;
-	for(int i=0;i<possibilities.size();i++)
+	for(int i=possibilities.size()-1;i>=0;i--)
 	{
 #define FAIL(reason) { failReason=reason; goto fail; }
-		vector<CallToken> &possibility=possibilities[i].p;
-		int id=possibilities[i].id;
+		LinePossibility &linePossibility=*possibilities[i];
+		vector<CallToken> &possibility=linePossibility.p;
+		int id=linePossibility.id;
 		vector<IndependantFunction> independantFunctionPossibilities;
 		int j;
 		for(j=0;j<possibility.size();j++)//go thru all ids
@@ -560,7 +561,7 @@ void Line::splitCommands( string str )
 						fcall->arguments.push_back(new Variable(possibility[j].label,getType("Label")));
 				}
 				checkErrors(fcall->arguments.size()!=fcall->function->arguments.size(),"internal error 4");
-				possibilities[i].call.push_back(fcall);
+				linePossibility.call.push_back(fcall);
 			}
 		}
 		else//simplify the call
@@ -587,57 +588,57 @@ void Line::splitCommands( string str )
 						fcall->arguments.push_back(new Variable(possibility[j].label,getType("Label")));
 				}
 				checkErrors(fcall->arguments.size()!=fcall->function->arguments.size(),"internal error 4");
-				possibilities[i].call.push_back(fcall);
+				linePossibility.call.push_back(fcall);
 			}
 			possibility.erase(possibility.begin()+indf.start,possibility.begin()+indf.end);
 			CallToken token;
 			token.str=var->name;
 			token.possibleVariable=var;
 			possibility.insert(possibility.begin()+indf.start,token);
-			i--;
+			i++;
 		}
 
 
 		continue;//skip fail if got to here
 
 fail:
-		for(int j=0;j<possibilities[i].call.size();j++)//remove unused temp vars
+		for(int j=0;j<linePossibility.call.size();j++)//remove unused temp vars
 		{
-			//for(int k=0;k<possibilities[i].call[j]->arguments.size();k++)
+			//for(int k=0;k<linePossibility.call[j]->arguments.size();k++)
 			{
-				if(possibilities[i].call[j]->ret!=NULL && possibilities[i].call[j]->ret->mode&Ob(10000000))
-					scope->removeVariable(possibilities[i].call[j]->ret->name);
+				if(linePossibility.call[j]->ret!=NULL && linePossibility.call[j]->ret->mode&Ob(10000000))
+					scope->removeVariable(linePossibility.call[j]->ret->name);
 			}
 		}
-		possibilities.erase(possibilities.begin()+i--);
+		possibilities.erase(possibilities.begin()+i);
 	}
 	checkErrors(possibilities.size()==0,"no function specified");
 	checkErrors(possibilities.size()>=2,"ambiguous call");
-	for(int i=0;i<possibilities[0].p.size();i++)
+	for(int i=0;i<possibilities[0]->p.size();i++)
 	{
-		if(possibilities[0].p[i].newVariable)
+		if(possibilities[0]->p[i].newVariable)
 		{
 			//checkError(possibilities[0][i].possibleVariable==NULL,"internal error 4: %s not created\n",possibilities[0][i].str.c_str());
-			if(possibilities[0].p[i].newVariablePtr!=NULL)
+			if(possibilities[0]->p[i].newVariablePtr!=NULL)
 			{
-				scope->addVariable(possibilities[0].p[i].newVariablePtr);
+				scope->addVariable(possibilities[0]->p[i].newVariablePtr);
 			}
 			else
 			{
-				if(possibilities[0].p[i].possibleVariable==NULL)
-					scope->addVariable(new Variable(possibilities[0].p[i].str,possibilities[0].p[i].type));
+				if(possibilities[0]->p[i].possibleVariable==NULL)
+					scope->addVariable(new Variable(possibilities[0]->p[i].str,possibilities[0]->p[i].type));
 				else
-					scope->addVariable(possibilities[0].p[i].possibleVariable);
+					scope->addVariable(possibilities[0]->p[i].possibleVariable);
 			}
 		}
 
 	}
-	commands=possibilities[0].call;
+	commands=possibilities[0]->call;
 	debug("Processed line %i\n",originalLineNumber);
 	NONE;
 }
 
-void Line::parseNextIsNewVariable( vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt )
+void Line::parseNextIsNewVariable( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt )
 {
 	CallToken token;
 	token.newVariable=1;
@@ -646,7 +647,7 @@ void Line::parseNextIsNewVariable( vector<CallToken> &call,uint p,vector<LinePos
 	parseCode(call,p+1,functions,attempt);
 }
 
-void Line::parseNextIsVariable( vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt )
+void Line::parseNextIsVariable( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt )
 {
 	CallToken token;
 	token.possibleVariable=scope->getVariable(call[p].str);
@@ -655,7 +656,7 @@ void Line::parseNextIsVariable( vector<CallToken> &call,uint p,vector<LinePossib
 	parseCode(call,p+1,functions,attempt);
 }
 
-void Line::parseNextIsLabel( vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt )
+void Line::parseNextIsLabel( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt )
 {
 	CallToken token;
 	token.label=call[p].label;
@@ -663,7 +664,7 @@ void Line::parseNextIsLabel( vector<CallToken> &call,uint p,vector<LinePossibili
 	attempt.push_back(token);
 	parseCode(call,p+1,functions,attempt);
 }
-void Line::parseNextIsFunction( vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt,Function *function )
+void Line::parseNextIsFunction( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt,Function *function )
 {
 	CallToken token;
 	token.possibleFunctions.insert(function);
@@ -672,14 +673,14 @@ void Line::parseNextIsFunction( vector<CallToken> &call,uint p,vector<LinePossib
 	parseCode(call,p+1,functions,attempt);
 }
 
-void Line::parseCode( vector<CallToken> &call,uint p,vector<LinePossibility> &functions,vector<CallToken> attempt )
+void Line::parseCode( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt )
 {
 	if(p==call.size())
 	{
-		LinePossibility lp;
-		lp.p=attempt;
+		LinePossibility *lp=new LinePossibility;
+		lp->p=attempt;
 		static int id=0;
-		lp.id=id++;
+		lp->id=id++;
 		functions.push_back(lp);
 		return;
 	}
