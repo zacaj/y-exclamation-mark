@@ -7,8 +7,9 @@ c	sum=a+b;
 r(int)product (int)a * (int)b p= -10
 c	product=a*b;
 
-o(int)a = (int) b p = -100
+r(int) o(int)a = (int) b p = -100
 c	*a=b;
+	return a
 
 o(string)a = (string)b p = -100
 c	*a=malloc(strlen(b));
@@ -33,6 +34,8 @@ c	if(is)
 
 r(string) (int) (int)i
 
+r(branch) for (var)a ; (var)b ; (var)c
+
 
 r(int)success start (int) nArgument
 	printHelloWorlds
@@ -43,34 +46,7 @@ printHelloWorlds
 
 	shouldPrintEnd = 1
 
-	
-	timesPrinted = -1
-	while timesPrinted < timesToPrint
-		printHelloWorld
-		timesPrinted = timesPrinted + 1
-		print (int) timesPrinted
-		switch timesPrinted
-		case 0
-			print "Start\n"
-			continue default
-		case 2
-			print "2\n"
-		case 1
-			if shouldPrintEnd < 1
-				print "Hello\n"
-			else: print "Goodbye\n"
-			continue case 4
-		case 5
-			continue
-			print "5\n"
-		case 4
-			print "4\n"
-		default
-			print "?\n"
-	print "Real end\n"
-	return
-	i = 0
-	//for { i = 0 } i < timesToPrint { i = i + 1 }
+	for i = 0 ; i < timesToPrint ; i = i + 1 
 		printHelloWorld
 		switch i
 		case 0
@@ -91,6 +67,31 @@ printHelloWorlds
 		default
 			print "?\n"
 
+	return
+	timesPrinted = -1
+	while timesPrinted < timesToPrint
+		printHelloWorld
+		timesPrinted = timesPrinted + 1
+		//print (int) timesPrinted
+		switch timesPrinted
+		case 0
+			print "Start\n"
+			continue default
+		case 2
+			print "2\n"
+		case 1
+			if shouldPrintEnd < 1
+				print "Hello\n"
+			else: print "Goodbye\n"
+			continue case 4
+		case 5
+			continue
+			print "5\n"
+		case 4
+			print "4\n"
+		default
+			print "?\n"
+	print "Real end\n"
 	return
 
 getNumberFrom (int)number into o(int) out

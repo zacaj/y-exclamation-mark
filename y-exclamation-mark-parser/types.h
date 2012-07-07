@@ -6,11 +6,15 @@ class Type
 {
 public:
 	string name;
-	virtual bool is(string typeName)
+	virtual int is(string typeName)
 	{
 		if(typeName=="internal")
 			return 1;
-		return typeName==name;
+		if(typeName==name)
+			return 1;
+		if(typeName=="var")//fix
+			return 2;
+		return 0;
 	}
 	virtual string getLlvmType(){return "";};
 	virtual string getC99Type(){return "";};
@@ -120,6 +124,19 @@ public:
 	}
 };
 
+class Var:public Type
+{
+public:
+	string label;
+	Var()
+	{
+		name="var";
+	}
+	string getC99Type()
+	{
+		return "void";
+	}
+};
 extern map<string,Type*> types;
 
 Type* getType(string name);

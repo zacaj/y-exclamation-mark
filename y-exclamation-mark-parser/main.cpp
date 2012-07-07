@@ -77,6 +77,7 @@ int main(_In_ int _Argc, char **argv)
 	types["bool"]=new Bool;
 	types["branch"]=new Branch;
 	types["Label"]=new Label;
+	types["var"]=new Var;
 	int start=time(NULL);
 	FILE *fp=fopen("../y! code/main.y","r");
 	addLabel("default",NULL);
@@ -111,6 +112,7 @@ int main(_In_ int _Argc, char **argv)
 			functions.back()->internalPrintC99=returnLabelC99;//todo change for optional?
 		}
 
+		/*
 		for(auto it=types.begin();it!=types.end();it++)
 		{
 			functions.push_back(new Function("inline return ("+it->first+")r"));
@@ -118,7 +120,12 @@ int main(_In_ int _Argc, char **argv)
 
 			parseSourceLine("r("+it->first+") ( ("+it->first+")a )");
 			parseSourceLine("\treturn a");
-		}
+		}*/
+		functions.push_back(new Function("inline return (var)r"));
+		functions.back()->internalPrintC99=returnC99;
+
+		parseSourceLine("r(var) ( (var)a )");
+		parseSourceLine("\treturn a");
 
 		functions.push_back(new Function("inline goto (Label)label"));
 		functions.back()->internalPrintC99=gotoC99;
@@ -508,7 +515,7 @@ void Line::splitCommands( string str )
 						{
 							if(possibility[j-functionTokenIndexInFunction+k].possibleVariable==NULL)
 								break;
-							if(possibility[j-functionTokenIndexInFunction+k].possibleVariable->type!=func->name[k]->var->type)
+							if(!possibility[j-functionTokenIndexInFunction+k].possibleVariable->type->is(func->name[k]->var->type->name))
 								break;
 						}
 					}
