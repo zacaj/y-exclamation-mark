@@ -3,7 +3,7 @@
 
 extern int realLineNumber;
 void checkErrors(bool isError,string description);
-#define WASANEWVARIABLE Ob(10000000)
+#define WASANEWVARIABLE Ob(100000000)
 #define WHERESTRE  "ERROR %i: "
 #define WHEREARGE  realLineNumber
 #define DEBUGPRINT2E(...)       _print(__VA_ARGS__)
@@ -36,7 +36,7 @@ class Variable
 public:
 	string name;
 	Type *type;
-	uchar mode;
+	uint mode;
 	Type *constant;
 	Variable(string _name,Type *_type)
 		:name(_name),

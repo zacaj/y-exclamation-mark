@@ -27,8 +27,6 @@ c	if(is)
 c	else
 		return else
 
-r(string) (int) (int)i
-
 
 
 

@@ -77,7 +77,7 @@ int main(_In_ int _Argc, char **argv)
 	types["bool"]=new Bool;
 	types["branch"]=new Branch;
 	types["Label"]=new Label;
-	types["var"]=new Var;
+	//types["var"]=new Var;
 	int start=time(NULL);
 	FILE *fp=fopen("../y! code/main.y","r");
 	addLabel("default",NULL);
@@ -112,7 +112,7 @@ int main(_In_ int _Argc, char **argv)
 			functions.back()->internalPrintC99=returnLabelC99;//todo change for optional?
 		}
 
-		/*
+		
 		for(auto it=types.begin();it!=types.end();it++)
 		{
 			functions.push_back(new Function("inline return ("+it->first+")r"));
@@ -120,12 +120,12 @@ int main(_In_ int _Argc, char **argv)
 
 			parseSourceLine("r("+it->first+") ( ("+it->first+")a )");
 			parseSourceLine("\treturn a");
-		}*/
-		functions.push_back(new Function("inline return (var)r"));
-		functions.back()->internalPrintC99=returnC99;
+		}
+		//functions.push_back(new Function("inline return (var)r"));
+		//functions.back()->internalPrintC99=returnC99;
 
-		parseSourceLine("r(var) ( (var)a )");
-		parseSourceLine("\treturn a");
+		//parseSourceLine("r(var) ( (var)a )");
+		//parseSourceLine("\treturn a");
 
 		functions.push_back(new Function("inline goto (Label)label"));
 		functions.back()->internalPrintC99=gotoC99;
@@ -156,7 +156,7 @@ int main(_In_ int _Argc, char **argv)
 			functions.back()->internalPrintC99=defaultC99;
 			defaultFunction=functions.back();
 		}
-		functions.push_back(new Function("r(branch) for (var)a ; (var)b ; (var)c"));
+		functions.push_back(new Function("inline r(branch) for (var)a ; (var)b ; (var)c"));
 		forFunction=functions.back();
 
 		parseSourceLine("r(branch) while (bool)is");
@@ -497,6 +497,7 @@ void Line::splitCommands( string str )
 			if(possibilities[0]->call[i]->arguments[j]->mode&WASANEWVARIABLE)
 			{
 				scope->addVariable(possibilities[0]->call[i]->arguments[j]);
+				possibilities[0]->call[i]->arguments[j]->mode^=WASANEWVARIABLE;
 			}
 		}
 	}

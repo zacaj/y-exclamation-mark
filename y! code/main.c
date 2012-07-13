@@ -8,13 +8,11 @@ typedef struct
 
 int int_plus_int ( int a, int b );
 int int_asterisk_int ( int a, int b );
-void int_equal_int ( int *a, int b );
+int int_equal_int ( int *a, int b );
 void string_equal_string ( char* *a, char* b );
 unsigned char int_less_int ( int a, int b );
 void printstring ( char* str );
 branch_t ifbool ( unsigned char is );
-branch_t whilebool ( unsigned char is );
-char* f_C_int_D_int ( int i );
 int startint ( int nArgument );
 void printHelloWorlds (  );
 void getNumberFromintintoint ( int number, int *out );
@@ -35,6 +33,7 @@ void continue_ (  );
 void continuedefault (  );
 void continuecaseint ( int i );
 void default_ (  );
+branch_t whilebool ( unsigned char is );
 
 
 int main(int argc,char **argv)
@@ -56,9 +55,10 @@ int int_asterisk_int ( int a, int b )
 	return product;
 }
 
-void int_equal_int ( int *a, int b )
+int int_equal_int ( int *a, int b )
 {
 	*a=b;
+	return a;
 }
 
 void string_equal_string ( char* *a, char* b )
@@ -91,179 +91,83 @@ branch_t ifbool ( unsigned char is )
 	}
 }
 
-branch_t whilebool ( unsigned char is )
-{
-	if(is)
-	{
-		int t_int41_1 = 1;
-
-		return (branch_t){0 /* default */,1};
-	}
-	return (branch_t){2 /* none */,0};
-}
-
-char* f_C_int_D_int ( int i )
-{
-}
-
 int startint ( int nArgument )
 {
 	int success;
-	int t_int67_0 = 0;
+	int t_int41_0 = 0;
 
 	printHelloWorlds( );
-	return t_int67_0;
+	return t_int41_0;
 }
 
 void printHelloWorlds (  )
 {
 	int i;
 	int shouldPrintEnd;
-	unsigned char t_bool24r_bool_isLess_;
-	int t_int0_1 = 1;
+	unsigned char t_bool16r_bool_isLess_;
+	unsigned char t_bool58r_bool_isLess_;
+	int t_int0_0 = 0;
+	int t_int21_ = -1;
 	int t_int34_1 = 1;
-	int t_int69_ = -1;
-	int t_int95_0 = 0;
-	char* t_string18 = "Real end\n";
+	int t_int67_1 = 1;
+	int t_int69_1 = 1;
+	int t_int78r_int_sum_;
+	char* t_string53 = "Real end\n";
 	int timesPrinted;
 	int timesToPrint;
 
-	getNumberFromintintoint( t_int34_1, &timesToPrint );
-	int_equal_int( &shouldPrintEnd, t_int0_1 );
-	int_equal_int( &timesPrinted, t_int69_ );
-	lt_branch75:;
-	t_bool24r_bool_isLess_ =  int_less_int( timesPrinted, timesToPrint );
-	branch_t t_branch75 = whilebool( t_bool24r_bool_isLess_ );
-	if( t_branch75.labelId==0 )
+	getNumberFromintintoint( t_int67_1, &timesToPrint );
+	int_equal_int( &shouldPrintEnd, t_int34_1 );
+	lt_branch69:;
+	int_equal_int( &i, t_int0_0 );
+	t_bool58r_bool_isLess_ =  int_less_int( i, timesToPrint );
+	branch_t t_branch69 = whilebool( t_bool58r_bool_isLess_ );
+	if( t_branch69.labelId==0 )
 	{
-		int t_int53_5 = 5;
-		int t_int58_1 = 1;
-		int t_int61_2 = 2;
-		int t_int64r_int_sum_;
-		int t_int81_0 = 0;
-		int t_int82_4 = 4;
-		int t_int95_1 = 1;
-		char* t_string5r_string_;
-
-		printHelloWorld( );
-		t_int64r_int_sum_ =  int_plus_int( timesPrinted, t_int58_1 );
-		int_equal_int( &timesPrinted, t_int64r_int_sum_ );
-		t_string5r_string_ =  f_C_int_D_int( timesPrinted );
-		printstring( t_string5r_string_ );
-		switch( timesPrinted )
-		{
-		case 0: case0t_sw33timesPrinted:
-		{
-			char* t_string27 = "Start\n";
-
-			printstring( t_string27 );
-			goto defaultt_sw33timesPrinted;
-			break;
-		}
-		case 2: case2t_sw33timesPrinted:
-		{
-			char* t_string91 = "2\n";
-
-			printstring( t_string91 );
-			break;
-		}
-		case 1: case1t_sw33timesPrinted:
-		{
-			unsigned char t_bool27r_bool_isLess_;
-			int t_int2_4 = 4;
-			int t_int42_1 = 1;
-
-			lt_branch69:;
-			t_bool27r_bool_isLess_ =  int_less_int( shouldPrintEnd, t_int42_1 );
-			branch_t t_branch69 = ifbool( t_bool27r_bool_isLess_ );
-			if( t_branch69.labelId==0 )
-			{
-				char* t_string91 = "Hello\n";
-
-				printstring( t_string91 );
-			}
-			else if( t_branch69.labelId==1 )
-			{
-				char* t_string4 = "Goodbye\n";
-
-				printstring( t_string4 );
-			}
-			if( t_branch69.repeat!=0 ) goto lt_branch69;
-			goto case4t_sw33timesPrinted;
-			break;
-		}
-		case 5: case5t_sw33timesPrinted:
-		{
-			char* t_string92 = "5\n";
-
-			goto case4t_sw33timesPrinted;
-			printstring( t_string92 );
-			break;
-		}
-		case 4: case4t_sw33timesPrinted:
-		{
-			char* t_string21 = "4\n";
-
-			printstring( t_string21 );
-			break;
-		}
-		default: defaultt_sw33timesPrinted:
-		{
-			char* t_string16 = "?\n";
-
-			printstring( t_string16 );
-			}
-		}
-	}
-	if( t_branch75.repeat!=0 ) goto lt_branch75;
-	printstring( t_string18 );
-	return ;
-	int_equal_int( &i, t_int95_0 );
-	{
-		int t_int11_5 = 5;
-		int t_int33_4 = 4;
-		int t_int47_0 = 0;
-		int t_int69_1 = 1;
-		int t_int71_2 = 2;
+		int t_int4_5 = 5;
+		int t_int53_4 = 4;
+		int t_int5_0 = 0;
+		int t_int61_1 = 1;
+		int t_int81_2 = 2;
 
 		printHelloWorld( );
 		switch( i )
 		{
 		case 0: case0t_sw42i:
 		{
-			char* t_string26 = "Start\n";
+			char* t_string45 = "Start\n";
 
-			printstring( t_string26 );
+			printstring( t_string45 );
 			goto defaultt_sw42i;
 			break;
 		}
 		case 2: case2t_sw42i:
 		{
-			char* t_string38 = "2\n";
+			char* t_string27 = "2\n";
 
-			printstring( t_string38 );
+			printstring( t_string27 );
 			break;
 		}
 		case 1: case1t_sw42i:
 		{
-			unsigned char t_bool67r_bool_isLess_;
-			int t_int12_1 = 1;
-			int t_int3_4 = 4;
+			unsigned char t_bool95r_bool_isLess_;
+			int t_int91_1 = 1;
+			int t_int91_4 = 4;
 
 			lt_branch44:;
-			t_bool67r_bool_isLess_ =  int_less_int( shouldPrintEnd, t_int12_1 );
-			branch_t t_branch44 = ifbool( t_bool67r_bool_isLess_ );
+			t_bool95r_bool_isLess_ =  int_less_int( shouldPrintEnd, t_int91_1 );
+			branch_t t_branch44 = ifbool( t_bool95r_bool_isLess_ );
 			if( t_branch44.labelId==0 )
 			{
-				char* t_string35 = "Hello\n";
+				char* t_string27 = "Hello\n";
 
-				printstring( t_string35 );
+				printstring( t_string27 );
 			}
 			else if( t_branch44.labelId==1 )
 			{
-				char* t_string94 = "Goodbye\n";
+				char* t_string36 = "Goodbye\n";
 
-				printstring( t_string94 );
+				printstring( t_string36 );
 			}
 			if( t_branch44.repeat!=0 ) goto lt_branch44;
 			goto case4t_sw42i;
@@ -271,74 +175,160 @@ void printHelloWorlds (  )
 		}
 		case 5: case5t_sw42i:
 		{
-			char* t_string22 = "5\n";
+			char* t_string2 = "5\n";
 
 			goto case4t_sw42i;
-			printstring( t_string22 );
+			printstring( t_string2 );
 			break;
 		}
 		case 4: case4t_sw42i:
 		{
-			char* t_string73 = "4\n";
+			char* t_string92 = "4\n";
 
-			printstring( t_string73 );
+			printstring( t_string92 );
 			break;
 		}
 		default: defaultt_sw42i:
 		{
-			char* t_string64 = "?\n";
+			char* t_string82 = "?\n";
 
-			printstring( t_string64 );
+			printstring( t_string82 );
 			}
 		}
 	}
+	if( t_branch69.repeat!=0 ) goto lt_branch69;
+	return ;
+	int_equal_int( &timesPrinted, t_int21_ );
+	lt_branch16:;
+	t_bool16r_bool_isLess_ =  int_less_int( timesPrinted, timesToPrint );
+	branch_t t_branch16 = whilebool( t_bool16r_bool_isLess_ );
+	if( t_branch16.labelId==0 )
+	{
+		int t_int26r_int_sum_;
+		int t_int33_5 = 5;
+		int t_int64_4 = 4;
+		int t_int67_1 = 1;
+		int t_int69_2 = 2;
+		int t_int71_0 = 0;
+		int t_int95_1 = 1;
+
+		printHelloWorld( );
+		t_int26r_int_sum_ =  int_plus_int( timesPrinted, t_int95_1 );
+		int_equal_int( &timesPrinted, t_int26r_int_sum_ );
+		switch( timesPrinted )
+		{
+		case 0: case0t_sw81timesPrinted:
+		{
+			char* t_string38 = "Start\n";
+
+			printstring( t_string38 );
+			goto defaultt_sw81timesPrinted;
+			break;
+		}
+		case 2: case2t_sw81timesPrinted:
+		{
+			char* t_string12 = "2\n";
+
+			printstring( t_string12 );
+			break;
+		}
+		case 1: case1t_sw81timesPrinted:
+		{
+			unsigned char t_bool35r_bool_isLess_;
+			int t_int22_4 = 4;
+			int t_int99_1 = 1;
+
+			lt_branch98:;
+			t_bool35r_bool_isLess_ =  int_less_int( shouldPrintEnd, t_int99_1 );
+			branch_t t_branch98 = ifbool( t_bool35r_bool_isLess_ );
+			if( t_branch98.labelId==0 )
+			{
+				char* t_string3 = "Hello\n";
+
+				printstring( t_string3 );
+			}
+			else if( t_branch98.labelId==1 )
+			{
+				char* t_string11 = "Goodbye\n";
+
+				printstring( t_string11 );
+			}
+			if( t_branch98.repeat!=0 ) goto lt_branch98;
+			goto case4t_sw81timesPrinted;
+			break;
+		}
+		case 5: case5t_sw81timesPrinted:
+		{
+			char* t_string73 = "5\n";
+
+			goto case4t_sw81timesPrinted;
+			printstring( t_string73 );
+			break;
+		}
+		case 4: case4t_sw81timesPrinted:
+		{
+			char* t_string41 = "4\n";
+
+			printstring( t_string41 );
+			break;
+		}
+		default: defaultt_sw81timesPrinted:
+		{
+			char* t_string11 = "?\n";
+
+			printstring( t_string11 );
+			}
+		}
+	}
+	if( t_branch16.repeat!=0 ) goto lt_branch16;
+	printstring( t_string53 );
 	return ;
 }
 
 void getNumberFromintintoint ( int number, int *out )
 {
-	int t_int21r_int_ret_loadModelFrom_;
-	int t_int41_3 = 3;
-	int t_int48r_int_sum_;
-	int t_int68r_int_product_;
-	int t_int99r_int_;
-	char* t_string11 = "foo";
-	char* t_string53 = "bar";
-	char* t_string96r_string_path_pathToModel_;
+	int t_int34r_int_product_;
+	int t_int68_3 = 3;
+	int t_int68r_int_ret_loadModelFrom_;
+	int t_int81r_int_;
+	int t_int84r_int_sum_;
+	char* t_string44 = "bar";
+	char* t_string47 = "foo";
+	char* t_string99r_string_path_pathToModel_;
 
-	t_string96r_string_path_pathToModel_ =  pathToModelstringstring( t_string11, t_string53 );
-	t_int21r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string96r_string_path_pathToModel_ );
-	t_int48r_int_sum_ =  int_plus_int( t_int41_3, t_int21r_int_ret_loadModelFrom_ );
-	t_int99r_int_ =  f_C_int_D_( t_int48r_int_sum_ );
-	t_int68r_int_product_ =  int_asterisk_int( t_int99r_int_, number );
-	int_equal_int( &*out, t_int68r_int_product_ );
+	t_string99r_string_path_pathToModel_ =  pathToModelstringstring( t_string47, t_string44 );
+	t_int68r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string99r_string_path_pathToModel_ );
+	t_int84r_int_sum_ =  int_plus_int( t_int68_3, t_int68r_int_ret_loadModelFrom_ );
+	t_int81r_int_ =  f_C_int_D_( t_int84r_int_sum_ );
+	t_int34r_int_product_ =  int_asterisk_int( t_int81r_int_, number );
+	int_equal_int( &*out, t_int34r_int_product_ );
 }
 
 char* pathToModelstringstring ( char* text, char* text2 )
 {
 	char* path;
-	char* t_string46 = "c:/model.s3d\n";
+	char* t_string62 = "c:/model.s3d\n";
 
 	printstring( text );
 	printstring( text2 );
 	printstring( text2 );
-	string_equal_string( &path, t_string46 );
+	string_equal_string( &path, t_string62 );
 	return path;
 }
 
 void printHelloWorld (  )
 {
-	char* t_string62 = "Hello world\n";
+	char* t_string86 = "Hello world\n";
 
-	printstring( t_string62 );
+	printstring( t_string86 );
 }
 
 int loadModelFromstring ( char* path )
 {
 	int ret;
-	int t_int86_1 = 1;
+	int t_int75_1 = 1;
 
-	int_equal_int( &ret, t_int86_1 );
+	int_equal_int( &ret, t_int75_1 );
 	printstring( path );
 	return ret;
 }
@@ -402,5 +392,16 @@ void continuecaseint ( int i )
 
 void default_ (  )
 {
+}
+
+branch_t whilebool ( unsigned char is )
+{
+	if(is)
+	{
+		int t_int33_1 = 1;
+
+		return (branch_t){0 /* default */,1};
+	}
+	return (branch_t){2 /* none */,0};
 }
 
