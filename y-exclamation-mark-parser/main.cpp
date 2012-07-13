@@ -68,7 +68,7 @@ void parseSourceLine(string str)
 	}
 	realLineNumber++;
 }
-Function *switchEndFunction,*caseFunction,*caseEndFunction,*continueFunction,*continueCaseFunction,*continueDefaultFunction,*defaultFunction;
+Function *switchEndFunction,*caseFunction,*caseEndFunction,*continueFunction,*continueCaseFunction,*continueDefaultFunction,*defaultFunction,*forFunction,*whileFunction;
 int main(_In_ int _Argc, char **argv)
 {
 	initCommon();
@@ -156,7 +156,14 @@ int main(_In_ int _Argc, char **argv)
 			functions.back()->internalPrintC99=defaultC99;
 			defaultFunction=functions.back();
 		}
+		functions.push_back(new Function("r(branch) for (var)a ; (var)b ; (var)c"));
+		forFunction=functions.back();
 
+		parseSourceLine("r(branch) while (bool)is");
+		parseSourceLine("c	if(is)");
+		parseSourceLine("\t\treturn default 1");
+		parseSourceLine("\treturn none");
+		whileFunction=functions.back();
 	}
 
 	for(int i=0;i<lines.size();i++)
@@ -460,6 +467,47 @@ void Line::splitCommands( string str )
 		call.push_back(token);
 	}
 	//checkErrors(possibleFunctions.size()==0,"no function specified");
+	debug("Processed line %i\n",originalLineNumber);
+	vector<LinePossibility*> &possibilities=findCommands(call);
+	checkErrors(possibilities.size()==0,"no function specified");
+	checkErrors(possibilities.size()>=2,"ambiguous call");
+	/*for(int i=0;i<possibilities[0]->p.size();i++)
+	{
+		if(possibilities[0]->p[i].newVariable)
+		{
+			//checkError(possibilities[0][i].possibleVariable==NULL,"internal error 4: %s not created\n",possibilities[0][i].str.c_str());
+			if(possibilities[0]->p[i].newVariablePtr!=NULL)
+			{
+				scope->addVariable(possibilities[0]->p[i].newVariablePtr);
+			}
+			else
+			{
+				if(possibilities[0]->p[i].possibleVariable==NULL)
+					scope->addVariable(new Variable(possibilities[0]->p[i].str,possibilities[0]->p[i].type));
+				else
+					scope->addVariable(possibilities[0]->p[i].possibleVariable);
+			}
+		}
+
+	}*/
+	for(int i=0;i<possibilities[0]->call.size();i++)
+	{
+		for(int j=0;j<possibilities[0]->call[i]->arguments.size();j++)
+		{
+			if(possibilities[0]->call[i]->arguments[j]->mode&WASANEWVARIABLE)
+			{
+				scope->addVariable(possibilities[0]->call[i]->arguments[j]);
+			}
+		}
+	}
+	commands=possibilities[0]->call;
+	NONE;
+}
+
+
+vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
+{
+	
 	vector<CallToken> attempt;
 	vector<LinePossibility*> possibilities;
 	parseCode(call,0,possibilities,attempt);
@@ -468,9 +516,87 @@ void Line::splitCommands( string str )
 	{
 #define FAIL(reason) { failReason=reason; goto fail; }
 		LinePossibility &linePossibility=*possibilities[i];
+		
+		vector<IndependantFunction> independantFunctionPossibilities;
 		vector<CallToken> &possibility=linePossibility.p;
 		int id=linePossibility.id;
-		vector<IndependantFunction> independantFunctionPossibilities;
+		{
+			if(possibility[0].possibleFunctions.size())
+			{
+				if(possibility[0].str=="for" && *possibility[0].possibleFunctions.begin()==forFunction)
+				{
+					vector<int> semicolons;
+					for(int j=1;j<possibility.size();j++)
+					{
+						if(possibility[j].possibleFunctions.size() && *possibility[j].possibleFunctions.begin()==forFunction)
+						{
+							if(possibility[j].str==";")
+								semicolons.push_back(j);
+							else
+								FAIL("cannot have a for loop in a for loop declaration");
+						}
+					}
+					if(semicolons.size()!=2)
+						FAIL("a for loop requires two semicolons");
+
+					{//init				
+						vector<CallToken> iCall;
+						for(int j=1;j<semicolons[0];j++)
+						{
+							iCall.push_back(possibility[j]);
+						}
+						vector<LinePossibility*> &possibilities=findCommands(iCall);
+						if(possibilities.size()!=1)
+							FAIL("bad possibilities");
+						vector<FunctionCall*> &iCmd=possibilities[0]->call;
+						for(int j=0;j<iCmd.size();j++)
+						{
+							FunctionCall *call=iCmd[j];
+							for(int k=0;k<call->arguments.size();k++)
+							{
+								if(call->arguments[k]->mode&WASANEWVARIABLE)
+								{
+									for(int l=semicolons[0]+1;l<possibility.size();l++)
+									{
+										if(possibility[l].newVariable && possibility[l].str==call->arguments[k]->name)
+										{
+											possibility[l].newVariable=0;
+											possibility[l].possibleVariable=call->arguments[k];
+										}
+									}
+									NONE;//	iCmd[j].newVariablePtr=new Variable(iCmd[j].str,func->name[k]->var->type);
+								}
+							}
+						}
+						linePossibility.call.insert(linePossibility.call.begin(),iCmd.begin(),iCmd.end());
+					}
+					{//increment		
+						vector<CallToken> iCall;
+						for(int j=semicolons[1]+1;j<possibility.size();j++)
+						{
+							iCall.push_back(possibility[j]);
+						}
+						vector<LinePossibility*> &possibilities=findCommands(iCall);
+						if(possibilities.size()!=1)
+							FAIL("bad possibilities 2");
+						vector<FunctionCall*> &iCmd=possibilities[0]->call;
+						linePossibility.forLoopIncr.insert(linePossibility.forLoopIncr.begin(),iCmd.begin(),iCmd.end());
+					}
+
+					possibility.erase(possibility.begin()+semicolons[1],possibility.end());
+					possibility.erase(possibility.begin(),possibility.begin()+semicolons[0]+1);
+					CallToken whileToken;
+					whileToken.possibilities=1;
+					whileToken.str="while";
+					whileToken.possibleFunctions.insert(whileFunction);
+					possibility.insert(possibility.begin(),whileToken);
+					
+
+					NONE;
+				}
+			}
+		}
+		independantFunctionPossibilities.clear();
 		int j;
 		for(j=0;j<possibility.size();j++)//go thru all ids
 		{
@@ -500,7 +626,7 @@ void Line::splitCommands( string str )
 							else
 							{
 								possibility[j-functionTokenIndexInFunction+k].newVariablePtr=new Variable(possibility[j-functionTokenIndexInFunction+k].str,func->name[k]->var->type);
-								//possibility[j-functionTokenIndexInFunction+k].newVariablePtr->mode|=Ob(100);
+								possibility[j-functionTokenIndexInFunction+k].newVariablePtr->mode|=WASANEWVARIABLE;
 							}	
 						}
 						else if(possibility[j-functionTokenIndexInFunction+k].label.size())
@@ -619,32 +745,9 @@ fail:
 		}
 		possibilities.erase(possibilities.begin()+i);
 	}
-	checkErrors(possibilities.size()==0,"no function specified");
-	checkErrors(possibilities.size()>=2,"ambiguous call");
-	for(int i=0;i<possibilities[0]->p.size();i++)
-	{
-		if(possibilities[0]->p[i].newVariable)
-		{
-			//checkError(possibilities[0][i].possibleVariable==NULL,"internal error 4: %s not created\n",possibilities[0][i].str.c_str());
-			if(possibilities[0]->p[i].newVariablePtr!=NULL)
-			{
-				scope->addVariable(possibilities[0]->p[i].newVariablePtr);
-			}
-			else
-			{
-				if(possibilities[0]->p[i].possibleVariable==NULL)
-					scope->addVariable(new Variable(possibilities[0]->p[i].str,possibilities[0]->p[i].type));
-				else
-					scope->addVariable(possibilities[0]->p[i].possibleVariable);
-			}
-		}
-
-	}
-	commands=possibilities[0]->call;
-	debug("Processed line %i\n",originalLineNumber);
-	NONE;
+	
+	return possibilities;
 }
-
 void Line::parseNextIsNewVariable( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt )
 {
 	CallToken token;
@@ -657,7 +760,7 @@ void Line::parseNextIsNewVariable( vector<CallToken> &call,uint p,vector<LinePos
 void Line::parseNextIsVariable( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt )
 {
 	CallToken token;
-	token.possibleVariable=scope->getVariable(call[p].str);
+	token.possibleVariable=call[p].possibleVariable;//scope->getVariable(call[p].str);
 	token.str=call[p].str;
 	attempt.push_back(token);
 	parseCode(call,p+1,functions,attempt);

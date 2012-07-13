@@ -7,7 +7,7 @@ c	sum=a+b;
 r(int)product (int)a * (int)b p= -10
 c	product=a*b;
 
-r(int) o(int)a = (int) b p = -100
+r(int) o(int)a = (int)b p = -100
 c	*a=b;
 	return a
 
@@ -27,14 +27,9 @@ c	if(is)
 c	else
 		return else
 
-r(branch) while (bool)is
-c	if(is)
-		return default 1
-	return none
-
 r(string) (int) (int)i
 
-r(branch) for (var)a ; (var)b ; (var)c
+
 
 
 r(int)success start (int) nArgument

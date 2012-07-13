@@ -3,7 +3,7 @@
 
 extern int realLineNumber;
 void checkErrors(bool isError,string description);
-
+#define WASANEWVARIABLE Ob(10000000)
 #define WHERESTRE  "ERROR %i: "
 #define WHEREARGE  realLineNumber
 #define DEBUGPRINT2E(...)       _print(__VA_ARGS__)
@@ -165,6 +165,7 @@ struct LinePossibility
 	vector<CallToken> p;
 	vector<FunctionCall*> call;
 	int id;
+	vector<FunctionCall*> forLoopIncr;
 };
 
 extern int lineIndent;
@@ -186,7 +187,9 @@ public:
 
 	Line(string str,uint _lineNumber);
 		
+	vector<LinePossibility*> findCommands(vector<CallToken> &call);
 	void splitCommands(string str);
+
 	void parseNextIsNewVariable(vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt);
 	void parseNextIsVariable(vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt);
 	void parseNextIsLabel(vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt);
