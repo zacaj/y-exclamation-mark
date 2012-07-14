@@ -364,6 +364,14 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 		type=EMPTY;
 }
 
+ Line::Line( vector<FunctionCall*> &call,Scope *_scope,Function *_parent,int _level)
+{
+	commands=call;
+	scope=_scope;
+	parent=_parent;
+	level=_level;
+}
+
 void Line::splitCommands( string str )
 {
 	if(cString.size())
@@ -466,30 +474,10 @@ void Line::splitCommands( string str )
 
 		call.push_back(token);
 	}
-	//checkErrors(possibleFunctions.size()==0,"no function specified");
 	debug("Processed line %i\n",originalLineNumber);
 	vector<LinePossibility*> &possibilities=findCommands(call);
 	checkErrors(possibilities.size()==0,"no function specified");
 	checkErrors(possibilities.size()>=2,"ambiguous call");
-	/*for(int i=0;i<possibilities[0]->p.size();i++)
-	{
-		if(possibilities[0]->p[i].newVariable)
-		{
-			//checkError(possibilities[0][i].possibleVariable==NULL,"internal error 4: %s not created\n",possibilities[0][i].str.c_str());
-			if(possibilities[0]->p[i].newVariablePtr!=NULL)
-			{
-				scope->addVariable(possibilities[0]->p[i].newVariablePtr);
-			}
-			else
-			{
-				if(possibilities[0]->p[i].possibleVariable==NULL)
-					scope->addVariable(new Variable(possibilities[0]->p[i].str,possibilities[0]->p[i].type));
-				else
-					scope->addVariable(possibilities[0]->p[i].possibleVariable);
-			}
-		}
-
-	}*/
 	for(int i=0;i<possibilities[0]->call.size();i++)
 	{
 		for(int j=0;j<possibilities[0]->call[i]->arguments.size();j++)
@@ -501,7 +489,46 @@ void Line::splitCommands( string str )
 			}
 		}
 	}
-	commands=possibilities[0]->call;
+	commands.insert(commands.begin(),possibilities[0]->call.begin(),possibilities[0]->call.end());
+	if(possibilities[0]->forLoopIncr.size())
+	{
+		int i;
+		Line *lastLine=NULL;
+		for(i=lineNumber+1;i<parent->lastLine;i++)
+			if(lines[i]->level<=level)
+				break;
+			else
+				lastLine=lines[i];
+		if(lastLine==NULL)
+		{
+		Line *line;
+			line=new Line(possibilities[0]->forLoopIncr,scope,parent,level+1);
+			lines.insert(lines.begin()+lineNumber+1,line);
+			for(int j=0;j<lines.size();j++)
+				lines[j]->lineNumber=j;
+		}
+		else
+		{
+			Scope *sc;
+			if(lastLine->level==level+1)
+			{
+				sc=lastLine->scope;
+			}
+			else
+			{
+				sc=lastLine->scope;
+				while(sc->level!=level+1)
+				{
+					sc=sc->parent;
+				}
+			}
+			Line *line=new Line(possibilities[0]->forLoopIncr,sc,parent,level+1);
+			lines.insert(lines.begin()+lastLine->lineNumber+1,line);
+			
+			for(int j=0;j<lines.size();j++)
+				lines[j]->lineNumber=j;
+		}
+	}
 	NONE;
 }
 

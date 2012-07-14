@@ -59,6 +59,7 @@ printHelloWorlds
 			print "4\n"
 		default
 			print "?\n"
+		print ""
 
 	return
 	timesPrinted = -1

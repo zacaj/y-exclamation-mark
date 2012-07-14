@@ -185,6 +185,7 @@ public:
 	enum LineType {UNKNOWN,INTERPRETER_COMMAND,FUNCTION_DECLARATION,CODE,CODE_WITH_OPTIONS,LABEL,LABEL_WITH_CODE,EMPTY} type;
 	string cString;
 
+	Line( vector<FunctionCall*> &call,Scope *_scope,Function *_parent,int _level);
 	Line(string str,uint _lineNumber);
 		
 	vector<LinePossibility*> findCommands(vector<CallToken> &call);

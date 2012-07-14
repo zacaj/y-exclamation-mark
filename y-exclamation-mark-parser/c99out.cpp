@@ -201,7 +201,7 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 				indentLine(fp,replacementLevel);
 				fprintf(fp,"if( %s.repeat!=0 ) goto l%s;\n",branchName.c_str(),branchName.c_str());
 				lastLineLevel=replacementLevel;
-				return lastLineNumber-line->lineNumber;
+				return lastLineNumber-line->lineNumber-1;
 			}
 			else if(call->function->isInline)//todo handle arguments and returns
 			{
@@ -412,15 +412,21 @@ void returnC99(FILE *fp,FunctionCall *call)
 }
 void returnDefaultC99(FILE *fp,FunctionCall *call)
 {
-	checkErrors(call->callee->ret==NULL && call->arguments.size(),"Function does not return a value!");
+	//checkErrors(call->callee->ret==NULL && call->arguments.size(),"Function does not return a value!");
 	checkErrors(call->callee->ret!=NULL && call->callee->ret->name.empty(),"Function does not have an anonymous return variable!");
 	if(currentlyInline)
 	{
-		fprintf(fp,"%s = %s;\ngoto %s;\n",inlineReturnVariableName.c_str(),call->callee->ret->name.c_str(),inlineReturnLabel.c_str());
+		if(call->callee->ret==NULL)
+			fprintf(fp,"goto %s;\n",inlineReturnLabel.c_str());
+		else
+			fprintf(fp,"%s = %s;\ngoto %s;\n",inlineReturnVariableName.c_str(),call->callee->ret->name.c_str(),inlineReturnLabel.c_str());
 	}
 	else
 	{
-		fprintf(fp,"return %s;\n",call->callee->ret==NULL?"":call->callee->ret->name.c_str());
+		if(call->callee->ret==NULL)
+			fprintf(fp,"return;\n");
+		else
+			fprintf(fp,"return %s;\n",call->callee->ret==NULL?"":call->callee->ret->name.c_str());
 		lastReturn=call->line->lineNumber;
 	}
 }
