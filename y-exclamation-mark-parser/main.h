@@ -88,8 +88,8 @@ public:
 	vector<Identifier*> name;
 	uint minIdentifiers;
 	float precedence;
-	int firstLine,lastLine;
-	vector<Line*> lines;
+	Line *firstLine,*lastLine;
+	//vector<Line*> lines;
 	bool isInline;
 	Line *line;
 
@@ -166,6 +166,7 @@ struct LinePossibility
 	vector<FunctionCall*> call;
 	int id;
 	vector<FunctionCall*> forLoopIncr;
+	vector<FunctionCall*> forLoopInit;
 };
 
 extern int lineIndent;
@@ -184,12 +185,14 @@ public:
 	Function *parent;
 	enum LineType {UNKNOWN,INTERPRETER_COMMAND,FUNCTION_DECLARATION,CODE,CODE_WITH_OPTIONS,LABEL,LABEL_WITH_CODE,EMPTY} type;
 	string cString;
+	bool split;
 
 	Line( vector<FunctionCall*> &call,Scope *_scope,Function *_parent,int _level);
 	Line(string str,uint _lineNumber);
 		
 	vector<LinePossibility*> findCommands(vector<CallToken> &call);
 	void splitCommands(string str);
+
 
 	void parseNextIsNewVariable(vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt);
 	void parseNextIsVariable(vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt);
@@ -202,6 +205,7 @@ public:
 	int printC99(FILE *fp,int replacementLevel=-1);
 };
 
+void fixLineNumbers() ;
 extern map<string,int> labels;
 extern map<string,set<Function*>> labelLocations;
 

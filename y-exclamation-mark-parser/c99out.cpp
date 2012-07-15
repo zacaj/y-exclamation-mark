@@ -201,7 +201,7 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 				indentLine(fp,replacementLevel);
 				fprintf(fp,"if( %s.repeat!=0 ) goto l%s;\n",branchName.c_str(),branchName.c_str());
 				lastLineLevel=replacementLevel;
-				return lastLineNumber-line->lineNumber-1;
+				return lastLineNumber-line->lineNumber;//skipping return call
 			}
 			else if(call->function->isInline)//todo handle arguments and returns
 			{
@@ -228,8 +228,8 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 						,call->arguments[k]->name.c_str());
 				}
 
-				for(int k=0;k<call->function->lines.size();k++)
-					call->function->lines[k]->printC99(fp,call->function->lines[k]->level+replacementLevel);
+				for(int k=call->function->firstLine->lineNumber;k<=call->function->lastLine->lineNumber;k++)
+					lines[k]->printC99(fp,lines[k]->level+replacementLevel);
 
 				fixLevels(fp,replacementLevel+1,line);
 
@@ -368,12 +368,12 @@ void outputC99(FILE *fp)
 			}
 		}
 
-
-		for(int i=0;i<func->lines.size();i++)
-		{
-			Line *line=func->lines[i];
-			i+=line->printC99(fp);
-		}
+		if(func->firstLine!=NULL)
+			for(int i=func->firstLine->lineNumber;i<=func->lastLine->lineNumber;i++)
+			{
+				Line *line=lines[i];
+				i+=line->printC99(fp);
+			}
 		if(lastLine!=NULL && lastLineLevel!=1)
 		{
 			for(int i=lastLineLevel-1;i>=1;i--)
@@ -406,7 +406,7 @@ void returnC99(FILE *fp,FunctionCall *call)
 	}
 	else
 	{
-		fprintf(fp,"return %s;\n",call->arguments[0]->name.c_str());
+		fprintf(fp,"return %s%s;\n",(call->arguments[0]->mode&Ob(100))?"*":"",call->arguments[0]->name.c_str());
 		lastReturn=call->line->lineNumber;
 	}
 }
@@ -426,7 +426,7 @@ void returnDefaultC99(FILE *fp,FunctionCall *call)
 		if(call->callee->ret==NULL)
 			fprintf(fp,"return;\n");
 		else
-			fprintf(fp,"return %s;\n",call->callee->ret==NULL?"":call->callee->ret->name.c_str());
+			fprintf(fp,"return %s%s;\n",(call->callee->ret->mode&Ob(100))?"*":"",call->callee->ret==NULL?"":call->callee->ret->name.c_str());
 		lastReturn=call->line->lineNumber;
 	}
 }
@@ -465,7 +465,7 @@ void switchC99(FILE *fp,FunctionCall *call)
 	c->callee=call->callee;
 	c->ret=NULL;
 	bool first=1;
-	for(int i=call->line->lineNumber+1;i<call->callee->lastLine+1;i++)
+	for(int i=call->line->lineNumber+1;i<=call->callee->lastLine->lineNumber+1;i++)
 	{
 		if(lines[i]->level<call->line->level)
 		{
@@ -515,7 +515,7 @@ void caseEndC99(FILE *fp,FunctionCall *call)
 }
 void continueC99(FILE *fp,FunctionCall *call)
 {
-	for(int i=call->line->lineNumber+1;i<call->callee->lastLine+1;i++)
+	for(int i=call->line->lineNumber+1;i<=call->callee->lastLine->lineNumber+1;i++)
 	{
 		if(lines[i]->level<call->line->level)
 		{

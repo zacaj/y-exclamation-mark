@@ -96,9 +96,9 @@ void printLlvmIrCode(FILE *fp)
 		fprintf(fp,")\n{\n");
 
 		Line *lastLine=NULL;
-		for(int iLine=0;iLine<func->lines.size();iLine++)
+		for(int iLine=func->firstLine->lineNumber;iLine<func->lastLine->lineNumber;iLine++)
 		{
-			Line *line=func->lines[iLine];
+			Line *line=lines[iLine];
 			if(lastLine!=NULL && lastLine->level!=line->level)
 			{
 				if(lastLine->level<line->level)

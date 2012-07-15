@@ -58,7 +58,7 @@ int int_asterisk_int ( int a, int b )
 int int_equal_int ( int *a, int b )
 {
 	*a=b;
-	return a;
+	return *a;
 }
 
 void string_equal_string ( char* *a, char* b )
@@ -118,8 +118,8 @@ void printHelloWorlds (  )
 
 	getNumberFromintintoint( t_int67_1, &timesToPrint );
 	int_equal_int( &shouldPrintEnd, t_int34_1 );
-	lt_branch44:;
 	int_equal_int( &i, t_int0_0 );
+	lt_branch44:;
 	t_bool58r_bool_isLess_ =  int_less_int( i, timesToPrint );
 	branch_t t_branch44 = whilebool( t_bool58r_bool_isLess_ );
 	if( t_branch44.labelId==0 )
@@ -171,7 +171,6 @@ void printHelloWorlds (  )
 				printstring( t_string36 );
 			}
 			if( t_branch81.repeat!=0 ) goto lt_branch81;
-			printstring( t_string36 );
 			goto case4t_sw16i;
 			break;
 		}
@@ -259,7 +258,6 @@ void printHelloWorlds (  )
 				printstring( t_string22 );
 			}
 			if( t_branch51.repeat!=0 ) goto lt_branch51;
-			printstring( t_string22 );
 			goto case4t_sw22timesPrinted;
 			break;
 		}
@@ -284,3 +282,130 @@ void printHelloWorlds (  )
 
 			printstring( t_string53 );
 			}
+		}
+	}
+	if( t_branch98.repeat!=0 ) goto lt_branch98;
+	printstring( t_string68 );
+	return;
+}
+
+void getNumberFromintintoint ( int number, int *out )
+{
+	int t_int34r_int_;
+	int t_int47_3 = 3;
+	int t_int53r_int_product_;
+	int t_int81r_int_sum_;
+	int t_int84r_int_ret_loadModelFrom_;
+	char* t_string44 = "foo";
+	char* t_string62 = "bar";
+	char* t_string68r_string_path_pathToModel_;
+
+	t_string68r_string_path_pathToModel_ =  pathToModelstringstring( t_string44, t_string62 );
+	t_int84r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string68r_string_path_pathToModel_ );
+	t_int81r_int_sum_ =  int_plus_int( t_int47_3, t_int84r_int_ret_loadModelFrom_ );
+	t_int34r_int_ =  f_C_int_D_( t_int81r_int_sum_ );
+	t_int53r_int_product_ =  int_asterisk_int( t_int34r_int_, number );
+	int_equal_int( &*out, t_int53r_int_product_ );
+}
+
+char* pathToModelstringstring ( char* text, char* text2 )
+{
+	char* path;
+	char* t_string75 = "c:/model.s3d\n";
+
+	printstring( text );
+	printstring( text2 );
+	printstring( text2 );
+	string_equal_string( &path, t_string75 );
+	return path;
+}
+
+void printHelloWorld (  )
+{
+	char* t_string33 = "Hello world\n";
+
+	printstring( t_string33 );
+}
+
+int loadModelFromstring ( char* path )
+{
+	int ret;
+	int t_int69_1 = 1;
+
+	int_equal_int( &ret, t_int69_1 );
+	printstring( path );
+	return ret;
+}
+
+void empty (  )
+{
+}
+
+int f_C_Label_D_ ( int a )
+{
+	return a;
+}
+
+unsigned char f_C_bool_D_ ( unsigned char a )
+{
+	return a;
+}
+
+branch_t f_C_branch_D_ ( branch_t a )
+{
+	return a;
+}
+
+int f_C_int_D_ ( int a )
+{
+	return a;
+}
+
+char* f_C_string_D_ ( char* a )
+{
+	return a;
+}
+
+void switchint ( int var )
+{
+}
+
+void caseint ( int var )
+{
+}
+
+void switchEnd (  )
+{
+}
+
+void caseEnd (  )
+{
+}
+
+void continue_ (  )
+{
+}
+
+void continuedefault (  )
+{
+}
+
+void continuecaseint ( int i )
+{
+}
+
+void default_ (  )
+{
+}
+
+branch_t whilebool ( unsigned char is )
+{
+	if(is)
+	{
+		int t_int42_1 = 1;
+
+		return (branch_t){0 /* default */,1};
+	}
+	return (branch_t){2 /* none */,0};
+}
+

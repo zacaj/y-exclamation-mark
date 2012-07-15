@@ -60,9 +60,9 @@ void debugIntermediateForm(FILE *fp)
 		fprintf(fp," )\n");
 		//fprintf(fp," )\n{\n");
 
-		for(int i=0;i<func->lines.size();i++)
+		for(int i=func->firstLine->lineNumber;i<func->lastLine->lineNumber;i++)
 		{
-			Line *line=func->lines[i];
+			Line *line=lines[i];
 			for(int j=0;j<line->commands.size();j++)
 			{
 				FunctionCall *call=line->commands[j];

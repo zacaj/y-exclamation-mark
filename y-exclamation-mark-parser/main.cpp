@@ -83,14 +83,6 @@ int main(_In_ int _Argc, char **argv)
 	addLabel("default",NULL);
 	addLabel("else",NULL);
 	addLabel("none",NULL);
-	/*functions.push_back(new Function("return (int)r"));
-	functions.push_back(new Function("return (string)r"));
-	functions.push_back(new Function("r(int)sum (int)a + (int) b p = -20"));
-	functions.push_back(new Function("o(int)a = (int) b p = -100"));
-	functions.push_back(new Function("r(bool)isLess (int)a < (int)b"));
-	functions.push_back(new Function("print (string)str"));
-	//functions.push_back(new Function("if (bool)is"));
-	//functions.push_back(new Function("goToLine (int)lineNumber"));*/
 	realLineNumber=1;
 	while(!feof(fp))
 	{
@@ -168,7 +160,7 @@ int main(_In_ int _Argc, char **argv)
 
 	for(int i=0;i<lines.size();i++)
 	{
-		if(lines[i]->type==Line::CODE || lines[i]->type==Line::CODE_WITH_OPTIONS)
+		if((lines[i]->type==Line::CODE || lines[i]->type==Line::CODE_WITH_OPTIONS) && !lines[i]->split)
 			lines[i]->splitCommands(lines[i]->processed);
 	}
 	vector<Function*> &mainCandidates=identifiers.find("start")->second;
@@ -208,6 +200,7 @@ void addLabel( string label ,Function *location)
 
 Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 {
+	split=0;
 	lineNumber=lines.size();
 	removeLeadingTrailingSpaces(str);
 	scope=NULL;
@@ -266,10 +259,10 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 		//else
 		{
 			parent=currentFunction;
-			currentFunction->lines.push_back(this);
-			if(currentFunction->firstLine==-1)
-				currentFunction->firstLine=lineNumber;
-			currentFunction->lastLine=lineNumber;
+//			currentFunction->lines.push_back(this);
+			if(currentFunction->firstLine==NULL)
+				currentFunction->firstLine=this;
+			currentFunction->lastLine=this;
 			size_t commandStart=str.find_first_not_of(9,tab);
 			if(commandStart!=npos)
 			{
@@ -370,6 +363,8 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 	scope=_scope;
 	parent=_parent;
 	level=_level;
+	type=CODE;
+	split=1;
 }
 
 void Line::splitCommands( string str )
@@ -494,18 +489,17 @@ void Line::splitCommands( string str )
 	{
 		int i;
 		Line *lastLine=NULL;
-		for(i=lineNumber+1;i<parent->lastLine;i++)
+		for(i=lineNumber+1;i<=parent->lastLine->lineNumber;i++)
 			if(lines[i]->level<=level)
 				break;
 			else
 				lastLine=lines[i];
 		if(lastLine==NULL)
 		{
-		Line *line;
+			Line *line;
 			line=new Line(possibilities[0]->forLoopIncr,scope,parent,level+1);
 			lines.insert(lines.begin()+lineNumber+1,line);
-			for(int j=0;j<lines.size();j++)
-				lines[j]->lineNumber=j;
+			fixLineNumbers();
 		}
 		else
 		{
@@ -525,14 +519,25 @@ void Line::splitCommands( string str )
 			Line *line=new Line(possibilities[0]->forLoopIncr,sc,parent,level+1);
 			lines.insert(lines.begin()+lastLine->lineNumber+1,line);
 			
-			for(int j=0;j<lines.size();j++)
-				lines[j]->lineNumber=j;
+			fixLineNumbers();
+
+		}
+
+		{
+			Line *line=new Line(possibilities[0]->forLoopInit,scope,parent,level);
+			lines.insert(lines.begin()+lineNumber,line);
+			fixLineNumbers();
 		}
 	}
 	NONE;
+	split=1;
 }
 
-
+void fixLineNumbers()
+{
+	for(int j=0;j<lines.size();j++)
+		lines[j]->lineNumber=j;
+}
 vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 {
 	
@@ -596,7 +601,8 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 								}
 							}
 						}
-						linePossibility.call.insert(linePossibility.call.begin(),iCmd.begin(),iCmd.end());
+						//linePossibility.call.insert(linePossibility.call.begin(),iCmd.begin(),iCmd.end());
+						linePossibility.forLoopInit=iCmd;
 					}
 					{//increment		
 						vector<CallToken> iCall;
@@ -890,7 +896,7 @@ Function::Function( string str )
 	:original(str)
 {
 	Function();
-	firstLine=lastLine=-1;
+	firstLine=lastLine=NULL;
 	precedence=0;
 	line=NULL;
 	spos pos=0;
