@@ -104,25 +104,21 @@ void printHelloWorlds (  )
 {
 	int i;
 	int shouldPrintEnd;
-	unsigned char t_bool18r_bool_isLess_;
 	unsigned char t_bool58r_bool_isLess_;
 	int t_int0_0 = 0;
-	int t_int16_ = -1;
 	int t_int34_1 = 1;
 	int t_int67_1 = 1;
 	int t_int69_1 = 1;
 	int t_int78r_int_sum_;
-	char* t_string68 = "Real end\n";
-	int timesPrinted;
 	int timesToPrint;
 
 	getNumberFromintintoint( t_int67_1, &timesToPrint );
 	int_equal_int( &shouldPrintEnd, t_int34_1 );
 	int_equal_int( &i, t_int0_0 );
-	lt_branch44:;
+	lt_branch38:;
 	t_bool58r_bool_isLess_ =  int_less_int( i, timesToPrint );
-	branch_t t_branch44 = whilebool( t_bool58r_bool_isLess_ );
-	if( t_branch44.labelId==0 )
+	branch_t t_branch38 = whilebool( t_bool58r_bool_isLess_ );
+	if( t_branch38.labelId==0 )
 	{
 		int t_int4_5 = 5;
 		int t_int53_4 = 4;
@@ -134,62 +130,62 @@ void printHelloWorlds (  )
 		printHelloWorld( );
 		switch( i )
 		{
-		case 0: case0t_sw16i:
+		case 0: case0t_sw79i:
 		{
 			char* t_string45 = "Start\n";
 
 			printstring( t_string45 );
-			goto defaultt_sw16i;
+			goto defaultt_sw79i;
 			break;
 		}
-		case 2: case2t_sw16i:
+		case 2: case2t_sw79i:
 		{
 			char* t_string27 = "2\n";
 
 			printstring( t_string27 );
 			break;
 		}
-		case 1: case1t_sw16i:
+		case 1: case1t_sw79i:
 		{
 			unsigned char t_bool95r_bool_isLess_;
 			int t_int91_1 = 1;
 			int t_int91_4 = 4;
 
-			lt_branch81:;
+			lt_branch90:;
 			t_bool95r_bool_isLess_ =  int_less_int( shouldPrintEnd, t_int91_1 );
-			branch_t t_branch81 = ifbool( t_bool95r_bool_isLess_ );
-			if( t_branch81.labelId==0 )
+			branch_t t_branch90 = ifbool( t_bool95r_bool_isLess_ );
+			if( t_branch90.labelId==0 )
 			{
 				char* t_string27 = "Hello\n";
 
 				printstring( t_string27 );
 			}
-			else if( t_branch81.labelId==1 )
+			else if( t_branch90.labelId==1 )
 			{
 				char* t_string36 = "Goodbye\n";
 
 				printstring( t_string36 );
 			}
-			if( t_branch81.repeat!=0 ) goto lt_branch81;
-			goto case4t_sw16i;
+			if( t_branch90.repeat!=0 ) goto lt_branch90;
+			goto case4t_sw79i;
 			break;
 		}
-		case 5: case5t_sw16i:
+		case 5: case5t_sw79i:
 		{
 			char* t_string2 = "5\n";
 
-			goto case4t_sw16i;
+			goto case4t_sw79i;
 			printstring( t_string2 );
 			break;
 		}
-		case 4: case4t_sw16i:
+		case 4: case4t_sw79i:
 		{
 			char* t_string92 = "4\n";
 
 			printstring( t_string92 );
 			break;
 		}
-		default: defaultt_sw16i:
+		default: defaultt_sw79i:
 		{
 			char* t_string82 = "?\n";
 
@@ -200,139 +196,54 @@ void printHelloWorlds (  )
 		t_int78r_int_sum_ =  int_plus_int( i, t_int69_1 );
 		int_equal_int( &i, t_int78r_int_sum_ );
 	}
-	if( t_branch44.repeat!=0 ) goto lt_branch44;
-	return;
-	int_equal_int( &timesPrinted, t_int16_ );
-	lt_branch98:;
-	t_bool18r_bool_isLess_ =  int_less_int( timesPrinted, timesToPrint );
-	branch_t t_branch98 = whilebool( t_bool18r_bool_isLess_ );
-	if( t_branch98.labelId==0 )
-	{
-		int t_int12_2 = 2;
-		int t_int38_0 = 0;
-		int t_int41_4 = 4;
-		int t_int47_1 = 1;
-		int t_int71r_int_sum_;
-		int t_int73_5 = 5;
-		int t_int99_1 = 1;
-
-		printHelloWorld( );
-		t_int71r_int_sum_ =  int_plus_int( timesPrinted, t_int47_1 );
-		int_equal_int( &timesPrinted, t_int71r_int_sum_ );
-		switch( timesPrinted )
-		{
-		case 0: case0t_sw22timesPrinted:
-		{
-			char* t_string69 = "Start\n";
-
-			printstring( t_string69 );
-			goto defaultt_sw22timesPrinted;
-			break;
-		}
-		case 2: case2t_sw22timesPrinted:
-		{
-			char* t_string67 = "2\n";
-
-			printstring( t_string67 );
-			break;
-		}
-		case 1: case1t_sw22timesPrinted:
-		{
-			unsigned char t_bool94r_bool_isLess_;
-			int t_int33_4 = 4;
-			int t_int35_1 = 1;
-
-			lt_branch51:;
-			t_bool94r_bool_isLess_ =  int_less_int( shouldPrintEnd, t_int35_1 );
-			branch_t t_branch51 = ifbool( t_bool94r_bool_isLess_ );
-			if( t_branch51.labelId==0 )
-			{
-				char* t_string11 = "Hello\n";
-
-				printstring( t_string11 );
-			}
-			else if( t_branch51.labelId==1 )
-			{
-				char* t_string22 = "Goodbye\n";
-
-				printstring( t_string22 );
-			}
-			if( t_branch51.repeat!=0 ) goto lt_branch51;
-			goto case4t_sw22timesPrinted;
-			break;
-		}
-		case 5: case5t_sw22timesPrinted:
-		{
-			char* t_string64 = "5\n";
-
-			goto case4t_sw22timesPrinted;
-			printstring( t_string64 );
-			break;
-		}
-		case 4: case4t_sw22timesPrinted:
-		{
-			char* t_string11 = "4\n";
-
-			printstring( t_string11 );
-			break;
-		}
-		default: defaultt_sw22timesPrinted:
-		{
-			char* t_string53 = "?\n";
-
-			printstring( t_string53 );
-			}
-		}
-	}
-	if( t_branch98.repeat!=0 ) goto lt_branch98;
-	printstring( t_string68 );
+	if( t_branch38.repeat!=0 ) goto lt_branch38;
 	return;
 }
 
 void getNumberFromintintoint ( int number, int *out )
 {
-	int t_int34r_int_;
-	int t_int47_3 = 3;
-	int t_int53r_int_product_;
-	int t_int81r_int_sum_;
-	int t_int84r_int_ret_loadModelFrom_;
-	char* t_string44 = "foo";
-	char* t_string62 = "bar";
+	int t_int0r_int_ret_loadModelFrom_;
+	int t_int16_3 = 3;
+	int t_int55r_int_product_;
+	int t_int62r_int_;
+	int t_int91r_int_sum_;
+	char* t_string18 = "foo";
 	char* t_string68r_string_path_pathToModel_;
+	char* t_string95 = "bar";
 
-	t_string68r_string_path_pathToModel_ =  pathToModelstringstring( t_string44, t_string62 );
-	t_int84r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string68r_string_path_pathToModel_ );
-	t_int81r_int_sum_ =  int_plus_int( t_int47_3, t_int84r_int_ret_loadModelFrom_ );
-	t_int34r_int_ =  f_C_int_D_( t_int81r_int_sum_ );
-	t_int53r_int_product_ =  int_asterisk_int( t_int34r_int_, number );
-	int_equal_int( &*out, t_int53r_int_product_ );
+	t_string68r_string_path_pathToModel_ =  pathToModelstringstring( t_string18, t_string95 );
+	t_int0r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string68r_string_path_pathToModel_ );
+	t_int91r_int_sum_ =  int_plus_int( t_int16_3, t_int0r_int_ret_loadModelFrom_ );
+	t_int62r_int_ =  f_C_int_D_( t_int91r_int_sum_ );
+	t_int55r_int_product_ =  int_asterisk_int( t_int62r_int_, number );
+	int_equal_int( &*out, t_int55r_int_product_ );
 }
 
 char* pathToModelstringstring ( char* text, char* text2 )
 {
 	char* path;
-	char* t_string75 = "c:/model.s3d\n";
+	char* t_string72 = "c:/model.s3d\n";
 
 	printstring( text );
 	printstring( text2 );
 	printstring( text2 );
-	string_equal_string( &path, t_string75 );
+	string_equal_string( &path, t_string72 );
 	return path;
 }
 
 void printHelloWorld (  )
 {
-	char* t_string33 = "Hello world\n";
+	char* t_string22 = "Hello world\n";
 
-	printstring( t_string33 );
+	printstring( t_string22 );
 }
 
 int loadModelFromstring ( char* path )
 {
 	int ret;
-	int t_int69_1 = 1;
+	int t_int38_1 = 1;
 
-	int_equal_int( &ret, t_int69_1 );
+	int_equal_int( &ret, t_int38_1 );
 	printstring( path );
 	return ret;
 }
@@ -402,7 +313,7 @@ branch_t whilebool ( unsigned char is )
 {
 	if(is)
 	{
-		int t_int42_1 = 1;
+		int t_int92_1 = 1;
 
 		return (branch_t){0 /* default */,1};
 	}

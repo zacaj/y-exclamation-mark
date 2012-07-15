@@ -375,10 +375,22 @@ void Line::splitCommands( string str )
 	spos pos=0;
 	while(pos<str.size())
 	{
-		while(pos<str.size() && str[pos]==' ') pos++;
-		spos endOfId=str.find(' ',pos);
-		if(endOfId==npos)
-			endOfId=str.size();
+		char lastC=0;
+		while(pos<str.size() && str[pos]==' ') pos++;//skip duplicate whitespace
+		spos endOfId=pos;//=str.find(' ',pos);
+		//if(endOfId==npos)
+		//	endOfId=str.size();
+		while(endOfId<str.size())
+		{
+			if(str[endOfId]==' ')
+				break;
+			int a=isalnum(str[endOfId]);
+			int b=isalnum(lastC);
+			if(lastC!=0 && (a==0 || b==0))
+				break;
+			lastC=str[endOfId];
+			endOfId++;
+		}
 		string id=str.substr(pos,endOfId-pos);
 		removeLeadingTrailingSpaces(id);
 		CallToken token;
@@ -424,7 +436,7 @@ void Line::splitCommands( string str )
 		}
 		else
 		{
-			pos=endOfId+1;
+			pos=endOfId;
 			map<string,vector<Function*>>::iterator fit=identifiers.find(id);
 			//checkError(fit==identifiers.end() && !Variable::isValidName(id),"%s not found",id.c_str());
 			if(fit!=identifiers.end())
@@ -552,6 +564,27 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 		
 		vector<IndependantFunction> independantFunctionPossibilities;
 		vector<CallToken> &possibility=linePossibility.p;
+		string correct="vffvfffvvffv";
+		if(correct.size()==call.size())
+		{
+			int j=0;
+			for(;j<correct.size();j++)
+			{
+				switch(correct[j])
+				{
+					case 'v':
+						if(possibility[j].possibleVariable==NULL)
+							j=99;
+						break;
+					case 'f':
+						if(possibility[j].possibleFunctions.empty())
+							j=100;
+						break;
+				}
+			}
+			if(j<99)
+				NONE;
+		}	
 		int id=linePossibility.id;
 		{
 			if(possibility[0].possibleFunctions.size())

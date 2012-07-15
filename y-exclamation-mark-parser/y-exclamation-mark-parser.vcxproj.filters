@@ -30,6 +30,8 @@
     <ClCompile Include="c99out.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\y! code\testa.c" />
+    <ClCompile Include="..\y! code\testb.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
