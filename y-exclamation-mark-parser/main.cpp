@@ -377,9 +377,8 @@ void Line::splitCommands( string str )
 	{
 		char lastC=0;
 		while(pos<str.size() && str[pos]==' ') pos++;//skip duplicate whitespace
-		spos endOfId=pos;//=str.find(' ',pos);
+		spos endOfId=pos;
 		//if(endOfId==npos)
-		//	endOfId=str.size();
 		while(endOfId<str.size())
 		{
 			if(str[endOfId]==' ')

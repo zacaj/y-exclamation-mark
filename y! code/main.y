@@ -27,14 +27,76 @@ c	if(is)
 c	else
 		return else
 
+r(string)str (int)i toString
+c	str=malloc(10);
+c	sprintf(str,"%i",i);
 
+struct vec3
+	(int) x
+	(int)y=8
+	(int) z =5
 
+r(vec3)v ( vec3 ) (int)i
+	//v.x=i
+	//v.y=i
+	//v.z=i
+	return v
+
+r(vec3)v (int)x , (int)y , (int)z
+	//v.x=x
+	v.y=y
+	v.z=z
+	return v
 
 r(int)success start (int) nArgument
-	printHelloWorlds
+	v=(vec3)0
+	print v.x toString
+	print ", "
+	print v.y toString
+	print ", "
+	print v.z toString
+	print "\n"
+
+	v.x=1
+	v.y=2
+	v.z=3
+	print v.x toString
+	print ", "
+	print v.y toString
+	print ", "
+	print v.z toString
+	print "\n"
+
+	w=1,2,3
+	print w.x toString
+	print ", "
+	print w.y toString
+	print ", "
+	print w.z toString
+	print "\n"
+
 	return 0
 
 printHelloWorlds
+
+getNumberFrom (int)number into o(int) out
+	out=(3+loadModelFrom pathToModel "foo" "bar")*number
+	
+r(string)path pathToModel (string)text (string)text2
+	print text
+	print text2
+	print text2
+	path = "c:/model.s3d\n"
+
+printHelloWorld 
+	print "Hello world\n"
+
+r(int)ret loadModelFrom (string)path
+	ret = 1
+	print path
+	return
+
+empty
 	getNumberFrom 1 into timesToPrint
 
 	shouldPrintEnd=1
@@ -62,22 +124,3 @@ printHelloWorlds
 		print ""
 
 	return
-
-getNumberFrom (int)number into o(int) out
-	out=(3+loadModelFrom pathToModel "foo" "bar")*number
-	
-r(string)path pathToModel (string)text (string)text2
-	print text
-	print text2
-	print text2
-	path = "c:/model.s3d\n"
-
-printHelloWorld 
-	print "Hello world\n"
-
-r(int)ret loadModelFrom (string)path
-	ret = 1
-	print path
-	return
-
-empty

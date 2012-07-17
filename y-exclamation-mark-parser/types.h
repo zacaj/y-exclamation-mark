@@ -16,9 +16,10 @@ public:
 			return 2;
 		return 0;
 	}
-	virtual string getLlvmType(){return "";};
-	virtual string getC99Type(){return "";};
-	virtual string getC99Constant(){return "";};
+	virtual string getLlvmType(){return "";}
+	virtual string getC99Type(){return "";}
+	virtual string getC99Constant(){return "";}
+	virtual string getC99Default(){return "";}
 };
 
 
@@ -43,6 +44,10 @@ public:
 	{
 		return i2s(value);
 	}
+	string getC99Default()
+	{
+		return "0";
+	}
 };
 
 class String:public Type
@@ -64,6 +69,10 @@ public:
 	string getC99Constant()
 	{
 		return value;
+	}
+	string getC99Default()
+	{
+		return "";
 	}
 };
 
