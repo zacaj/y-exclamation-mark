@@ -197,7 +197,7 @@ void addLabel( string label ,Function *location)
 	else
 		it2->second.insert(location);
 }
-
+Struct *currentStruct=NULL;
 Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 {
 	split=0;
@@ -205,6 +205,8 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 	removeLeadingTrailingSpaces(str);
 	scope=NULL;
 	original=str;
+	parentFunction=NULL;
+	parentStruct=NULL;
 
 	spos singleLineCommentPos=str.find("//");
 	if(singleLineCommentPos!=npos)
@@ -219,7 +221,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 		processed=str;
 		bool dontAdd=0;
 		string newString;
-		if(tab==string::npos)//function declaration or option
+		if(tab==string::npos)//function declaration or option or struct
 		{
 			level=0;
 			spos firstSpace=str.find(' ');
@@ -244,6 +246,19 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 				checkErrors(lineNumber==0,"Cannot have a label on the first line");
 				level=lines[lineNumber-1]->level;
 			}
+			else if(first=="struct")
+			{
+				Struct *strct=new Struct;
+				spos startOfName=find_not(str," ",firstSpace);
+				checkErrors(startOfName==str.size(),"struct has no name");
+				spos endOfName=find_not(str,upperLetters+lowerLetters+numerals+"_",startOfName);
+				strct->name=str.substr(startOfName,endOfName-startOfName+1);
+				removeLeadingTrailingSpaces(strct->name);
+				types[strct->name]=strct;
+				type=STRUCT;
+				currentStruct=strct;
+				return;
+			}
 			else
 			{
 				functions.push_back(new Function(str));
@@ -252,13 +267,21 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 				scope->level=1;
 				type=FUNCTION_DECLARATION;
 				currentFunction=functions.back();
+				currentStruct=NULL;
 				lines.push_back(this);
 				return;
 			}
 		}
-		//else
+		if(currentStruct!=NULL)
 		{
-			parent=currentFunction;
+			parentStruct=currentStruct;
+			size_t t=str.find_first_not_of(9);
+			currentStruct->addMember(str.substr(t,str.size()-t+1));
+			type=STRUCT_MEMBER;
+		}
+		if(currentFunction!=NULL)
+		{
+			parentFunction=currentFunction;
 //			currentFunction->lines.push_back(this);
 			if(currentFunction->firstLine==NULL)
 				currentFunction->firstLine=this;
@@ -291,7 +314,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 				{
 					type=LABEL;
 					processed=str.substr(commandStart,endOfFirstId-commandStart);
-					addLabel(processed,parent);
+					addLabel(processed,parentFunction);
 					if(find_not(str,invisibleCharacers,endOfFirstId+1)!=str.size())//code after label
 					{
 						for(int i=0;i<level;i++)
@@ -361,7 +384,7 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 {
 	commands=call;
 	scope=_scope;
-	parent=_parent;
+	parentFunction=_parent;
 	level=_level;
 	type=CODE;
 	split=1;
@@ -468,7 +491,7 @@ void Line::splitCommands( string str )
 
 			if(labels.find(id)!=labels.end())
 			{
-				if(labelLocations[id].find(parent)!=labelLocations[id].end())
+				if(labelLocations[id].find(parentFunction)!=labelLocations[id].end())
 				{
 					token.label=id;
 					token.str=id;
@@ -500,7 +523,7 @@ void Line::splitCommands( string str )
 	{
 		int i;
 		Line *lastLine=NULL;
-		for(i=lineNumber+1;i<=parent->lastLine->lineNumber;i++)
+		for(i=lineNumber+1;i<=parentFunction->lastLine->lineNumber;i++)
 			if(lines[i]->level<=level)
 				break;
 			else
@@ -508,7 +531,7 @@ void Line::splitCommands( string str )
 		if(lastLine==NULL)
 		{
 			Line *line;
-			line=new Line(possibilities[0]->forLoopIncr,scope,parent,level+1);
+			line=new Line(possibilities[0]->forLoopIncr,scope,parentFunction,level+1);
 			lines.insert(lines.begin()+lineNumber+1,line);
 			fixLineNumbers();
 		}
@@ -527,7 +550,7 @@ void Line::splitCommands( string str )
 					sc=sc->parent;
 				}
 			}
-			Line *line=new Line(possibilities[0]->forLoopIncr,sc,parent,level+1);
+			Line *line=new Line(possibilities[0]->forLoopIncr,sc,parentFunction,level+1);
 			lines.insert(lines.begin()+lastLine->lineNumber+1,line);
 			
 			fixLineNumbers();
@@ -535,7 +558,7 @@ void Line::splitCommands( string str )
 		}
 
 		{
-			Line *line=new Line(possibilities[0]->forLoopInit,scope,parent,level);
+			Line *line=new Line(possibilities[0]->forLoopInit,scope,parentFunction,level);
 			lines.insert(lines.begin()+lineNumber,line);
 			fixLineNumbers();
 		}
@@ -748,7 +771,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 				FunctionCall *fcall=new FunctionCall();
 				fcall->function=indf.func;
 				fcall->ret=NULL;
-				fcall->callee=parent;
+				fcall->callee=parentFunction;
 				fcall->line=this;
 				for(int j=indf.start;j<indf.end;j++)
 				{
@@ -776,7 +799,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 				fcall->function=indf.func;
 				fcall->ret=var;
 				fcall->line=this;
-				fcall->callee=parent;
+				fcall->callee=parentFunction;
 				for(int j=indf.start;j<indf.end;j++)
 				{
 					if(possibility[j].possibleVariable!=NULL)
@@ -1110,4 +1133,51 @@ Variable::Variable( string str,size_t &pos )
 	checkErrors((endOfName==pos || endOfName==npos) && !(mode&1),"No variable name specified");
 	name=str.substr(pos,endOfName-pos);
 	pos=endOfName;
+}
+
+std::string Struct::getC99Default()
+{
+	string ret="("+name+") {";
+	bool first=1;
+	for(auto it=members.begin();it!=members.end();it++)
+	{
+		if(!first)
+			ret+=", ";
+		else
+			first=0;
+		ret+=it->second->type->getC99Constant();
+	}
+	ret+="}";
+	return ret;
+}
+
+std::string Struct::getC99Type()
+{
+	return "struct "+name;
+}
+
+void Struct::addMember( string str )
+{
+	removeLeadingTrailingSpaces(str);
+	checkErrors(str[0]!='(',"Member definition does not begin with a type");
+	spos endOfType=str.find(')');
+	checkErrors(endOfType==str.size(),"Member definition does not begin with a type");
+	string typeName=str.substr(1,endOfType-1);
+	removeLeadingTrailingSpaces(typeName);
+	spos startOfName=find(str,upperLetters+lowerLetters,endOfType);
+	checkErrors(startOfName==str.size(),"No variable name specified");
+	spos endOfName=find_not(str,upperLetters+lowerLetters+numerals+"_",startOfName);
+	string memberName=str.substr(startOfName,endOfName-startOfName);
+	Type *type=getType(typeName);
+	checkError(type==NULL,"%s is not a valid type",typeName.c_str());
+	Variable *var=new Variable(memberName,type);
+	members[memberName]=var;
+	spos equal=find(str,"=",endOfName);
+	if(equal!=str.size())
+	{
+		spos startOfValue=find_not(str," ",equal+1);
+		checkErrors(startOfValue==str.size(),"No default value given");
+		var->constant=parseConstant(str.substr(startOfValue,str.size()-startOfValue+1));
+	}
+	NONE;
 }

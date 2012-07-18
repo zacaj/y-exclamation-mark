@@ -43,5 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\y! code\main.y" />
+    <None Include="..\y! code\temp.y" />
   </ItemGroup>
 </Project>

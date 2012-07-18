@@ -136,6 +136,36 @@ public:
 	void removeVariable(string name);
 	void writeC99(FILE *fp,int level=-1);
 };
+class Type
+{
+public:
+	string name;
+	virtual int is(string typeName)
+	{
+		if(typeName=="internal")
+			return 1;
+		if(typeName==name)
+			return 1;
+		if(typeName=="var")//fix
+			return 2;
+		return 0;
+	}
+	virtual string getLlvmType(){return "";}
+	virtual string getC99Type(){return "";}
+	virtual string getC99Constant(){return "";}
+	virtual string getC99Default(){return "";}
+};
+
+class Struct:public Type
+{
+public:
+	map<string,Variable*> members;
+	void addMember(string str);
+
+	virtual string getC99Default();
+	virtual string getC99Type();
+
+};
 #include <set>
 struct CallToken
 {
@@ -182,8 +212,9 @@ public:
 	string processed;
 	Scope *scope;
 	string comment;
-	Function *parent;
-	enum LineType {UNKNOWN,INTERPRETER_COMMAND,FUNCTION_DECLARATION,CODE,CODE_WITH_OPTIONS,LABEL,LABEL_WITH_CODE,EMPTY} type;
+	Function *parentFunction;
+	Struct *parentStruct;
+	enum LineType {UNKNOWN,INTERPRETER_COMMAND,FUNCTION_DECLARATION,CODE,CODE_WITH_OPTIONS,LABEL,LABEL_WITH_CODE,STRUCT,STRUCT_MEMBER,EMPTY} type;
 	string cString;
 	bool split;
 

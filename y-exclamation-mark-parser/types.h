@@ -2,25 +2,6 @@
 #include "common.h"
 #include "main.h"
 
-class Type
-{
-public:
-	string name;
-	virtual int is(string typeName)
-	{
-		if(typeName=="internal")
-			return 1;
-		if(typeName==name)
-			return 1;
-		if(typeName=="var")//fix
-			return 2;
-		return 0;
-	}
-	virtual string getLlvmType(){return "";}
-	virtual string getC99Type(){return "";}
-	virtual string getC99Constant(){return "";}
-	virtual string getC99Default(){return "";}
-};
 
 
 class Int:public Type
@@ -98,6 +79,10 @@ public:
 	{
 		return i2s(value);
 	}
+	string getC99Default()
+	{
+		return "0";
+	}
 };
 
 class Branch:public Type
@@ -149,3 +134,5 @@ public:
 extern map<string,Type*> types;
 
 Type* getType(string name);
+
+Type* parseConstant(string str);
