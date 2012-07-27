@@ -154,6 +154,7 @@ public:
 	virtual string getC99Type(){return "";}
 	virtual string getC99Constant(){return "";}
 	virtual string getC99Default(){return "";}
+	virtual bool isStruct(){return 0;}
 };
 
 class Struct:public Type
@@ -164,8 +165,11 @@ public:
 
 	virtual string getC99Default();
 	virtual string getC99Type();
-
+	void writeC99(FILE *fp);
+	void writeDeclarationC99(FILE *fp);
+	bool isStruct(){return 1;}
 };
+extern map<string,Struct*> structs;
 #include <set>
 struct CallToken
 {
@@ -258,3 +262,4 @@ void continueC99(FILE *fp,FunctionCall *call);
 void continueDefaultC99(FILE *fp,FunctionCall *call);
 void continueCaseC99(FILE *fp,FunctionCall *call);
 void defaultC99(FILE *fp,FunctionCall *call);
+void structMemberC99(FILE *fp,FunctionCall *call);

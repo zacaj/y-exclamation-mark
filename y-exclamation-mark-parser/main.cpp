@@ -12,7 +12,7 @@ string tempPath;
 int realLineNumber=0;
 int lineIndent=0;
 vector<int> lineIndentLevel;
-
+map<string,Struct*> structs;
 void checkErrors(bool isError,string description="")
 {
 	if(isError)
@@ -156,6 +156,15 @@ int main(_In_ int _Argc, char **argv)
 		parseSourceLine("\t\treturn default 1");
 		parseSourceLine("\treturn none");
 		whileFunction=functions.back();
+
+		for(auto it=structs.begin();it!=structs.end();it++)
+		{
+			Struct *s=it->second;
+			for(auto it2=s->members.begin();it2!=s->members.end();it2++)
+			{
+				parseSourceLine("r("+it2->second->type->name+") ("+s->name+")this . p = 9999999"+it2->first);
+			}
+		}
 	}
 
 	for(int i=0;i<lines.size();i++)
@@ -257,6 +266,8 @@ Line::Line( string str,uint _lineNumber ):originalLineNumber(_lineNumber)
 				types[strct->name]=strct;
 				type=STRUCT;
 				currentStruct=strct;
+				currentFunction=NULL;
+				structs[strct->name]=strct;
 				return;
 			}
 			else
@@ -415,6 +426,11 @@ void Line::splitCommands( string str )
 		}
 		string id=str.substr(pos,endOfId-pos);
 		removeLeadingTrailingSpaces(id);
+		if(find_not(id,invisibleCharacers)==id.size())
+		{
+			pos++;
+			continue;
+		}
 		CallToken token;
 		token.possibilities=0;
 		token.newVariable=0;
@@ -972,7 +988,7 @@ Function::Function( string str )
 		goto option;
 	}
 
-	while(pos<str.size()-1)
+	while(pos<str.size())
 	{
 		while(str[pos]==' ') pos++;
 		if(str[pos]=='p')
@@ -1179,5 +1195,6 @@ void Struct::addMember( string str )
 		checkErrors(startOfValue==str.size(),"No default value given");
 		var->constant=parseConstant(str.substr(startOfValue,str.size()-startOfValue+1));
 	}
+	//parseSourceLine("\t")
 	NONE;
 }

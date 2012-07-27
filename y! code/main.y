@@ -31,10 +31,18 @@ r(string)str (int)i toString
 c	str=malloc(10);
 c	sprintf(str,"%i",i);
 
+struct vec4
+	(int) w= 2
+
 struct vec3
 	(int) x
 	(int)y=8
 	(int) z =5
+	(vec4) v
+	
+r(vec3) o(vec3)a = (vec3)b p=-100
+c	*a=b;
+	return a	
 
 r(vec3)v ( vec3 ) (int)i
 	//v.x=i
@@ -50,6 +58,8 @@ r(vec3)v (int)x , (int)y , (int)z
 
 r(int)success start (int) nArgument
 	v=(vec3)0
+	print v.v.w toString
+	print ", "
 	print v.x toString
 	print ", "
 	print v.y toString

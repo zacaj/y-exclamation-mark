@@ -10,6 +10,37 @@ Line *lastLine=NULL;
 int lastReturn=-1;
 int lastReturnSet=-1;
 uchar lastLineLevel=-1;
+set<string> structsWritten;
+void Struct::writeDeclarationC99(FILE *fp)
+{
+	fprintf(fp,"struct %s;\n",name.c_str());
+}
+void Struct::writeC99(FILE *fp)
+{
+	if(structsWritten.find(name)!=structsWritten.end())
+		return;
+	for(auto it=members.begin();it!=members.end();it++)
+	{
+		if(it->second->type->isStruct())
+		{
+			Struct *s=(Struct*)it->second->type;
+			if(structsWritten.find(s->name)==structsWritten.end())
+			{
+				//structsWritten.insert(s->name);
+				s->writeC99(fp);
+			}
+		}
+
+	}
+	fprintf(fp,"struct %s\n{\n",name.c_str());
+	for(auto it=members.begin();it!=members.end();it++)
+	{
+		fprintf(fp,"\t%s %s;\n",it->second->type->getC99Type().c_str(),it->first.c_str());
+	}
+	fprintf(fp,"};\n\n");
+	structsWritten.insert(name);
+}
+
 
 void Scope::writeC99( FILE *fp,int level/*=-1*/ )
 {
@@ -333,6 +364,10 @@ void outputC99(FILE *fp)
 	}
 	fprintf(fp,"#include <stdio.h>\n\n");
 	fprintf(fp,"typedef struct \n{\n\tint labelId;\n\tunsigned char repeat;\n} branch_t;\n\n");
+	for(auto it=structs.begin();it!=structs.end();it++)
+		it->second->writeDeclarationC99(fp);
+	for(auto it=structs.begin();it!=structs.end();it++)
+		it->second->writeC99(fp);
 	for(int iFunc=0;iFunc<functions.size();iFunc++)
 	{
 		Function *func=functions[iFunc];
@@ -544,4 +579,8 @@ void continueCaseC99(FILE *fp,FunctionCall *call)
 void defaultC99(FILE *fp,FunctionCall *call)
 {
 	fprintf(fp,"default: default%s:\n",switchStack.back().c_str());
+}
+void structMemberC99(FILE *fp,FunctionCall *call)
+{
+
 }
