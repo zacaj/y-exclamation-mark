@@ -699,6 +699,11 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 					possibility.erase(possibility.begin()+semicolons[1],possibility.end());
 					possibility.erase(possibility.begin(),possibility.begin()+semicolons[0]+1);
 					CallToken whileToken;
+					whileToken.possibilities=0;
+					whileToken.possibleVariable=NULL;
+					whileToken.newVariable=0;
+					whileToken.newVariablePtr=NULL;
+
 					whileToken.possibilities=1;
 					whileToken.str="while";
 					whileToken.possibleFunctions.insert(whileFunction);
@@ -805,6 +810,11 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 			var->mode=Ob(10000000);
 			possibility.erase(possibility.begin()+indf.start,possibility.begin()+indf.end);
 			CallToken token;
+			token.possibilities=0;
+			token.possibleVariable=NULL;
+			token.newVariable=0;
+			token.newVariablePtr=NULL;
+			
 			token.str=svar->name;
 			token.possibleVariable=var;
 			token.newVariablePtr=NULL;
@@ -862,6 +872,11 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 			}
 			possibility.erase(possibility.begin()+indf.start,possibility.begin()+indf.end);
 			CallToken token;
+			token.possibilities=0;
+			token.possibleVariable=NULL;
+			token.newVariable=0;
+			token.newVariablePtr=NULL;
+
 			token.str=var->name;
 			token.possibleVariable=var;
 			token.newVariablePtr=NULL;
@@ -892,6 +907,7 @@ void Line::parseNextIsNewVariable( vector<CallToken> &call,uint p,vector<LinePos
 	CallToken token;
 	token.possibilities=0;
 	token.possibleVariable=NULL;
+	token.newVariable=0;
 	token.newVariablePtr=NULL;
 
 	token.newVariable=1;
@@ -904,11 +920,12 @@ void Line::parseNextIsVariable( vector<CallToken> &call,uint p,vector<LinePossib
 {
 	CallToken token;
 	token.possibilities=0;
+	token.possibleVariable=NULL;
+	token.newVariable=0;
+	token.newVariablePtr=NULL;
 
 	token.possibleVariable=call[p].possibleVariable;//scope->getVariable(call[p].str);
 	token.str=call[p].str;
-	token.newVariable=0;
-	token.newVariablePtr=NULL;
 	attempt.push_back(token);
 	parseCode(call,p+1,functions,attempt);
 }
@@ -916,6 +933,11 @@ void Line::parseNextIsVariable( vector<CallToken> &call,uint p,vector<LinePossib
 void Line::parseNextIsLabel( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt )
 {
 	CallToken token;
+	token.possibilities=0;
+	token.possibleVariable=NULL;
+	token.newVariable=0;
+	token.newVariablePtr=NULL;
+
 	token.label=call[p].label;
 	token.str=call[p].str;
 	token.newVariable=0;
@@ -928,10 +950,11 @@ void Line::parseNextIsFunction( vector<CallToken> &call,uint p,vector<LinePossib
 	CallToken token;
 	token.possibilities=0;
 	token.possibleVariable=NULL;
-	token.possibleFunctions.insert(function);
-	token.str=call[p].str;
 	token.newVariable=0;
 	token.newVariablePtr=NULL;
+
+	token.possibleFunctions.insert(function);
+	token.str=call[p].str;
 	attempt.push_back(token);
 	parseCode(call,p+1,functions,attempt);
 }

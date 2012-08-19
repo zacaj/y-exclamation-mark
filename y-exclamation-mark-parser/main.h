@@ -185,18 +185,12 @@ struct CallToken
 	uchar possibilities;
 	bool newVariable;
 	string str;
+	uint nPossibleFunctions,aPossibleFunctions;
 	set<Function*> possibleFunctions;
 	Variable* possibleVariable;
 	Type *type;
 	Variable *newVariablePtr;
 	string label;
-	CallToken()
-	{
-		possibilities=0;
-		newVariable=0;
-		possibleVariable=NULL;
-		newVariablePtr=NULL;
-	}
 };
 struct IndependantFunction 
 {
