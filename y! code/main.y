@@ -45,20 +45,21 @@ c	*a=b;
 	return a	
 
 r(vec3)v ( vec3 ) (int)i
-	v.x=i
+	v=default
+	//v.x=i
 	//v.y=i
-	//v.z=i
+	v.z=i
 	return v
 
 r(vec3)v (int)x , (int)y , (int)z
-	//v.x=x
+	v.x=x
 	v.y=y
 	v.z=z
 	return v
 
 r(int)success start (int) nArgument
 	v=(vec3)0
-
+	v.v.w=default
 	print v.v.w toString
 	print ", "
 	print v.x toString

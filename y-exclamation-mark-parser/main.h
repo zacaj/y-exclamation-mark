@@ -162,7 +162,7 @@ public:
 	virtual string getLlvmType(){return "";}
 	virtual string getC99Type(){return "";}
 	virtual string getC99Constant(){return "";}
-	virtual string getC99Default(){return "";}
+	virtual string getC99Default(){return "NO DEFAULT FOR THIS TYPE";};
 	virtual bool isStruct(){return 0;}
 };
 
@@ -273,3 +273,4 @@ void continueCaseC99(FILE *fp,FunctionCall *call);
 void defaultC99(FILE *fp,FunctionCall *call);
 void structMemberC99(FILE *fp,FunctionCall *call);
 void memberC99(FILE *fp,FunctionCall *call);
+void setToDefaultC99(FILE *fp,FunctionCall *call);

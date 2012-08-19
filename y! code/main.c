@@ -134,13 +134,15 @@ struct vec3 vec3_equal_vec3 ( struct vec3 *a, struct vec3 b )
 struct vec3 f_C_vec3_D_int ( int i )
 {
 	struct vec3 v;
-	int_equal_int( &v.x, i );
+	v = (struct vec3) {(struct vec4) {2}, 0, 8, 5};
+	int_equal_int( &v.z, i );
 	return v;
 }
 
 struct vec3 int_Q_int_Q_int ( int x, int y, int z )
 {
 	struct vec3 v;
+	int_equal_int( &v.x, x );
 	int_equal_int( &v.y, y );
 	int_equal_int( &v.z, z );
 	return v;
@@ -149,77 +151,78 @@ struct vec3 int_Q_int_Q_int ( int x, int y, int z )
 int startint ( int nArgument )
 {
 	int success;
-	int t_int16_2 = 2;
-	int t_int21_0 = 0;
-	int t_int23_3 = 3;
-	int t_int26_2 = 2;
-	int t_int39_1 = 1;
-	int t_int47_0 = 0;
-	int t_int5_3 = 3;
-	int t_int68_1 = 1;
-	char* t_string15r_string_str_;
-	char* t_string22 = ", ";
-	char* t_string31r_string_str_;
-	char* t_string33r_string_str_;
-	char* t_string3r_string_str_;
-	char* t_string40r_string_str_;
-	char* t_string41r_string_str_;
-	char* t_string44 = "\n";
-	char* t_string4r_string_str_;
-	char* t_string53 = "\n";
-	char* t_string56 = ", ";
-	char* t_string58 = ", ";
-	char* t_string64 = ", ";
-	char* t_string6r_string_str_;
-	char* t_string76 = ", ";
-	char* t_string77 = ", ";
-	char* t_string84r_string_str_;
-	char* t_string86 = "\n";
-	char* t_string94 = ", ";
-	char* t_string99r_string_str_;
-	struct vec3 t_vec341r_vec3_v_;
-	struct vec3 t_vec367r_vec3_v_;
+	int t_int29_1 = 1;
+	int t_int38_3 = 3;
+	int t_int3_0 = 0;
+	int t_int56_2 = 2;
+	int t_int73_2 = 2;
+	int t_int77_1 = 1;
+	int t_int88_0 = 0;
+	int t_int97_3 = 3;
+	char* t_string21 = "\n";
+	char* t_string24r_string_str_;
+	char* t_string35r_string_str_;
+	char* t_string37r_string_str_;
+	char* t_string40 = ", ";
+	char* t_string42 = ", ";
+	char* t_string42r_string_str_;
+	char* t_string45 = ", ";
+	char* t_string46r_string_str_;
+	char* t_string48 = ", ";
+	char* t_string53r_string_str_;
+	char* t_string70 = "\n";
+	char* t_string73 = ", ";
+	char* t_string77r_string_str_;
+	char* t_string86r_string_str_;
+	char* t_string87 = ", ";
+	char* t_string88r_string_str_;
+	char* t_string9 = ", ";
+	char* t_string90 = "\n";
+	char* t_string9r_string_str_;
+	struct vec3 t_vec378r_vec3_v_;
+	struct vec3 t_vec391r_vec3_v_;
 	struct vec3 v;
 	struct vec3 w;
 
-	t_vec367r_vec3_v_ =  f_C_vec3_D_int( t_int47_0 );
-	vec3_equal_vec3( &v, t_vec367r_vec3_v_ );
-	t_string99r_string_str_ =  inttoString( v.v.w );
-	printstring( t_string99r_string_str_ );
-	printstring( t_string94 );
-	t_string3r_string_str_ =  inttoString( v.x );
-	printstring( t_string3r_string_str_ );
-	printstring( t_string22 );
-	t_string33r_string_str_ =  inttoString( v.y );
-	printstring( t_string33r_string_str_ );
-	printstring( t_string64 );
-	t_string41r_string_str_ =  inttoString( v.z );
-	printstring( t_string41r_string_str_ );
-	printstring( t_string53 );
-	int_equal_int( &v.x, t_int68_1 );
-	int_equal_int( &v.y, t_int16_2 );
-	int_equal_int( &v.z, t_int5_3 );
-	t_string84r_string_str_ =  inttoString( v.x );
-	printstring( t_string84r_string_str_ );
-	printstring( t_string56 );
-	t_string40r_string_str_ =  inttoString( v.y );
-	printstring( t_string40r_string_str_ );
-	printstring( t_string76 );
-	t_string31r_string_str_ =  inttoString( v.z );
-	printstring( t_string31r_string_str_ );
-	printstring( t_string44 );
-	t_vec341r_vec3_v_ =  int_Q_int_Q_int( t_int39_1, t_int26_2, t_int23_3 );
-	vec3_equal_vec3( &w, t_vec341r_vec3_v_ );
-	t_string15r_string_str_ =  inttoString( w.x );
-	printstring( t_string15r_string_str_ );
-	printstring( t_string58 );
-	t_string4r_string_str_ =  inttoString( w.y );
-	printstring( t_string4r_string_str_ );
-	printstring( t_string77 );
-	t_string6r_string_str_ =  inttoString( w.z );
-	printstring( t_string6r_string_str_ );
-	printstring( t_string86 );
-	return t_int21_0;
+	t_vec378r_vec3_v_ =  f_C_vec3_D_int( t_int3_0 );
+	vec3_equal_vec3( &v, t_vec378r_vec3_v_ );
+	v.v.w = 0;
+	t_string35r_string_str_ =  inttoString( v.v.w );
+	printstring( t_string35r_string_str_ );
+	printstring( t_string42 );
+	t_string88r_string_str_ =  inttoString( v.x );
+	printstring( t_string88r_string_str_ );
+	printstring( t_string40 );
+	t_string42r_string_str_ =  inttoString( v.y );
+	printstring( t_string42r_string_str_ );
+	printstring( t_string48 );
+	t_string46r_string_str_ =  inttoString( v.z );
+	printstring( t_string46r_string_str_ );
+	printstring( t_string90 );
+	int_equal_int( &v.x, t_int29_1 );
+	int_equal_int( &v.y, t_int56_2 );
+	int_equal_int( &v.z, t_int38_3 );
+	t_string77r_string_str_ =  inttoString( v.x );
+	printstring( t_string77r_string_str_ );
+	printstring( t_string73 );
+	t_string86r_string_str_ =  inttoString( v.y );
+	printstring( t_string86r_string_str_ );
+	printstring( t_string45 );
+	t_string24r_string_str_ =  inttoString( v.z );
+	printstring( t_string24r_string_str_ );
+	printstring( t_string70 );
+	t_vec391r_vec3_v_ =  int_Q_int_Q_int( t_int77_1, t_int73_2, t_int97_3 );
+	vec3_equal_vec3( &w, t_vec391r_vec3_v_ );
+	t_string37r_string_str_ =  inttoString( w.x );
+	printstring( t_string37r_string_str_ );
+	printstring( t_string87 );
+	t_string53r_string_str_ =  inttoString( w.y );
+	printstring( t_string53r_string_str_ );
+	printstring( t_string9 );
+	t_string9r_string_str_ =  inttoString( w.z );
+	printstring( t_string9r_string_str_ );
+	printstring( t_string21 );
+	return t_int88_0;
 }
 
 void printHelloWorlds (  )
@@ -228,48 +231,48 @@ void printHelloWorlds (  )
 
 void getNumberFromintintoint ( int number, int *out )
 {
-	int t_int45_3 = 3;
-	int t_int64r_int_ret_loadModelFrom_;
-	int t_int82r_int_;
-	int t_int86r_int_product_;
-	int t_int9r_int_sum_;
-	char* t_string24 = "foo";
-	char* t_string58r_string_path_pathToModel_;
-	char* t_string72 = "bar";
+	int t_int22_3 = 3;
+	int t_int33r_int_ret_loadModelFrom_;
+	int t_int42r_int_;
+	int t_int44r_int_product_;
+	int t_int69r_int_sum_;
+	char* t_string46 = "foo";
+	char* t_string6 = "bar";
+	char* t_string75r_string_path_pathToModel_;
 
-	t_string58r_string_path_pathToModel_ =  pathToModelstringstring( t_string24, t_string72 );
-	t_int64r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string58r_string_path_pathToModel_ );
-	t_int9r_int_sum_ =  int_plus_int( t_int45_3, t_int64r_int_ret_loadModelFrom_ );
-	t_int82r_int_ =  f_C_int_D_( t_int9r_int_sum_ );
-	t_int86r_int_product_ =  int_asterisk_int( t_int82r_int_, number );
-	int_equal_int( &*out, t_int86r_int_product_ );
+	t_string75r_string_path_pathToModel_ =  pathToModelstringstring( t_string46, t_string6 );
+	t_int33r_int_ret_loadModelFrom_ =  loadModelFromstring( t_string75r_string_path_pathToModel_ );
+	t_int69r_int_sum_ =  int_plus_int( t_int22_3, t_int33r_int_ret_loadModelFrom_ );
+	t_int42r_int_ =  f_C_int_D_( t_int69r_int_sum_ );
+	t_int44r_int_product_ =  int_asterisk_int( t_int42r_int_, number );
+	int_equal_int( &*out, t_int44r_int_product_ );
 }
 
 char* pathToModelstringstring ( char* text, char* text2 )
 {
 	char* path;
-	char* t_string55 = "c:/model.s3d\n";
+	char* t_string58 = "c:/model.s3d\n";
 
 	printstring( text );
 	printstring( text2 );
 	printstring( text2 );
-	string_equal_string( &path, t_string55 );
+	string_equal_string( &path, t_string58 );
 	return path;
 }
 
 void printHelloWorld (  )
 {
-	char* t_string61 = "Hello world\n";
+	char* t_string41 = "Hello world\n";
 
-	printstring( t_string61 );
+	printstring( t_string41 );
 }
 
 int loadModelFromstring ( char* path )
 {
 	int ret;
-	int t_int64_1 = 1;
+	int t_int90_1 = 1;
 
-	int_equal_int( &ret, t_int64_1 );
+	int_equal_int( &ret, t_int90_1 );
 	printstring( path );
 	return ret;
 }
@@ -278,99 +281,99 @@ void empty (  )
 {
 	int i;
 	int shouldPrintEnd;
-	unsigned char t_bool89r_bool_isLess_;
-	int t_int3_1 = 1;
-	int t_int43_0 = 0;
-	int t_int61r_int_sum_;
-	int t_int76_1 = 1;
-	int t_int9_1 = 1;
+	unsigned char t_bool72r_bool_isLess_;
+	int t_int12_1 = 1;
+	int t_int13_1 = 1;
+	int t_int55_0 = 0;
+	int t_int60_1 = 1;
+	int t_int93r_int_sum_;
 	int timesToPrint;
 
-	getNumberFromintintoint( t_int3_1, &timesToPrint );
-	int_equal_int( &shouldPrintEnd, t_int76_1 );
-	int_equal_int( &i, t_int43_0 );
-	lt_branch89:;
-	t_bool89r_bool_isLess_ =  int_less_int( i, timesToPrint );
-	branch_t t_branch89 = whilebool( t_bool89r_bool_isLess_ );
-	if( t_branch89.labelId==0 )
+	getNumberFromintintoint( t_int13_1, &timesToPrint );
+	int_equal_int( &shouldPrintEnd, t_int12_1 );
+	int_equal_int( &i, t_int55_0 );
+	lt_branch29:;
+	t_bool72r_bool_isLess_ =  int_less_int( i, timesToPrint );
+	branch_t t_branch29 = whilebool( t_bool72r_bool_isLess_ );
+	if( t_branch29.labelId==0 )
 	{
-		int t_int20_0 = 0;
-		int t_int23_2 = 2;
-		int t_int45_5 = 5;
-		int t_int4_4 = 4;
-		int t_int69_1 = 1;
-		char* t_string13 = "";
+		int t_int19_0 = 0;
+		int t_int5_1 = 1;
+		int t_int60_5 = 5;
+		int t_int71_4 = 4;
+		int t_int7_2 = 2;
+		char* t_string14 = "";
 
 		printHelloWorld( );
 		switch( i )
 		{
-		case 0: case0t_sw22i:
+		case 0: case0t_sw89i:
 		{
-			char* t_string2 = "Start\n";
+			char* t_string72 = "Start\n";
 
-			printstring( t_string2 );
-			goto defaultt_sw22i;
+			printstring( t_string72 );
+			goto defaultt_sw89i;
 			break;
 		}
-		case 2: case2t_sw22i:
+		case 2: case2t_sw89i:
 		{
-			char* t_string31 = "2\n";
+			char* t_string94 = "2\n";
 
-			printstring( t_string31 );
+			printstring( t_string94 );
 			break;
 		}
-		case 1: case1t_sw22i:
+		case 1: case1t_sw89i:
 		{
-			unsigned char t_bool59r_bool_isLess_;
-			int t_int3_4 = 4;
-			int t_int78_1 = 1;
+			unsigned char t_bool83r_bool_isLess_;
+			int t_int38_4 = 4;
+			int t_int40_1 = 1;
 
-			lt_branch38:;
-			t_bool59r_bool_isLess_ =  int_less_int( shouldPrintEnd, t_int78_1 );
-			branch_t t_branch38 = ifbool( t_bool59r_bool_isLess_ );
-			if( t_branch38.labelId==0 )
+			lt_branch66:;
+			t_bool83r_bool_isLess_ =  int_less_int( shouldPrintEnd, t_int40_1 );
+			branch_t t_branch66 = ifbool( t_bool83r_bool_isLess_ );
+			if( t_branch66.labelId==0 )
 			{
-				char* t_string19 = "Hello\n";
+				char* t_string9 = "Hello\n";
 
-				printstring( t_string19 );
+				printstring( t_string9 );
 			}
-			else if( t_branch38.labelId==1 )
+			else if( t_branch66.labelId==1 )
 			{
-				char* t_string71 = "Goodbye\n";
+				char* t_string7 = "Goodbye\n";
 
-				printstring( t_string71 );
+				printstring( t_string7 );
 			}
-			if( t_branch38.repeat!=0 ) goto lt_branch38;
-			goto case4t_sw22i;
+			if( t_branch66.repeat!=0 ) goto lt_branch66;
+			goto case4t_sw89i;
 			break;
 		}
-		case 5: case5t_sw22i:
+		case 5: case5t_sw89i:
 		{
-			char* t_string81 = "5\n";
+			char* t_string71 = "5\n";
 
-			goto case4t_sw22i;
-			printstring( t_string81 );
+			goto case4t_sw89i;
+			printstring( t_string71 );
 			break;
 		}
-		case 4: case4t_sw22i:
+		case 4: case4t_sw89i:
 		{
-			char* t_string92 = "4\n";
+			char* t_string54 = "4\n";
 
-			printstring( t_string92 );
+			printstring( t_string54 );
 			break;
 		}
-		default: defaultt_sw22i:
+		default: defaultt_sw89i:
 		{
-			char* t_string85 = "?\n";
+			char* t_string47 = "?\n";
 
-			printstring( t_string85 );
+			printstring( t_string47 );
 			}
 		}
-		printstring( t_string13 );
-		t_int61r_int_sum_ =  int_plus_int( i, t_int9_1 );
-		int_equal_int( &i, t_int61r_int_sum_ );
+		printstring( t_string14 );
+		t_int93r_int_sum_ =  int_plus_int( i, t_int60_1 );
+		int_equal_int( &i, t_int93r_int_sum_ );
 	}
-	if( t_branch89.repeat!=0 ) goto lt_branch89;
+	if( t_branch29.repeat!=0 ) goto lt_branch29;
 	return;
 }
 
@@ -445,7 +448,7 @@ branch_t whilebool ( unsigned char is )
 {
 	if(is)
 	{
-		int t_int98_1 = 1;
+		int t_int23_1 = 1;
 
 		return (branch_t){0 /* default */,1};
 	}

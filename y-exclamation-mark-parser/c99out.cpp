@@ -580,9 +580,10 @@ void defaultC99(FILE *fp,FunctionCall *call)
 {
 	fprintf(fp,"default: default%s:\n",switchStack.back().c_str());
 }
-void structMemberC99(FILE *fp,FunctionCall *call)
+void setToDefaultC99(FILE *fp,FunctionCall *call)
 {
-
+	fprintf(fp,"%s = %s;\n",call->arguments[0]->nameC99().c_str(),call->arguments[0]->type->getC99Default().c_str());
+	NONE;
 }
 void memberC99(FILE *fp,FunctionCall *call)
 {

@@ -112,6 +112,10 @@ int main(_In_ int _Argc, char **argv)
 
 			parseSourceLine("r("+it->first+") ( ("+it->first+")a )");
 			parseSourceLine("\treturn a");
+
+
+			functions.push_back(new Function("inline o("+it->first+")v = default"));
+			functions.back()->internalPrintC99=setToDefaultC99;
 		}
 		//functions.push_back(new Function("inline return (var)r"));
 		//functions.back()->internalPrintC99=returnC99;
@@ -433,9 +437,11 @@ void Line::splitCommands( string str )
 			continue;
 		}
 		CallToken token;
+		
 		token.possibilities=0;
 		token.newVariable=0;
 		token.possibleVariable=NULL;
+		token.newVariablePtr=NULL;
 		if(id[0]=='\"')//todo set variables for literals
 		{
 			spos startOfString=pos;
@@ -646,6 +652,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 
 					{//init				
 						vector<CallToken> iCall;
+
 						for(int j=1;j<semicolons[0];j++)
 						{
 							iCall.push_back(possibility[j]);
@@ -695,6 +702,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 					whileToken.possibilities=1;
 					whileToken.str="while";
 					whileToken.possibleFunctions.insert(whileFunction);
+					whileToken.newVariablePtr=NULL;
 					possibility.insert(possibility.begin(),whileToken);
 					
 
@@ -799,6 +807,9 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 			CallToken token;
 			token.str=svar->name;
 			token.possibleVariable=var;
+			token.newVariablePtr=NULL;
+			token.newVariable=NULL;
+			
 			possibility.insert(possibility.begin()+indf.start,token);
 			i++;
 		}
@@ -853,6 +864,8 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 			CallToken token;
 			token.str=var->name;
 			token.possibleVariable=var;
+			token.newVariablePtr=NULL;
+			token.newVariable=0;
 			possibility.insert(possibility.begin()+indf.start,token);
 			i++;
 		}
@@ -877,6 +890,10 @@ fail:
 void Line::parseNextIsNewVariable( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt )
 {
 	CallToken token;
+	token.possibilities=0;
+	token.possibleVariable=NULL;
+	token.newVariablePtr=NULL;
+
 	token.newVariable=1;
 	token.str=call[p].str;
 	attempt.push_back(token);
@@ -886,8 +903,12 @@ void Line::parseNextIsNewVariable( vector<CallToken> &call,uint p,vector<LinePos
 void Line::parseNextIsVariable( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt )
 {
 	CallToken token;
+	token.possibilities=0;
+
 	token.possibleVariable=call[p].possibleVariable;//scope->getVariable(call[p].str);
 	token.str=call[p].str;
+	token.newVariable=0;
+	token.newVariablePtr=NULL;
 	attempt.push_back(token);
 	parseCode(call,p+1,functions,attempt);
 }
@@ -897,14 +918,20 @@ void Line::parseNextIsLabel( vector<CallToken> &call,uint p,vector<LinePossibili
 	CallToken token;
 	token.label=call[p].label;
 	token.str=call[p].str;
+	token.newVariable=0;
+	token.newVariablePtr=NULL;
 	attempt.push_back(token);
 	parseCode(call,p+1,functions,attempt);
 }
 void Line::parseNextIsFunction( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt,Function *function )
 {
 	CallToken token;
+	token.possibilities=0;
+	token.possibleVariable=NULL;
 	token.possibleFunctions.insert(function);
 	token.str=call[p].str;
+	token.newVariable=0;
+	token.newVariablePtr=NULL;
 	attempt.push_back(token);
 	parseCode(call,p+1,functions,attempt);
 }
@@ -1175,7 +1202,7 @@ Variable::Variable( string str,size_t &pos )
 
 std::string Struct::getC99Default()
 {
-	string ret="("+name+") {";
+	string ret="("+getC99Type()+") {";
 	bool first=1;
 	for(auto it=members.begin();it!=members.end();it++)
 	{
@@ -1183,7 +1210,10 @@ std::string Struct::getC99Default()
 			ret+=", ";
 		else
 			first=0;
-		ret+=it->second->type->getC99Constant();
+		if(it->second->type->isStruct() || it->second->constant==NULL)
+			ret+=it->second->type->getC99Default();
+		else
+			ret+=it->second->constant->getC99Constant();
 	}
 	ret+="}";
 	return ret;

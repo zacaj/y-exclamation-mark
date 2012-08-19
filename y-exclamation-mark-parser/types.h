@@ -53,7 +53,7 @@ public:
 	}
 	string getC99Default()
 	{
-		return "";
+		return "\"\"";
 	}
 };
 
