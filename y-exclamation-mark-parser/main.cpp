@@ -162,7 +162,8 @@ int main(_In_ int _Argc, char **argv)
 			Struct *s=it->second;
 			for(auto it2=s->members.begin();it2!=s->members.end();it2++)
 			{
-				parseSourceLine("r("+it2->second->type->name+") ("+s->name+")this . p = 9999999"+it2->first);
+				parseSourceLine("r("+it2->second->type->name+") ("+s->name+")this . "+it2->first+" p = 9999999");
+				functions.back()->internalPrintC99=memberC99;
 			}
 		}
 	}
@@ -602,7 +603,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 		
 		vector<IndependantFunction> independantFunctionPossibilities;
 		vector<CallToken> &possibility=linePossibility.p;
-		string correct="vffvfffvvffv";
+		string correct="vffvfffvvffvf";
 		if(correct.size()==call.size())
 		{
 			int j=0;
@@ -781,7 +782,27 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 		}
 		checkErrors(highestPrecedenceIndex==-1,"internal error 3");
 		IndependantFunction &indf=independantFunctionPossibilities[highestPrecedenceIndex];
-		if(indf.start==0 && indf.end==possibility.size())//only this call
+		if(indf.func->internalPrintC99==memberC99)
+		{
+			checkErrors(possibility[indf.start].possibleVariable==NULL,"internal error 43");
+			checkErrors(possibility[indf.end-1].possibleFunctions.empty(),"internal error 443");
+			checkErrors(indf.end-indf.start!=3,"internal error 3454");
+			checkErrors(!possibility[indf.start].possibleVariable->type->isStruct(),"internal error 345");
+			Struct *stct=(Struct*)possibility[indf.start].possibleVariable->type;
+			Variable *svar=possibility[indf.start].possibleVariable;
+			checkError(stct->members.find(possibility[indf.end-1].str)==stct->members.end(),"Struct %s (%s) does not have a member named %s",possibility[indf.start].str.c_str(),stct->name.c_str(),possibility[indf.end-1].str.c_str());
+			Type *varType=stct->members.find(possibility[indf.end-1].str)->second->type;
+			Variable *var=new Variable(possibility[indf.end-1].str,varType);
+			var->parent=svar;
+			var->mode=Ob(10000000);
+			possibility.erase(possibility.begin()+indf.start,possibility.begin()+indf.end);
+			CallToken token;
+			token.str=svar->name;
+			token.possibleVariable=var;
+			possibility.insert(possibility.begin()+indf.start,token);
+			i++;
+		}
+		else if(indf.start==0 && indf.end==possibility.size())//only this call
 		{
 			{
 				FunctionCall *fcall=new FunctionCall();
@@ -1113,6 +1134,7 @@ Identifier::Identifier( string str,spos &pos )
 Variable::Variable( string str,size_t &pos )
 {
 	constant=NULL;
+	parent=NULL;
 	mode=0;
 	spos startPos=pos;
 	pos=str.find('(',pos);

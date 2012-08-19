@@ -31,6 +31,7 @@ class Type;
 class Line;
 class Function;
 class FunctionCall;
+class Struct;
 class Variable
 {
 public:
@@ -38,10 +39,12 @@ public:
 	Type *type;
 	uint mode;
 	Type *constant;
+	Variable *parent;
 	Variable(string _name,Type *_type)
 		:name(_name),
 		type(_type),
 		mode(0),
+		parent(NULL),
 		constant(NULL){}
 	Variable(string str,size_t &pos);
 	static bool isValidName(string name)
@@ -63,6 +66,12 @@ public:
 			if(!isalnum(ret[i]))
 				ret.erase(i--,1);
 		return ret;
+	}
+	string nameC99()
+	{
+		if(parent==NULL)
+			return name;
+		return parent->nameC99()+"."+name;
 	}
 };
 class Identifier
@@ -263,3 +272,4 @@ void continueDefaultC99(FILE *fp,FunctionCall *call);
 void continueCaseC99(FILE *fp,FunctionCall *call);
 void defaultC99(FILE *fp,FunctionCall *call);
 void structMemberC99(FILE *fp,FunctionCall *call);
+void memberC99(FILE *fp,FunctionCall *call);

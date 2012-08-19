@@ -1,23 +1,150 @@
 	.file	"testa.c"
-	.def	___main;	.scl	2;	.type	32;	.endef
 	.text
-.globl _main
+	.p2align 2,,3
+	.globl	_string_equal_string
+	.def	_string_equal_string;	.scl	2;	.type	32;	.endef
+_string_equal_string:
+LFB0:
+	.cfi_startproc
+	pushl	%edi
+	.cfi_def_cfa_offset 8
+	.cfi_offset 7, -8
+	pushl	%esi
+	.cfi_def_cfa_offset 12
+	.cfi_offset 6, -12
+	pushl	%ebx
+	.cfi_def_cfa_offset 16
+	.cfi_offset 3, -16
+	subl	$16, %esp
+	.cfi_def_cfa_offset 32
+	movl	32(%esp), %esi
+	movl	36(%esp), %ebx
+	movl	%ebx, %edi
+	xorl	%eax, %eax
+	movl	$-1, %ecx
+	repne scasb
+	notl	%ecx
+	decl	%ecx
+	movl	%ecx, (%esp)
+	call	_malloc
+	movl	%eax, (%esi)
+	movl	%ebx, 36(%esp)
+	movl	%eax, 32(%esp)
+	addl	$16, %esp
+	.cfi_def_cfa_offset 16
+	popl	%ebx
+	.cfi_def_cfa_offset 12
+	.cfi_restore 3
+	popl	%esi
+	.cfi_def_cfa_offset 8
+	.cfi_restore 6
+	popl	%edi
+	.cfi_def_cfa_offset 4
+	.cfi_restore 7
+	jmp	_strcpy
+	.cfi_endproc
+LFE0:
+	.section .rdata,"dr"
+LC0:
+	.ascii "c:/model.s3d\12\0"
+	.text
+	.p2align 2,,3
+	.globl	_pathToModelstringstring
+	.def	_pathToModelstringstring;	.scl	2;	.type	32;	.endef
+_pathToModelstringstring:
+LFB1:
+	.cfi_startproc
+	subl	$44, %esp
+	.cfi_def_cfa_offset 48
+	movl	$LC0, 4(%esp)
+	leal	28(%esp), %eax
+	movl	%eax, (%esp)
+	call	_string_equal_string
+	movl	28(%esp), %eax
+	addl	$44, %esp
+	.cfi_def_cfa_offset 4
+	ret
+	.cfi_endproc
+LFE1:
+	.p2align 2,,3
+	.globl	_loadModelFromstring
+	.def	_loadModelFromstring;	.scl	2;	.type	32;	.endef
+_loadModelFromstring:
+LFB2:
+	.cfi_startproc
+	movl	$1, %eax
+	ret
+	.cfi_endproc
+LFE2:
+	.p2align 2,,3
+	.globl	_int_plus_int
+	.def	_int_plus_int;	.scl	2;	.type	32;	.endef
+_int_plus_int:
+LFB3:
+	.cfi_startproc
+	movl	8(%esp), %eax
+	addl	4(%esp), %eax
+	ret
+	.cfi_endproc
+LFE3:
+	.p2align 2,,3
+	.globl	_int_asterisk_int
+	.def	_int_asterisk_int;	.scl	2;	.type	32;	.endef
+_int_asterisk_int:
+LFB4:
+	.cfi_startproc
+	movl	8(%esp), %eax
+	imull	4(%esp), %eax
+	ret
+	.cfi_endproc
+LFE4:
+	.p2align 2,,3
+	.globl	_int_equal_int
+	.def	_int_equal_int;	.scl	2;	.type	32;	.endef
+_int_equal_int:
+LFB5:
+	.cfi_startproc
+	movl	8(%esp), %eax
+	movl	4(%esp), %edx
+	movl	%eax, (%edx)
+	ret
+	.cfi_endproc
+LFE5:
+	.p2align 2,,3
+	.globl	_f_C_int_D_
+	.def	_f_C_int_D_;	.scl	2;	.type	32;	.endef
+_f_C_int_D_:
+LFB6:
+	.cfi_startproc
+	movl	4(%esp), %eax
+	ret
+	.cfi_endproc
+LFE6:
+	.def	___main;	.scl	2;	.type	32;	.endef
+	.section	.text.startup,"x"
+	.p2align 2,,3
+	.globl	_main
 	.def	_main;	.scl	2;	.type	32;	.endef
 _main:
+LFB7:
+	.cfi_startproc
 	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
 	movl	%esp, %ebp
-	subl	$88, %esp
+	.cfi_def_cfa_register 5
 	andl	$-16, %esp
-	movl	$0, %eax
-	addl	$15, %eax
-	addl	$15, %eax
-	shrl	$4, %eax
-	sall	$4, %eax
-	movl	%eax, -76(%ebp)
-	movl	-76(%ebp), %eax
-	call	__alloca
+	subl	$32, %esp
 	call	___main
-	movl	$5, -16(%ebp)
-	movl	$0, %eax
+	movl	$LC0, 4(%esp)
+	leal	28(%esp), %eax
+	movl	%eax, (%esp)
+	call	_string_equal_string
 	leave
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
 	ret
+	.cfi_endproc
+LFE7:
+	.def	_malloc;	.scl	2;	.type	32;	.endef
+	.def	_strcpy;	.scl	2;	.type	32;	.endef

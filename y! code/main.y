@@ -45,7 +45,7 @@ c	*a=b;
 	return a	
 
 r(vec3)v ( vec3 ) (int)i
-	//v.x=i
+	v.x=i
 	//v.y=i
 	//v.z=i
 	return v
@@ -58,6 +58,7 @@ r(vec3)v (int)x , (int)y , (int)z
 
 r(int)success start (int) nArgument
 	v=(vec3)0
+
 	print v.v.w toString
 	print ", "
 	print v.x toString

@@ -103,17 +103,17 @@ void FunctionCall::printC99(FILE *fp)
 	{
 		if(callee->ret!=NULL && ret->name==callee->ret->name)
 			lastReturnSet=line->lineNumber;
-		fprintf(fp,"%s =  %s( ",ret->name.c_str(),function->processedFunctionName.c_str());
+		fprintf(fp,"%s =  %s( ",ret->nameC99().c_str(),function->processedFunctionName.c_str());
 	}
 	else
 		fprintf(fp,"%s( ",function->processedFunctionName.c_str());
 
 	for(int k=0;k<arguments.size();k++)
 	{
-		if(ret!=NULL && function->arguments[k]->mode&Ob(100) && arguments[k]->name==ret->name)
+		if(ret!=NULL && function->arguments[k]->mode&Ob(100) && arguments[k]->nameC99()==ret->name)
 			lastReturnSet=line->lineNumber;
 
-		fprintf(fp,"%s%s%s",(function->arguments[k]->mode&Ob(100))?"&":"",(arguments[k]->mode&Ob(100))?"*":"",arguments[k]->name.c_str());
+		fprintf(fp,"%s%s%s",(function->arguments[k]->mode&Ob(100))?"&":"",(arguments[k]->mode&Ob(100))?"*":"",arguments[k]->nameC99().c_str());
 		if(k==arguments.size()-1)
 			fprintf(fp," ");
 		else
@@ -253,10 +253,10 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 				for(int k=0;k<call->function->arguments.size();k++)
 				{
 					indentLine(fp,lastLineLevel);
-					fprintf(fp,"%s%s%s = %s%s%s;\n",call->function->arguments[k]->type->getC99Type().c_str(),(call->function->arguments[k]->mode&Ob(100))?" *":" ",call->function->arguments[k]->name.c_str()
+					fprintf(fp,"%s%s%s = %s%s%s;\n",call->function->arguments[k]->type->getC99Type().c_str(),(call->function->arguments[k]->mode&Ob(100))?" *":" ",call->function->arguments[k]->nameC99().c_str()
 						,(call->function->arguments[k]->mode&Ob(100))?"&":""
 						,(call->arguments[k]->mode&Ob(100))?"*":""
-						,call->arguments[k]->name.c_str());
+						,call->arguments[k]->nameC99().c_str());
 				}
 
 				for(int k=call->function->firstLine->lineNumber;k<=call->function->lastLine->lineNumber;k++)
@@ -269,7 +269,7 @@ int Line::printC99(FILE *fp,int replacementLevel/*=-1*/)
 				if(call->ret!=NULL)
 				{
 					indentLine(fp,replacementLevel+1);
-					fprintf(fp,"%s = %s;\n",call->ret->name.c_str(),inlineReturnVariableName.c_str());
+					fprintf(fp,"%s = %s;\n",call->ret->nameC99().c_str(),inlineReturnVariableName.c_str());
 				}
 				lastLineLevel=replacementLevel;
 				indentLine(fp,lastLineLevel);
@@ -437,11 +437,11 @@ void returnC99(FILE *fp,FunctionCall *call)
 	Function *func=call->function;
 	if(currentlyInline)
 	{
-		fprintf(fp,"%s = %s;\ngoto %s;\n",inlineReturnVariableName.c_str(),call->arguments[0]->name.c_str(),inlineReturnLabel.c_str());
+		fprintf(fp,"%s = %s;\ngoto %s;\n",inlineReturnVariableName.c_str(),call->arguments[0]->nameC99().c_str(),inlineReturnLabel.c_str());
 	}
 	else
 	{
-		fprintf(fp,"return %s%s;\n",(call->arguments[0]->mode&Ob(100))?"*":"",call->arguments[0]->name.c_str());
+		fprintf(fp,"return %s%s;\n",(call->arguments[0]->mode&Ob(100))?"*":"",call->arguments[0]->nameC99().c_str());
 		lastReturn=call->line->lineNumber;
 	}
 }
@@ -482,16 +482,16 @@ void returnLabelC99(FILE *fp,FunctionCall *call)
 void gotoC99(FILE *fp,FunctionCall *call)
 {
 	checkErrors(call->arguments.size()!=1,"goto needs a label");
-	fprintf(fp,"goto %s;\n",call->arguments[0]->name.c_str());
+	fprintf(fp,"goto %s;\n",call->arguments[0]->nameC99().c_str());
 }
 
 
 void switchC99(FILE *fp,FunctionCall *call)
 {
-	fprintf(fp,"switch( %s )\n",call->arguments[0]->name.c_str());
+	fprintf(fp,"switch( %s )\n",call->arguments[0]->nameC99().c_str());
 	string prefix;
 	//find (switchStack,prefix);
-	while(find(switchStack.begin(),switchStack.end(),(prefix=string("t_sw")+i2s(rand()%100)+tokenize(call->arguments[0]->name)))!=switchStack.end());
+	while(find(switchStack.begin(),switchStack.end(),(prefix=string("t_sw")+i2s(rand()%100)+tokenize(call->arguments[0]->nameC99())))!=switchStack.end());
 	switchStack.push_back(prefix);
 	indentLine(fp,call->line->level);
 	fprintf(fp,"{\n");
@@ -583,4 +583,8 @@ void defaultC99(FILE *fp,FunctionCall *call)
 void structMemberC99(FILE *fp,FunctionCall *call)
 {
 
+}
+void memberC99(FILE *fp,FunctionCall *call)
+{
+	NONE;
 }
