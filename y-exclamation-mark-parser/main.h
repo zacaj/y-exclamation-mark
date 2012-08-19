@@ -192,6 +192,11 @@ struct CallToken
 	Type *type;
 	Variable *newVariablePtr;
 	string label;
+	~CallToken()
+	{
+//		if(possibleFunctions!=NULL)
+		//	free(possibleFunctions);
+	}
 };
 struct IndependantFunction 
 {

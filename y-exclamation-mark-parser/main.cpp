@@ -553,7 +553,6 @@ void Line::splitCommands( string str )
 			}
 		}
 		checkError(token.possibilities==0,"%s not found\n",id.c_str());
-
 		call.push_back(token);
 	}
 	debug("Processed line %i\n",originalLineNumber);
