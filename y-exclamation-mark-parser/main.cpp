@@ -39,6 +39,38 @@ class Line;
 
 vector<Function*> functions;
 Function *currentFunction=NULL;
+void initCallToken(CallToken &token)
+{
+	token.aPossibleFunctions=0;
+	token.nPossibleFunctions=0;
+	token.possibleFunctions=NULL;
+	token.possibilities=0;
+	token.possibleVariable=NULL;
+	token.newVariable=0;
+	token.newVariablePtr=NULL;
+}
+void insertFunction(CallToken &token,Function *func)
+{
+	if(token.aPossibleFunctions==0)
+	{
+		token.aPossibleFunctions=4;
+		token.nPossibleFunctions=1;
+		token.possibleFunctions=(Function**)malloc(sizeof(Function*)*token.aPossibleFunctions);
+		token.possibleFunctions[0]=func;
+		return;
+	}
+	for(int i=0;i<token.nPossibleFunctions;i++)
+	{
+		if(token.possibleFunctions[i]==func)
+			return;
+	}
+	if(token.nPossibleFunctions+1>=token.aPossibleFunctions)
+	{
+		token.aPossibleFunctions*=2;
+		token.possibleFunctions=(Function**)realloc(token.possibleFunctions,sizeof(Function*)*token.aPossibleFunctions);
+	}
+	token.possibleFunctions[token.nPossibleFunctions++]=func;
+}
 
 
 class Line;
@@ -437,11 +469,8 @@ void Line::splitCommands( string str )
 			continue;
 		}
 		CallToken token;
-		
-		token.possibilities=0;
-		token.newVariable=0;
-		token.possibleVariable=NULL;
-		token.newVariablePtr=NULL;
+		initCallToken(token);
+
 		if(id[0]=='\"')//todo set variables for literals
 		{
 			spos startOfString=pos;
@@ -489,10 +518,11 @@ void Line::splitCommands( string str )
 				vector<Function*> &functions=fit->second;
 				for(int i=0;i<functions.size();i++)
 				{
-					token.possibleFunctions.insert(functions[i]);
+//					token.possibleFunctions.insert(functions[i]);
+					insertFunction(token,functions[i]);
 					//possibleFunctions.insert(functions[i]);
 				}
-				if(token.possibleFunctions.size())
+				if(token.nPossibleFunctions)
 				{
 					token.str=id;
 					token.possibilities++;
@@ -622,7 +652,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 							j=99;
 						break;
 					case 'f':
-						if(possibility[j].possibleFunctions.empty())
+						if(possibility[j].nPossibleFunctions==0)
 							j=100;
 						break;
 				}
@@ -632,14 +662,14 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 		}	
 		int id=linePossibility.id;
 		{
-			if(possibility[0].possibleFunctions.size())
+			if(possibility[0].nPossibleFunctions)
 			{
-				if(possibility[0].str=="for" && *possibility[0].possibleFunctions.begin()==forFunction)
+				if(possibility[0].str=="for" && possibility[0].possibleFunctions[0]==forFunction)
 				{
 					vector<int> semicolons;
 					for(int j=1;j<possibility.size();j++)
 					{
-						if(possibility[j].possibleFunctions.size() && *possibility[j].possibleFunctions.begin()==forFunction)
+						if(possibility[j].nPossibleFunctions && possibility[j].possibleFunctions[0]==forFunction)
 						{
 							if(possibility[j].str==";")
 								semicolons.push_back(j);
@@ -699,14 +729,12 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 					possibility.erase(possibility.begin()+semicolons[1],possibility.end());
 					possibility.erase(possibility.begin(),possibility.begin()+semicolons[0]+1);
 					CallToken whileToken;
-					whileToken.possibilities=0;
-					whileToken.possibleVariable=NULL;
-					whileToken.newVariable=0;
-					whileToken.newVariablePtr=NULL;
+					initCallToken(whileToken);
 
 					whileToken.possibilities=1;
 					whileToken.str="while";
-					whileToken.possibleFunctions.insert(whileFunction);
+					insertFunction(whileToken,whileFunction);
+					//whileToken.possibleFunctions.insert(whileFunction);
 					whileToken.newVariablePtr=NULL;
 					possibility.insert(possibility.begin(),whileToken);
 					
@@ -719,9 +747,9 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 		int j;
 		for(j=0;j<possibility.size();j++)//go thru all ids
 		{
-			if(possibility[j].possibleFunctions.size())//if its a funcion id
+			if(possibility[j].nPossibleFunctions)//if its a funcion id
 			{
-				Function *func=*possibility[j].possibleFunctions.begin();
+				Function *func=possibility[j].possibleFunctions[0];
 				//find the same id in the function
 				int functionTokenIndexInFunction=0;
 				for(;functionTokenIndexInFunction<func->name.size();functionTokenIndexInFunction++)
@@ -766,7 +794,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 					}
 					else
 					{
-						if(!possibility[j-functionTokenIndexInFunction+k].possibleFunctions.size() || *possibility[j-functionTokenIndexInFunction+k].possibleFunctions.begin()!=func ||func->name[k]->text!=possibility[j-functionTokenIndexInFunction+k].str)
+						if(!possibility[j-functionTokenIndexInFunction+k].nPossibleFunctions || possibility[j-functionTokenIndexInFunction+k].possibleFunctions[0]!=func ||func->name[k]->text!=possibility[j-functionTokenIndexInFunction+k].str)
 							break;
 					}
 				}
@@ -798,7 +826,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 		if(indf.func->internalPrintC99==memberC99)
 		{
 			checkErrors(possibility[indf.start].possibleVariable==NULL,"internal error 43");
-			checkErrors(possibility[indf.end-1].possibleFunctions.empty(),"internal error 443");
+			checkErrors(possibility[indf.end-1].nPossibleFunctions==0,"internal error 443");
 			checkErrors(indf.end-indf.start!=3,"internal error 3454");
 			checkErrors(!possibility[indf.start].possibleVariable->type->isStruct(),"internal error 345");
 			Struct *stct=(Struct*)possibility[indf.start].possibleVariable->type;
@@ -810,10 +838,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 			var->mode=Ob(10000000);
 			possibility.erase(possibility.begin()+indf.start,possibility.begin()+indf.end);
 			CallToken token;
-			token.possibilities=0;
-			token.possibleVariable=NULL;
-			token.newVariable=0;
-			token.newVariablePtr=NULL;
+			initCallToken(token);
 			
 			token.str=svar->name;
 			token.possibleVariable=var;
@@ -872,10 +897,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 			}
 			possibility.erase(possibility.begin()+indf.start,possibility.begin()+indf.end);
 			CallToken token;
-			token.possibilities=0;
-			token.possibleVariable=NULL;
-			token.newVariable=0;
-			token.newVariablePtr=NULL;
+			initCallToken(token);
 
 			token.str=var->name;
 			token.possibleVariable=var;
@@ -905,10 +927,7 @@ fail:
 void Line::parseNextIsNewVariable( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt )
 {
 	CallToken token;
-	token.possibilities=0;
-	token.possibleVariable=NULL;
-	token.newVariable=0;
-	token.newVariablePtr=NULL;
+			initCallToken(token);
 
 	token.newVariable=1;
 	token.str=call[p].str;
@@ -919,10 +938,7 @@ void Line::parseNextIsNewVariable( vector<CallToken> &call,uint p,vector<LinePos
 void Line::parseNextIsVariable( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt )
 {
 	CallToken token;
-	token.possibilities=0;
-	token.possibleVariable=NULL;
-	token.newVariable=0;
-	token.newVariablePtr=NULL;
+			initCallToken(token);
 
 	token.possibleVariable=call[p].possibleVariable;//scope->getVariable(call[p].str);
 	token.str=call[p].str;
@@ -933,10 +949,7 @@ void Line::parseNextIsVariable( vector<CallToken> &call,uint p,vector<LinePossib
 void Line::parseNextIsLabel( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt )
 {
 	CallToken token;
-	token.possibilities=0;
-	token.possibleVariable=NULL;
-	token.newVariable=0;
-	token.newVariablePtr=NULL;
+			initCallToken(token);
 
 	token.label=call[p].label;
 	token.str=call[p].str;
@@ -948,12 +961,10 @@ void Line::parseNextIsLabel( vector<CallToken> &call,uint p,vector<LinePossibili
 void Line::parseNextIsFunction( vector<CallToken> &call,uint p,vector<LinePossibility*> &functions,vector<CallToken> attempt,Function *function )
 {
 	CallToken token;
-	token.possibilities=0;
-	token.possibleVariable=NULL;
-	token.newVariable=0;
-	token.newVariablePtr=NULL;
+			initCallToken(token);
 
-	token.possibleFunctions.insert(function);
+	//token.possibleFunctions.insert(function);
+	insertFunction(token,function);
 	token.str=call[p].str;
 	attempt.push_back(token);
 	parseCode(call,p+1,functions,attempt);
@@ -979,8 +990,10 @@ void Line::parseCode( vector<CallToken> &call,uint p,vector<LinePossibility*> &f
 		if(call[p].label.size())
 			parseNextIsLabel(call,p,functions,attempt);
 
-		for(set<Function*>::iterator it=call[p].possibleFunctions.begin();it!=call[p].possibleFunctions.end();it++)
-			parseNextIsFunction(call,p,functions,attempt,*it);
+		//for(set<Function*>::iterator it=call[p].possibleFunctions[0];it!=call[p].possibleFunctions.end();it++)
+		//	parseNextIsFunction(call,p,functions,attempt,*it);
+		for(int i=0;i<call[p].nPossibleFunctions;i++)
+			parseNextIsFunction(call,p,functions,attempt,call[p].possibleFunctions[i]);
 	}
 }
 

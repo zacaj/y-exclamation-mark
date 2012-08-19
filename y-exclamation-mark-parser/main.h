@@ -186,7 +186,8 @@ struct CallToken
 	bool newVariable;
 	string str;
 	uint nPossibleFunctions,aPossibleFunctions;
-	set<Function*> possibleFunctions;
+	//set<Function*> possibleFunctions;
+	Function **possibleFunctions;
 	Variable* possibleVariable;
 	Type *type;
 	Variable *newVariablePtr;
