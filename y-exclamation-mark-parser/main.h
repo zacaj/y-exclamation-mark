@@ -184,19 +184,14 @@ struct CallToken
 {
 	uchar possibilities;
 	bool newVariable;
-	string str;
+	char *str;
 	uint nPossibleFunctions,aPossibleFunctions;
 	//set<Function*> possibleFunctions;
 	Function **possibleFunctions;
 	Variable* possibleVariable;
 	Type *type;
 	Variable *newVariablePtr;
-	string label;
-	~CallToken()
-	{
-//		if(possibleFunctions!=NULL)
-		//	free(possibleFunctions);
-	}
+	char *label;
 };
 struct IndependantFunction 
 {

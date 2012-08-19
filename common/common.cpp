@@ -174,3 +174,10 @@ std::string tokenize( string str )
 		}
 	return str;
 }
+
+char* cstr( string &str )
+{
+	char *c=new char[str.size()];
+	strcpy(c,str.c_str());
+	return c;
+}

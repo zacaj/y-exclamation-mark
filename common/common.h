@@ -174,6 +174,7 @@ string i2s(int i);
 string tokenize(string str);
 
 bool isnumber(string str);
+char* cstr(string &str);
 
 #define vectorFind(a,i,f) \
 	for(i=0;i<a.size();i++) \

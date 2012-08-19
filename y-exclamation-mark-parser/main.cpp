@@ -48,6 +48,8 @@ void initCallToken(CallToken &token)
 	token.possibleVariable=NULL;
 	token.newVariable=0;
 	token.newVariablePtr=NULL;
+	token.label=NULL;
+	token.str=NULL;
 }
 void insertFunction(CallToken &token,Function *func)
 {
@@ -489,7 +491,7 @@ void Line::splitCommands( string str )
 			cString->value=stringContent;
 			token.possibleVariable->constant=cString;
 			token.possibleVariable->mode|=Ob(10000);
-			token.str=id;
+			token.str=cstr(id);
 			token.possibilities++;
 			scope->addVariable(token.possibleVariable);
 		}
@@ -505,7 +507,7 @@ void Line::splitCommands( string str )
 			token.possibleVariable->constant=cInt;
 			token.possibleVariable->mode|=Ob(10000);
 			token.possibilities++;
-			token.str=id;
+			token.str=cstr(id);
 			scope->addVariable(token.possibleVariable);
 		}
 		else
@@ -524,21 +526,21 @@ void Line::splitCommands( string str )
 				}
 				if(token.nPossibleFunctions)
 				{
-					token.str=id;
+					token.str=cstr(id);
 					token.possibilities++;
 				}
 			}
 			Variable *var=scope->getVariable(id);
 			if(var!=NULL)
 			{
-				token.str=id;
+				token.str=cstr(id);
 				token.possibleVariable=var;
 				token.possibilities++;
 			}
 			else if(Variable::isValidName(id))
 			{
 				token.newVariable=1;
-				token.str=id;
+				token.str=cstr(id);
 				token.possibilities++;
 			}
 
@@ -546,8 +548,8 @@ void Line::splitCommands( string str )
 			{
 				if(labelLocations[id].find(parentFunction)!=labelLocations[id].end())
 				{
-					token.label=id;
-					token.str=id;
+					token.label=cstr(id);
+					token.str=cstr(id);
 					token.possibilities++;
 				}
 			}
@@ -663,14 +665,14 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 		{
 			if(possibility[0].nPossibleFunctions)
 			{
-				if(possibility[0].str=="for" && possibility[0].possibleFunctions[0]==forFunction)
+				if(strcmp(possibility[0].str,"for")==0 && possibility[0].possibleFunctions[0]==forFunction)
 				{
 					vector<int> semicolons;
 					for(int j=1;j<possibility.size();j++)
 					{
 						if(possibility[j].nPossibleFunctions && possibility[j].possibleFunctions[0]==forFunction)
 						{
-							if(possibility[j].str==";")
+							if(strcmp(possibility[j].str,";")==0)
 								semicolons.push_back(j);
 							else
 								FAIL("cannot have a for loop in a for loop declaration");
@@ -699,7 +701,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 								{
 									for(int l=semicolons[0]+1;l<possibility.size();l++)
 									{
-										if(possibility[l].newVariable && possibility[l].str==call->arguments[k]->name)
+										if(possibility[l].newVariable && strcmp(possibility[l].str,call->arguments[k]->name.c_str())==0)
 										{
 											possibility[l].newVariable=0;
 											possibility[l].possibleVariable=call->arguments[k];
@@ -775,7 +777,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 								possibility[j-functionTokenIndexInFunction+k].newVariablePtr->mode|=WASANEWVARIABLE;
 							}	
 						}
-						else if(possibility[j-functionTokenIndexInFunction+k].label.size())
+						else if(possibility[j-functionTokenIndexInFunction+k].label!=NULL)
 						{
 							if(func->name[k]->var==NULL)
 								break;
@@ -830,7 +832,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 			checkErrors(!possibility[indf.start].possibleVariable->type->isStruct(),"internal error 345");
 			Struct *stct=(Struct*)possibility[indf.start].possibleVariable->type;
 			Variable *svar=possibility[indf.start].possibleVariable;
-			checkError(stct->members.find(possibility[indf.end-1].str)==stct->members.end(),"Struct %s (%s) does not have a member named %s",possibility[indf.start].str.c_str(),stct->name.c_str(),possibility[indf.end-1].str.c_str());
+			checkError(stct->members.find(possibility[indf.end-1].str)==stct->members.end(),"Struct %s (%s) does not have a member named %s",possibility[indf.start].str,stct->name.c_str(),possibility[indf.end-1].str);
 			Type *varType=stct->members.find(possibility[indf.end-1].str)->second->type;
 			Variable *var=new Variable(possibility[indf.end-1].str,varType);
 			var->parent=svar;
@@ -839,7 +841,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 			CallToken token;
 			initCallToken(token);
 			
-			token.str=svar->name;
+			token.str=cstr(svar->name);
 			token.possibleVariable=var;
 			token.newVariablePtr=NULL;
 			token.newVariable=NULL;
@@ -861,7 +863,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 						fcall->arguments.push_back(possibility[j].possibleVariable);
 					else if(possibility[j].newVariablePtr!=NULL)
 						fcall->arguments.push_back(possibility[j].newVariablePtr);
-					else if(possibility[j].label.size())
+					else if(possibility[j].label!=NULL)
 						fcall->arguments.push_back(new Variable(possibility[j].label,getType("Label")));
 				}
 				checkErrors(fcall->arguments.size()!=fcall->function->arguments.size(),"internal error 4");
@@ -888,7 +890,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 						fcall->arguments.push_back(possibility[j].possibleVariable);
 					else if(possibility[j].newVariablePtr!=NULL)
 						fcall->arguments.push_back(possibility[j].newVariablePtr);
-					else if(possibility[j].label.size())
+					else if(possibility[j].label!=NULL)
 						fcall->arguments.push_back(new Variable(possibility[j].label,getType("Label")));
 				}
 				checkErrors(fcall->arguments.size()!=fcall->function->arguments.size(),"internal error 4");
@@ -898,7 +900,7 @@ vector<LinePossibility*> Line::findCommands( vector<CallToken> &call )
 			CallToken token;
 			initCallToken(token);
 
-			token.str=var->name;
+			token.str=cstr(var->name);
 			token.possibleVariable=var;
 			token.newVariablePtr=NULL;
 			token.newVariable=0;
@@ -986,7 +988,7 @@ void Line::parseCode( vector<CallToken> &call,uint p,vector<LinePossibility*> &f
 			parseNextIsNewVariable(call,p,functions,attempt);
 		if(call[p].possibleVariable!=NULL)
 			parseNextIsVariable(call,p,functions,attempt);
-		if(call[p].label.size())
+		if(call[p].label!=NULL)
 			parseNextIsLabel(call,p,functions,attempt);
 
 		//for(set<Function*>::iterator it=call[p].possibleFunctions[0];it!=call[p].possibleFunctions.end();it++)
