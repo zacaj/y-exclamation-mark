@@ -619,6 +619,10 @@ void Line::splitCommands( string str )
 	}
 	NONE;
 	split=1;
+	for(int i=0;i<call.size();i++)
+	{
+		free(call[i].possibleFunctions);
+	}
 }
 
 void fixLineNumbers()
@@ -919,6 +923,11 @@ fail:
 				if(linePossibility.call[j]->ret!=NULL && linePossibility.call[j]->ret->mode&Ob(10000000))
 					scope->removeVariable(linePossibility.call[j]->ret->name);
 			}
+		}
+		for(int j=0;j<linePossibility.p.size();j++)//remove unused temp vars
+		{
+			if(linePossibility.p[j].possibleFunctions!=NULL)
+				free(linePossibility.p[j].possibleFunctions);
 		}
 		possibilities.erase(possibilities.begin()+i);
 	}
