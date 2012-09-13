@@ -150,6 +150,9 @@ int main(_In_ int _Argc, char **argv)
 
 			functions.push_back(new Function("inline o("+it->first+")v = default"));
 			functions.back()->internalPrintC99=setToDefaultC99;
+
+
+			parseSourceLine("r(")
 		}
 		//functions.push_back(new Function("inline return (var)r"));
 		//functions.back()->internalPrintC99=returnC99;

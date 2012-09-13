@@ -59,7 +59,6 @@ r(vec3)v (int)x , (int)y , (int)z
 
 r(int)success start (int) nArgument
 	v=(vec3)0
-	v.v.w=default
 	print v.v.w toString
 	print ", "
 	print v.x toString
@@ -69,70 +68,16 @@ r(int)success start (int) nArgument
 	print v.z toString
 	print "\n"
 
-	v.x=1
-	v.y=2
-	v.z=3
-	print v.x toString
+	v2=alloc vec3
+	v2.x=4
+	v2.v.w=2
+	v2.y=3
+	print v2.v.w toString
 	print ", "
-	print v.y toString
+	print v2.x toString
 	print ", "
-	print v.z toString
+	print v2.y toString
+	print ", "
+	print v2.z toString
 	print "\n"
-
-	w=1,2,3
-	print w.x toString
-	print ", "
-	print w.y toString
-	print ", "
-	print w.z toString
-	print "\n"
-
 	return 0
-
-printHelloWorlds
-
-getNumberFrom (int)number into o(int) out
-	out=(3+loadModelFrom pathToModel "foo" "bar")*number
-	
-r(string)path pathToModel (string)text (string)text2
-	print text
-	print text2
-	print text2
-	path = "c:/model.s3d\n"
-
-printHelloWorld 
-	print "Hello world\n"
-
-r(int)ret loadModelFrom (string)path
-	ret = 1
-	print path
-	return
-
-empty
-	getNumberFrom 1 into timesToPrint
-
-	shouldPrintEnd=1
-
-	for i=0 ; i<timesToPrint ; i=i+1 
-		printHelloWorld
-		switch i
-		case 0
-			print "Start\n"
-			continue default
-		case 2
-			print "2\n"
-		case 1
-			if shouldPrintEnd<1
-				print "Hello\n"
-			else: print "Goodbye\n"
-			continue case 4
-		case 5
-			continue
-			print "5\n"
-		case 4
-			print "4\n"
-		default
-			print "?\n"
-		print ""
-
-	return
